@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Brand Colors ─────────────────────────────────────────── */
+  --color-ink:        #0D0D0D;   /* page background              */
+  --color-surface:    #1A1A1A;   /* cards, form fields           */
+  --color-surface-2:  #242424;   /* elevated surfaces            */
+  --color-border:     #2A2A2A;   /* dividers, input borders      */
+
+  --color-parchment:  #FFFFFF;   /* primary text                 */
+  --color-muted:      #BFBFBF;   /* secondary text               */
+
+  --color-gold:       #D4AF37;   /* primary accent               */
+  --color-gold-light: #C9A84E;   /* soft gold — hover states     */
+
+  /* ── Typography ──────────────────────────────────────────── */
+  /* Playfair Display: hero headlines + section titles only     */
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  /* Inter: all EN body, UI, buttons, nav                       */
+  --font-body:    var(--font-inter), system-ui, -apple-system, sans-serif;
+  /* Cairo: all Arabic — headings + body                        */
+  --font-arabic:  var(--font-cairo), "Arabic Typesetting", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0D0D0D;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-arabic), var(--font-body);
+}
+
+::selection {
+  background-color: #D4AF37;
+  color: #0D0D0D;
+}
+
+:focus-visible {
+  outline: 1px solid #D4AF37;
+  outline-offset: 2px;
+}

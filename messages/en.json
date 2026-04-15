@@ -1,0 +1,181 @@
+{
+  "nav": {
+    "brands": "Partners",
+    "members": "Members",
+    "apply": "Apply",
+    "about": "About"
+  },
+  "home": {
+    "hero_eyebrow": "Built for Saudi Brands and Creators",
+    "hero_headline": "Your name deserves more than a feed.",
+    "hero_subline": "Merchant Club SA is where Saudi independent brands get showcased — and where creators, athletes, and clubs turn their audience into products.",
+    "hero_cta": "Apply to Join",
+    "hero_secondary_cta": "Browse Partners",
+    "showcase_heading": "Our partners.",
+    "showcase_cta": "Browse our partners' stores",
+    "coming_soon": "First partners arriving soon.",
+    "cta_headline": "You've built something real. We'll make sure the right people see it.",
+    "cta_sub": "Applications are open to Saudi independent brands across all categories. We review every submission personally."
+  },
+  "brands": {
+    "eyebrow": "Merchant Club SA",
+    "heading": "Our Partners",
+    "subheading": "Every partner here was chosen. None of them are accidents.",
+    "coming_soon_heading": "Something worth waiting for.",
+    "coming_soon_body": "We're hand-selecting our founding partners. These are the first names on the wall — and the spots are limited. If your brand is ready, now is the time.",
+    "apply_cta": "Become a Partner"
+  },
+  "apply": {
+    "eyebrow": "Merchant Club SA",
+    "heading": "Become a partner.",
+    "subheading": "We read every application ourselves. No filters, no bots — just a real look at what you've built and whether it belongs here.",
+    "note": "We get back to every applicant. Usually within a week.",
+    "fields": {
+      "brand_name": "Brand Name",
+      "category": "Category",
+      "story": "Your Story",
+      "instagram": "Instagram",
+      "email": "Email",
+      "website": "Website"
+    },
+    "placeholders": {
+      "brand_name": "What do you call it?",
+      "category": "What does your brand make or sell?",
+      "story": "What started it? What makes it yours? Why does it exist?",
+      "instagram": "@yourbrand",
+      "email": "you@yourbrand.com",
+      "website": "yourbrand.com (optional)"
+    },
+    "categories": {
+      "apparel": "Apparel",
+      "fragrance": "Fragrance",
+      "home": "Home & Living",
+      "beauty": "Beauty",
+      "jewelry": "Jewelry",
+      "food": "Food & Beverage",
+      "art": "Art & Craft",
+      "other": "Other"
+    },
+    "submit": "Send Application",
+    "submitting": "Sending...",
+    "success_heading": "Got it. We'll be in touch.",
+    "success_body": "We read every application personally and respond to all of them. Check your inbox within the week.",
+    "error_required": "A few required fields are still empty.",
+    "error_send_failed": "Something went wrong on our end. Please write to us directly at info@merchantclubsa.com and we'll handle it."
+  },
+  "apply_gateway": {
+    "eyebrow": "Merchant Club SA",
+    "heading": "Join the club.",
+    "subheading": "Two paths. One standard.",
+    "partner_title": "I'm a brand.",
+    "partner_body": "You've built something — a product, an identity, a following. We curate and showcase the best Saudi independent brands.",
+    "partner_cta": "Apply as a Partner",
+    "member_title": "I'm a creator.",
+    "member_body": "You have the audience and the cultural pull. We build the product around you, handle production and commerce, and make it real.",
+    "member_cta": "Enquire as a Member"
+  },
+  "member": {
+    "eyebrow": "Merchant Club SA",
+    "heading": "Let's build something.",
+    "subheading": "Tell us who you are and what you're imagining. We'll take it from there.",
+    "note": "We respond to every enquiry. Usually within a week.",
+    "fields": {
+      "name": "Your Name / Channel",
+      "type": "What are you?",
+      "platform": "Primary Platform",
+      "audience": "Audience Size",
+      "idea": "Your Idea",
+      "instagram": "Instagram",
+      "email": "Email"
+    },
+    "placeholders": {
+      "name": "What do people know you as?",
+      "type": "Creator, athlete, club, podcast...",
+      "platform": "Instagram, YouTube, TikTok...",
+      "audience": "Approximate following across platforms",
+      "idea": "What could we build together? Even a rough direction is enough.",
+      "instagram": "@yourchannel",
+      "email": "you@example.com"
+    },
+    "types": {
+      "creator": "Content Creator",
+      "athlete": "Athlete / Sports Personality",
+      "club": "Sports Club / Organization",
+      "media": "Podcast / YouTube / Media",
+      "community": "Community Figure",
+      "other": "Other"
+    },
+    "submit": "Send Enquiry",
+    "submitting": "Sending...",
+    "success_heading": "We'll be in touch.",
+    "success_body": "We read every enquiry personally. Expect to hear from us within the week.",
+    "error_required": "A few required fields are still empty.",
+    "error_send_failed": "Something went wrong on our end. Write to us directly at info@merchantclubsa.com and we'll handle it."
+  },
+  "members": {
+    "eyebrow": "Merchant Club SA",
+    "heading": "Our Members",
+    "subheading": "Creators, athletes, and clubs who build with us.",
+    "coming_soon_heading": "The first names are being chosen.",
+    "coming_soon_body": "Our founding members are being selected right now. These are the collaborators who'll shape what Merchant Club SA produces — and the spots are limited.",
+    "enquire_cta": "Enquire as a Member"
+  },
+  "about": {
+    "eyebrow": "Our Story",
+    "heading": "We built this because it was missing.",
+    "story_1": "Saudi independent brands are everywhere — in homes, in studios, on phones at 2am. Real people making real things, building quietly, selling through DMs and stories and word of mouth.",
+    "story_2": "But when you looked for a place that treated them like what they are — serious, creative, worth discovering — it didn't exist. Not one that felt like them. Not one that gave them space without flattening them into a grid next to a thousand other listings.",
+    "story_3": "Merchant Club SA is that place. We built it for the brand that doesn't belong in a mass marketplace. For the founder who cares too much about their product to watch it disappear in an algorithm.",
+    "story_4": "We're selective because we have to be. When everything is featured, nothing is. We'd rather do this right with fifty brands than do it wrong with five thousand.",
+    "mission_label": "What we're here to do",
+    "mission_body": "Give Saudi independent brands the platform, the positioning, and the audience they deserve — and build a community around them that lasts.",
+    "values_label": "How we operate",
+    "values": [
+      {
+        "title": "Selective by design",
+        "body": "We accept a small number of brands and give each one real attention. That's the deal."
+      },
+      {
+        "title": "Honest with everyone",
+        "body": "If your brand isn't ready, we'll tell you. If it is, we'll show up for it properly."
+      },
+      {
+        "title": "Saudi-first, always",
+        "body": "This platform was built for the Saudi market and the Saudi creator. That's not a feature — it's the foundation."
+      }
+    ],
+    "contact_label": "Talk to us",
+    "contact_body": "We're reachable. If you have a question, an idea, or just want to talk about your brand — write to us.",
+    "contact_cta": "info@merchantclubsa.com",
+    "apply_label": "Ready to apply?",
+    "apply_cta": "Submit Your Brand"
+  },
+  "cookie": {
+    "message": "We use cookies to understand how people use our site and improve the experience.",
+    "policy_link": "Privacy Policy",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "privacy": {
+    "eyebrow": "Merchant Club SA",
+    "heading": "Privacy Policy",
+    "last_updated": "Last updated: April 2026",
+    "intro": "Merchant Club SA ('we', 'us', 'our') operates merchantclubsa.com. This policy explains what personal data we collect, why we collect it, and your rights under the Personal Data Protection Law (PDPL) of the Kingdom of Saudi Arabia.",
+    "sections": {
+      "collect_title": "1. Data We Collect",
+      "collect_body": "When you submit a brand application, we collect: your brand name, business category, brand story, Instagram handle, email address, and website URL (optional). We do not collect payment information, government IDs, or sensitive personal data.",
+      "purpose_title": "2. Why We Collect It",
+      "purpose_body": "Your data is used solely to review your brand application and communicate with you about the outcome. We do not use it for advertising, analytics profiling, or sale to third parties.",
+      "storage_title": "3. How We Store It",
+      "storage_body": "Application data is received via email to our team inbox (info@merchantclubsa.com) and is not stored in any external database at this time. Email is secured and access is limited to the Merchant Club SA team.",
+      "retention_title": "4. How Long We Keep It",
+      "retention_body": "We retain application data for up to 12 months. If your application is not accepted, you may request deletion at any time.",
+      "rights_title": "5. Your Rights Under PDPL",
+      "rights_body": "Under Saudi Arabia's Personal Data Protection Law, you have the right to: access your personal data, correct inaccurate data, request deletion of your data, and withdraw consent at any time. To exercise any of these rights, contact us at info@merchantclubsa.com.",
+      "third_party_title": "6. Third-Party Services",
+      "third_party_body": "We use Resend (resend.com) to deliver application emails. Resend processes your submitted data only to transmit the email and does not retain it. We use Vercel (vercel.com) for hosting. No data is shared with any other third party.",
+      "contact_title": "7. Contact",
+      "contact_body": "For any privacy-related questions or requests, contact us at info@merchantclubsa.com."
+    }
+  }
+}
