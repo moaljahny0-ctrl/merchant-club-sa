@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 
@@ -16,11 +17,14 @@ export function Navbar() {
       <nav className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
 
         {/* Logo */}
-        <Link
-          href="/"
-          className="font-display text-gold text-sm tracking-[0.25em] uppercase hover:text-gold-light transition-colors"
-        >
-          Merchant Club
+        <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+          <Image
+            src="/logo.png"
+            alt="Merchant Club SA"
+            width={40}
+            height={40}
+            priority
+          />
         </Link>
 
         {/* Desktop */}

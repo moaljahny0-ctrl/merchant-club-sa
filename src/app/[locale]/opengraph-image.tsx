@@ -5,7 +5,11 @@ export const alt = 'Merchant Club SA — Curated Saudi Brands';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-export default function Image() {
+export default async function Image() {
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000';
+
   return new ImageResponse(
     (
       <div
@@ -20,7 +24,8 @@ export default function Image() {
           fontFamily: 'Georgia, serif',
         }}
       >
-        <div style={{ width: 48, height: 1, background: '#D4AF37' }} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`${baseUrl}/logo.png`} width={80} height={80} alt="" />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <p style={{ margin: 0, fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#D4AF37' }}>
