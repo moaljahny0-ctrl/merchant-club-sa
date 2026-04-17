@@ -14,13 +14,23 @@ const STATUS_LABELS: Record<ProductStatus, string> = {
 }
 
 const STATUS_COLORS: Record<ProductStatus, string> = {
-  draft: 'text-muted',
+  draft: 'text-muted/60',
   submitted: 'text-yellow-400',
   approved: 'text-blue-400',
   rejected: 'text-red-400',
   live: 'text-green-400',
-  archived: 'text-muted',
+  archived: 'text-muted/60',
   out_of_stock: 'text-orange-400',
+}
+
+const STATUS_DOT: Record<ProductStatus, string> = {
+  draft: 'bg-muted/40',
+  submitted: 'bg-yellow-400',
+  approved: 'bg-blue-400',
+  rejected: 'bg-red-400',
+  live: 'bg-green-400',
+  archived: 'bg-muted/40',
+  out_of_stock: 'bg-orange-400',
 }
 
 export default async function ProductsPage() {
@@ -44,59 +54,112 @@ export default async function ProductsPage() {
     .order('updated_at', { ascending: false })
 
   return (
-    <div className="p-6 md:p-10 max-w-4xl">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-8 md:p-12 max-w-5xl">
+
+      {/* Header */}
+      <div className="flex items-end justify-between mb-10">
         <div>
-          <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-1">Brand Dashboard</p>
-          <h1 className="font-display text-3xl font-light text-parchment">Products</h1>
+          <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">Brand Dashboard</p>
+          <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">
+            Products
+          </h1>
         </div>
         <Link
           href="/dashboard/brand/products/new"
-          className="bg-gold text-ink text-xs font-medium tracking-[0.15em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors"
+          className="bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-6 py-3 hover:bg-gold-light transition-colors"
         >
           + Add product
         </Link>
       </div>
 
       {(!products || products.length === 0) ? (
-        <div className="border border-border p-10 text-center">
-          <p className="text-muted text-sm mb-4">No products yet.</p>
-          <Link
-            href="/dashboard/brand/products/new"
-            className="text-gold text-xs tracking-[0.15em] uppercase hover:text-gold-light transition-colors"
-          >
-            Add your first product →
-          </Link>
+        /* Empty state */
+        <div className="flex items-center justify-center py-24">
+          <div className="max-w-[360px] w-full text-center">
+            <div className="flex items-center justify-center gap-3 mb-10">
+              <div className="h-px w-8 bg-border" />
+              <div className="w-1.5 h-1.5 border border-border rotate-45" />
+              <div className="h-px w-8 bg-border" />
+            </div>
+
+            <h2 className="font-display text-2xl font-light text-parchment mb-4">
+              No products yet.
+            </h2>
+            <p className="text-muted text-sm leading-relaxed mb-10">
+              Add your first product to start building your catalog. Each submission is reviewed before going live.
+            </p>
+
+            <Link
+              href="/dashboard/brand/products/new"
+              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
+            >
+              Add first product
+            </Link>
+          </div>
         </div>
       ) : (
-        <div className="border border-border divide-y divide-border">
-          {products.map(product => (
-            <Link
-              key={product.id}
-              href={`/dashboard/brand/products/${product.id}`}
-              className="flex items-center justify-between px-5 py-4 hover:bg-surface transition-colors group"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="text-parchment text-sm group-hover:text-gold transition-colors truncate">
-                  {product.title_en}
-                </p>
-                <p className="text-muted text-xs mt-0.5">{product.category || '—'}</p>
-              </div>
-              <div className="flex items-center gap-6 ml-4 shrink-0">
-                <p className="text-parchment text-sm">
-                  SAR {Number(product.price).toFixed(2)}
-                </p>
-                <p className="text-muted text-xs w-16 text-right">
-                  {product.stock_quantity} in stock
-                </p>
-                <span className={`text-xs tracking-wide w-20 text-right ${STATUS_COLORS[product.status as ProductStatus] ?? 'text-muted'}`}>
-                  {STATUS_LABELS[product.status as ProductStatus] ?? product.status}
-                </span>
-                <span className="text-muted text-xs">→</span>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <>
+          {/* Column headers */}
+          <div className="hidden md:grid grid-cols-[1fr_100px_90px_80px_80px] gap-4 px-5 pb-3 border-b border-border">
+            <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase">Product</p>
+            <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-right">Price</p>
+            <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-right">Stock</p>
+            <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-right">Status</p>
+            <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-right">Actions</p>
+          </div>
+
+          <div className="divide-y divide-border border-b border-border">
+            {products.map(product => {
+              const status = product.status as ProductStatus
+              return (
+                <div
+                  key={product.id}
+                  className="flex md:grid md:grid-cols-[1fr_100px_90px_80px_80px] gap-4 items-center px-5 py-4 hover:bg-surface/50 transition-colors group"
+                >
+                  {/* Title + category */}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-parchment text-sm group-hover:text-gold transition-colors truncate leading-snug">
+                      {product.title_en}
+                    </p>
+                    <p className="text-muted/60 text-xs mt-0.5 truncate">{product.category || '—'}</p>
+                  </div>
+
+                  {/* Price */}
+                  <p className="text-parchment text-sm text-right hidden md:block">
+                    {Number(product.price).toLocaleString('en-SA', { minimumFractionDigits: 2 })}
+                  </p>
+
+                  {/* Stock */}
+                  <p className="text-muted text-xs text-right hidden md:block">
+                    {product.stock_quantity} units
+                  </p>
+
+                  {/* Status */}
+                  <div className="hidden md:flex items-center justify-end gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[status] ?? 'bg-muted/40'}`} />
+                    <span className={`text-[10px] tracking-wide ${STATUS_COLORS[status] ?? 'text-muted'}`}>
+                      {STATUS_LABELS[status] ?? status}
+                    </span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-3 ml-auto md:ml-0">
+                    <Link
+                      href={`/dashboard/brand/products/${product.id}`}
+                      className="text-[9px] text-muted hover:text-gold tracking-[0.15em] uppercase transition-colors"
+                    >
+                      Edit
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <p className="text-[9px] text-muted/40 tracking-wide mt-5">
+            {products.length} product{products.length !== 1 ? 's' : ''}
+          </p>
+        </>
       )}
     </div>
   )

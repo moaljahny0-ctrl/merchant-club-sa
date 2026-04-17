@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -51,51 +52,77 @@ export function DashboardShell({ children, isAdmin, brand, userEmail }: Props) {
 
   const Sidebar = () => (
     <nav className="flex flex-col h-full">
-      {/* Brand / section header */}
-      <div className="px-6 py-6 border-b border-border">
-        <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-1">
-          {isAdmin ? 'Platform Admin' : 'Brand Dashboard'}
-        </p>
-        <p className="text-parchment text-sm font-medium truncate">{sectionLabel}</p>
-        {brand && (
-          <span className={`inline-block mt-1 text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 ${
-            brand.status === 'active' ? 'bg-green-900/40 text-green-400' :
-            brand.status === 'approved' ? 'bg-blue-900/40 text-blue-400' :
-            'bg-surface-2 text-muted'
-          }`}>
-            {brand.status}
-          </span>
-        )}
+      {/* Logo + wordmark */}
+      <div className="px-6 py-6 border-b border-border flex items-center gap-3.5">
+        <Image src="/logo.png" alt="Merchant Club SA" width={30} height={30} className="shrink-0" />
+        <div>
+          <p className="text-[9px] text-gold tracking-[0.3em] uppercase leading-none mb-1">
+            Merchant Club SA
+          </p>
+          <p className="text-[8px] text-muted/70 tracking-[0.2em] uppercase leading-none">
+            {isAdmin ? 'Platform Admin' : 'Partner Portal'}
+          </p>
+        </div>
       </div>
 
-      {/* Navigation links */}
-      <ul className="flex-1 py-4 space-y-0.5 px-3">
-        {nav.map(item => {
-          const active = pathname === item.href || (item.href !== '/dashboard/brand' && item.href !== '/dashboard/admin' && pathname.startsWith(item.href))
-          return (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={`flex items-center px-3 py-2.5 text-xs tracking-[0.1em] uppercase transition-colors ${
-                  active
-                    ? 'text-gold bg-surface-2'
-                    : 'text-muted hover:text-parchment hover:bg-surface'
-                }`}
-              >
-                {item.label}
-              </Link>
-            </li>
-          )
-        })}
-      </ul>
+      {/* Brand identity strip */}
+      {(brand || isAdmin) && (
+        <div className="px-6 py-5 border-b border-border">
+          <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-1.5">
+            {isAdmin ? 'Access level' : 'Active brand'}
+          </p>
+          <p className="text-parchment text-[13px] font-medium leading-snug truncate">
+            {sectionLabel}
+          </p>
+          {brand && (
+            <span className={`inline-block mt-2 text-[8px] tracking-[0.2em] uppercase px-2 py-0.5 border ${
+              brand.status === 'active'
+                ? 'border-green-700/40 text-green-400/80 bg-green-900/10'
+                : brand.status === 'approved'
+                ? 'border-blue-700/40 text-blue-400/80 bg-blue-900/10'
+                : 'border-border text-muted/60'
+            }`}>
+              {brand.status}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Navigation */}
+      <div className="flex-1 py-4 px-3">
+        <p className="text-[8px] text-muted/40 tracking-[0.2em] uppercase px-3 mb-2">Menu</p>
+        <ul className="space-y-0.5">
+          {nav.map(item => {
+            const active = pathname === item.href || (
+              item.href !== '/dashboard/brand' &&
+              item.href !== '/dashboard/admin' &&
+              pathname.startsWith(item.href)
+            )
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2.5 text-[11px] tracking-[0.1em] uppercase transition-all duration-150 border-l-2 rounded-r-sm ${
+                    active
+                      ? 'border-gold text-gold bg-gold/5 font-medium'
+                      : 'border-transparent text-muted/80 hover:text-parchment hover:bg-surface-2/60 hover:border-border'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
 
       {/* Footer */}
-      <div className="px-6 py-5 border-t border-border space-y-3">
-        <p className="text-[10px] text-muted truncate">{userEmail}</p>
+      <div className="px-6 pt-4 pb-6 border-t border-border">
+        <p className="text-[9px] text-muted/40 truncate mb-3 leading-none tracking-wide">{userEmail}</p>
         <button
           onClick={handleSignOut}
-          className="text-[10px] text-muted hover:text-gold tracking-[0.15em] uppercase transition-colors"
+          className="text-[9px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors"
         >
           Sign out
         </button>
@@ -106,16 +133,19 @@ export function DashboardShell({ children, isAdmin, brand, userEmail }: Props) {
   return (
     <div className="min-h-screen bg-ink flex">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-56 border-r border-border bg-surface shrink-0">
+      <aside className="hidden md:flex flex-col w-60 border-r border-border bg-surface shrink-0">
         <Sidebar />
       </aside>
 
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-surface border-b border-border px-4 py-3 flex items-center justify-between">
-        <p className="text-parchment text-sm font-medium">{sectionLabel}</p>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-surface border-b border-border px-5 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <Image src="/logo.png" alt="Merchant Club SA" width={22} height={22} />
+          <p className="text-parchment text-sm font-medium tracking-wide">{sectionLabel}</p>
+        </div>
         <button
           onClick={() => setMobileOpen(v => !v)}
-          className="text-muted hover:text-gold p-1"
+          className="text-muted hover:text-gold p-1 transition-colors"
           aria-label="Toggle menu"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
