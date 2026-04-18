@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -29,38 +30,74 @@ export default async function HomePage({ params }: Props) {
 async function Hero() {
   const t = await getTranslations('home');
   return (
-    <section className="min-h-screen flex flex-col justify-center px-6 md:px-10 pt-16">
-      <div className="max-w-7xl mx-auto w-full py-24 md:py-40">
+    <section className="relative min-h-screen flex flex-col md:grid md:grid-cols-[48%_52%]">
 
-        <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-10">
-          {t('hero_eyebrow')}
-        </p>
-
-        <h1 className="font-display text-5xl md:text-7xl lg:text-[88px] font-light text-parchment leading-[1.04] tracking-tight max-w-3xl">
-          {t('hero_headline')}
-        </h1>
-
-        <p className="mt-6 text-base md:text-lg text-muted font-light max-w-sm leading-relaxed">
-          {t('hero_subline')}
-        </p>
-
-        <div className="mt-12 flex flex-col sm:flex-row gap-4">
-          <Link
-            href="/apply"
-            className="inline-flex items-center justify-center bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-          >
-            {t('hero_cta')}
-          </Link>
-          <Link
-            href="/brands"
-            className="inline-flex items-center justify-center border border-border text-parchment text-xs tracking-[0.2em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
-          >
-            {t('hero_secondary_cta')}
-          </Link>
-        </div>
-
-        <div className="mt-24 md:mt-40 h-px bg-border max-w-xs" />
+      {/* ── Mobile image strip (md:hidden) ──────────────────────── */}
+      <div className="md:hidden relative h-[58vw] w-full overflow-hidden">
+        <Image
+          src="/hero.png"
+          alt="Merchant Club SA"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+          quality={90}
+        />
+        {/* Bottom fade into page background */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink to-transparent" />
       </div>
+
+      {/* ── Text column ─────────────────────────────────────────── */}
+      <div className="flex flex-col justify-center px-6 md:px-10 lg:px-16 pt-10 pb-20 md:pt-0 md:pb-0 md:min-h-screen">
+        <div className="max-w-xl">
+
+          <p className="text-[9px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
+            {t('hero_eyebrow')}
+          </p>
+
+          <h1 className="font-display text-[2.75rem] md:text-6xl lg:text-[5.25rem] font-light text-parchment leading-[1.05] tracking-tight">
+            {t('hero_headline')}
+          </h1>
+
+          <p className="mt-5 md:mt-7 text-sm md:text-base text-muted font-light max-w-xs md:max-w-sm leading-relaxed">
+            {t('hero_subline')}
+          </p>
+
+          <div className="mt-10 md:mt-12 flex flex-col sm:flex-row gap-3">
+            <Link
+              href="/apply"
+              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
+            >
+              {t('hero_cta')}
+            </Link>
+            <Link
+              href="/brands"
+              className="inline-flex items-center justify-center border border-border text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
+            >
+              {t('hero_secondary_cta')}
+            </Link>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── Image column (desktop only) ──────────────────────────── */}
+      <div className="hidden md:block relative overflow-hidden">
+        <Image
+          src="/hero.png"
+          alt="Merchant Club SA — brand collection"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="52vw"
+          quality={92}
+        />
+        {/* Left-edge gradient — melts into text column */}
+        <div className="absolute inset-y-0 left-0 w-36 bg-gradient-to-r from-ink to-transparent" />
+        {/* Bottom fade for seamless section transition */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink to-transparent" />
+      </div>
+
     </section>
   );
 }
@@ -70,7 +107,6 @@ async function Hero() {
 async function PartnerShowcase({ locale }: { locale: string }) {
   const t = await getTranslations('home');
 
-  // Show real partners when available, placeholder slots otherwise
   const display = activePartners.length > 0
     ? activePartners.slice(0, 4)
     : placeholderSlots;
@@ -79,7 +115,6 @@ async function PartnerShowcase({ locale }: { locale: string }) {
     <section className="px-6 md:px-10 py-20 md:py-28 border-t border-border">
       <div className="max-w-7xl mx-auto">
 
-        {/* Header row — heading left, CTA right */}
         <div className="flex items-end justify-between mb-10 md:mb-12">
           <h2 className="font-display text-2xl md:text-4xl font-light text-parchment">
             {t('showcase_heading')}
@@ -93,14 +128,12 @@ async function PartnerShowcase({ locale }: { locale: string }) {
           </Link>
         </div>
 
-        {/* Image grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {display.map((partner) => (
             <PartnerCard key={partner.id} partner={partner} locale={locale} />
           ))}
         </div>
 
-        {/* Mobile CTA + coming soon note */}
         <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="h-px w-6 bg-border" />
@@ -137,7 +170,7 @@ async function ApplyCTA() {
           </p>
           <Link
             href="/apply"
-            className="inline-flex items-center justify-center bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-10 py-4 hover:bg-gold-light transition-colors"
+            className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-10 py-4 hover:bg-gold-light transition-colors"
           >
             {t('hero_cta')}
           </Link>

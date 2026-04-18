@@ -9,9 +9,10 @@ type Props = {
   product: Product
   canEdit: boolean
   canSubmit: boolean
+  currentImageUrl?: string
 }
 
-export function ProductEditClient({ product, canEdit, canSubmit }: Props) {
+export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl }: Props) {
   const [isPending, startTransition] = useTransition()
 
   function handleSubmitForReview() {
@@ -37,15 +38,16 @@ export function ProductEditClient({ product, canEdit, canSubmit }: Props) {
           action={boundUpdateProduct}
           defaultValues={product}
           submitLabel="Save changes"
+          currentImageUrl={currentImageUrl}
         />
       ) : (
-        <div className="max-w-2xl space-y-6 opacity-60 pointer-events-none select-none">
-          <ProductFormReadOnly product={product} />
+        <div className="max-w-xl space-y-6 opacity-60 pointer-events-none select-none">
+          <ProductFormReadOnly product={product} currentImageUrl={currentImageUrl} />
         </div>
       )}
 
       {/* Actions */}
-      <div className="border-t border-border pt-6 max-w-2xl flex flex-wrap gap-3">
+      <div className="border-t border-border pt-6 max-w-xl flex flex-wrap gap-3">
         {canSubmit && (
           <button
             onClick={handleSubmitForReview}
@@ -69,29 +71,28 @@ export function ProductEditClient({ product, canEdit, canSubmit }: Props) {
   )
 }
 
-function ProductFormReadOnly({ product }: { product: Product }) {
-  const fields = [
-    { label: 'Title (English)', value: product.title_en },
-    { label: 'Title (Arabic)', value: product.title_ar || '—' },
-    { label: 'Price', value: `SAR ${Number(product.price).toFixed(2)}` },
-    { label: 'SKU', value: product.sku || '—' },
-    { label: 'Stock', value: String(product.stock_quantity) },
-    { label: 'Category', value: product.category || '—' },
-  ]
-
+function ProductFormReadOnly({ product, currentImageUrl }: { product: Product; currentImageUrl?: string }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {currentImageUrl && (
+        <div className="border border-border inline-block">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={currentImageUrl} alt={product.title_en} className="w-32 h-32 object-cover block" />
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-4">
-        {fields.map(f => (
-          <div key={f.label}>
-            <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">{f.label}</p>
-            <p className="text-parchment text-sm">{f.value}</p>
-          </div>
-        ))}
+        <div>
+          <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">Name</p>
+          <p className="text-parchment text-sm">{product.title_en}</p>
+        </div>
+        <div>
+          <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">Price</p>
+          <p className="text-parchment text-sm">SAR {Number(product.price).toFixed(2)}</p>
+        </div>
       </div>
       {product.description_en && (
         <div>
-          <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">Description (English)</p>
+          <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">Description</p>
           <p className="text-parchment text-sm whitespace-pre-wrap">{product.description_en}</p>
         </div>
       )}

@@ -7,7 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') ?? '/dashboard/brand'
+  const redirectTo = searchParams.get('redirect') ?? '/dashboard/brand'
+  const linkExpired = searchParams.get('error') === 'link_expired'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,66 +23,77 @@ export function LoginForm() {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
-        setError(error.message)
+        setError('Incorrect email or password.')
       } else {
-        router.push(redirect)
+        router.push(redirectTo)
         router.refresh()
       }
     })
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
-          Email
-        </label>
-        <input
-          type="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
-          placeholder="you@example.com"
-        />
-      </div>
+    <div className="space-y-7">
 
-      <div>
-        <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
-          Password
-        </label>
-        <input
-          type="password"
-          required
-          autoComplete="current-password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
-          placeholder="••••••••"
-        />
-      </div>
-
-      {error && (
-        <p className="text-red-400 text-xs">{error}</p>
+      {linkExpired && (
+        <div className="border border-gold/30 bg-gold/5 px-4 py-3">
+          <p className="text-gold text-xs leading-relaxed">
+            That login link has expired. Enter your email and password to sign in.
+          </p>
+        </div>
       )}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50 mt-2"
-      >
-        {isPending ? 'Signing in…' : 'Sign in'}
-      </button>
+      <form onSubmit={handleSubmit} className="space-y-5">
 
-      <div className="mt-6 text-center">
-        <a
-          href="/auth/reset-password"
-          className="text-xs text-muted hover:text-gold transition-colors tracking-wide"
+        <div>
+          <label className="block text-[9px] text-muted tracking-[0.25em] uppercase mb-2.5">
+            Email
+          </label>
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/30 transition-colors"
+          />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2.5">
+            <label className="text-[9px] text-muted tracking-[0.25em] uppercase">
+              Password
+            </label>
+            <a
+              href="/auth/reset-password"
+              className="text-[9px] text-muted/60 hover:text-gold tracking-[0.1em] transition-colors"
+            >
+              Forgot password?
+            </a>
+          </div>
+          <input
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/30 transition-colors"
+          />
+        </div>
+
+        {error && (
+          <p className="text-[11px] text-amber-400/90 tracking-wide">{error}</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={isPending}
+          className="w-full bg-gold text-ink text-[10px] font-medium tracking-[0.25em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
         >
-          Forgot password?
-        </a>
-      </div>
-    </form>
+          {isPending ? 'Signing in…' : 'Sign in'}
+        </button>
+
+      </form>
+    </div>
   )
 }

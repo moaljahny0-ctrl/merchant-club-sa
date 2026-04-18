@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { ProductEditClient } from '@/components/dashboard/ProductEditClient'
-import type { Product } from '@/lib/types/database'
+import type { Product, ProductImage } from '@/lib/types/database'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -35,18 +35,21 @@ export default async function ProductEditPage({ params }: Props) {
 
   const { data: product } = await supabase
     .from('products')
-    .select('*')
+    .select('*, product_images(id, url, storage_path, is_primary, sort_order, created_at, alt_text_en, alt_text_ar)')
     .eq('id', id)
     .eq('brand_id', member.brand_id)
     .single()
 
   if (!product) notFound()
 
+  const images = (product.product_images as ProductImage[]) ?? []
+  const primaryImage = images.find(img => img.is_primary) ?? images[0]
+
   const canEdit = ['draft', 'rejected'].includes(product.status)
   const canSubmit = ['draft', 'rejected'].includes(product.status)
 
   return (
-    <div className="p-6 md:p-10 max-w-4xl">
+    <div className="p-6 md:p-10 max-w-3xl">
       <div className="mb-8">
         <Link
           href="/dashboard/brand/products"
@@ -74,7 +77,7 @@ export default async function ProductEditPage({ params }: Props) {
 
       {product.status === 'submitted' && (
         <div className="border border-yellow-500/30 bg-yellow-500/5 px-5 py-4 mb-8">
-          <p className="text-yellow-400 text-xs">This product is currently under review. You can't edit it until a decision is made.</p>
+          <p className="text-yellow-400 text-xs">This product is currently under review. You can&apos;t edit it until a decision is made.</p>
         </div>
       )}
 
@@ -84,7 +87,12 @@ export default async function ProductEditPage({ params }: Props) {
         </div>
       )}
 
-      <ProductEditClient product={product as Product} canEdit={canEdit} canSubmit={canSubmit} />
+      <ProductEditClient
+        product={product as Product}
+        canEdit={canEdit}
+        canSubmit={canSubmit}
+        currentImageUrl={primaryImage?.url}
+      />
     </div>
   )
 }

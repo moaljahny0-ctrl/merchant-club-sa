@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { Resend } from 'resend'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 async function assertAdmin() {
@@ -48,6 +49,150 @@ async function generateUniqueSlug(service: ServiceClient, name: string): Promise
   }
 }
 
+// ── approval email ────────────────────────────────────────────────────────────
+
+function esc(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function buildApprovalEmailHtml(brandName: string, email: string, tempPassword: string, siteUrl: string): string {
+  const loginUrl = `${siteUrl}/auth/login`
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="margin:0;padding:0;background:#0D0D0D;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0D0D0D;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#1A1A1A;border:1px solid #252525;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding:40px 40px 28px;border-bottom:1px solid #252525;">
+              <p style="margin:0 0 10px;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#D4AF37;">
+                Merchant Club SA
+              </p>
+              <h1 style="margin:0 0 6px;font-size:26px;font-weight:400;color:#FFFFFF;letter-spacing:-0.02em;">
+                Your application is approved.
+              </h1>
+              <p style="margin:0;font-size:14px;color:#777777;">
+                ${esc(brandName)}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Credentials -->
+          <tr>
+            <td style="padding:28px 40px 0;">
+              <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#D4AF37;">
+                Your account is ready
+              </p>
+              <p style="margin:0 0 24px;font-size:15px;color:#FFFFFF;line-height:1.7;font-weight:400;">
+                We've created your brand account. Use the credentials below to log in for the first time.
+              </p>
+
+              <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #2A2A2A;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:16px 24px;border-bottom:1px solid #2A2A2A;background:#141414;">
+                    <p style="margin:0 0 4px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#555555;">Email</p>
+                    <p style="margin:0;font-size:14px;color:#FFFFFF;font-family:monospace,Georgia,serif;">${esc(email)}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:16px 24px;background:#141414;">
+                    <p style="margin:0 0 4px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#555555;">Temporary password</p>
+                    <p style="margin:0;font-size:14px;color:#FFFFFF;font-family:monospace,Georgia,serif;">${esc(tempPassword)}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+                <tr>
+                  <td style="background:#D4AF37;">
+                    <a href="${esc(loginUrl)}"
+                       style="display:inline-block;padding:18px 40px;font-size:12px;font-family:Georgia,serif;letter-spacing:0.2em;text-transform:uppercase;color:#0D0D0D;text-decoration:none;font-weight:600;">
+                      Log in to your dashboard →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 32px;font-size:12px;color:#555555;line-height:1.6;">
+                After logging in, go to <strong style="color:#777777;">Profile → Change password</strong> to set your own password.
+              </p>
+            </td>
+          </tr>
+
+          <!-- What to do first -->
+          <tr>
+            <td style="padding:0 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #252525;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:20px 24px;border-bottom:1px solid #252525;background:#141414;">
+                    <p style="margin:0 0 4px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#D4AF37;">Step 1 — Log in</p>
+                    <p style="margin:0;font-size:13px;color:#CCCCCC;line-height:1.6;">Use the email and temporary password above to log in at <a href="${esc(loginUrl)}" style="color:#D4AF37;text-decoration:none;">merchantclubsa.com/auth/login</a>.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 24px;border-bottom:1px solid #252525;background:#141414;">
+                    <p style="margin:0 0 4px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#777777;">Step 2 — Add your first product</p>
+                    <p style="margin:0;font-size:13px;color:#CCCCCC;line-height:1.6;">From your dashboard, go to <strong style="color:#FFFFFF;">Products → Add product</strong>. Enter the name, price, a short description, and an image.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 24px;background:#141414;">
+                    <p style="margin:0 0 4px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#777777;">Step 3 — Submit for review</p>
+                    <p style="margin:0;font-size:13px;color:#CCCCCC;line-height:1.6;">Once your product is ready, submit it. Our team reviews it before it goes live on the platform.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- What you can do -->
+          <tr>
+            <td style="padding:0 40px 28px;">
+              <p style="margin:0 0 14px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#555555;">As a brand owner you can</p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="50%" style="padding-right:12px;padding-bottom:10px;vertical-align:top;">
+                    <p style="margin:0;font-size:12px;color:#AAAAAA;line-height:1.6;">✓ &nbsp;Add and edit your products</p>
+                    <p style="margin:0;font-size:12px;color:#AAAAAA;line-height:1.6;">✓ &nbsp;Set prices in SAR</p>
+                  </td>
+                  <td width="50%" style="padding-left:12px;padding-bottom:10px;vertical-align:top;">
+                    <p style="margin:0;font-size:12px;color:#AAAAAA;line-height:1.6;">✓ &nbsp;Upload product images</p>
+                    <p style="margin:0;font-size:12px;color:#AAAAAA;line-height:1.6;">✓ &nbsp;Submit products for review</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px;border-top:1px solid #252525;">
+              <p style="margin:0;font-size:10px;color:#444444;letter-spacing:0.1em;">
+                merchantclubsa.com &nbsp;·&nbsp; info@merchantclubsa.com
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+}
+
 // ── applications ──────────────────────────────────────────────────────────────
 
 export async function reviewApplication(
@@ -60,7 +205,7 @@ export async function reviewApplication(
     const service = createServiceClient()
     const now = new Date().toISOString()
 
-    // ── Rejection: simple status update ──────────────────────────────────────
+    // ── Rejection ─────────────────────────────────────────────────────────────
     if (action === 'reject') {
       const { error } = await service
         .from('brand_applications')
@@ -77,7 +222,7 @@ export async function reviewApplication(
       return { error: null }
     }
 
-    // ── Approval: full onboarding flow ────────────────────────────────────────
+    // ── Approval ──────────────────────────────────────────────────────────────
 
     // 1. Fetch the application
     const { data: app, error: fetchErr } = await service
@@ -89,34 +234,39 @@ export async function reviewApplication(
     if (fetchErr || !app) return { error: fetchErr?.message ?? 'Application not found' }
     if (app.status !== 'pending') return { error: `Application is already ${app.status}` }
 
-    // 2. Invite the brand owner — creates the auth user and sends the invite email
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
 
-    let userId: string
-    const { data: inviteData, error: inviteErr } = await service.auth.admin.inviteUserByEmail(
-      app.contact_email,
-      { redirectTo: `${siteUrl}/auth/invite` }
-    )
+    // 2. Generate a temporary password and create the auth user
+    const tempPassword = Array.from(
+      { length: 12 },
+      () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[
+        Math.floor(Math.random() * 62)
+      ]
+    ).join('')
 
-    if (inviteErr) {
-      // User already exists — find them by email
-      if (inviteErr.status === 422 || inviteErr.message?.toLowerCase().includes('already')) {
-        const { data: listData, error: listErr } = await service.auth.admin.listUsers({ perPage: 1000 })
-        if (listErr) return { error: listErr.message }
-        const existing = listData.users.find(u => u.email === app.contact_email)
-        if (!existing) return { error: `User exists but could not be located: ${inviteErr.message}` }
-        userId = existing.id
-      } else {
-        return { error: inviteErr.message }
-      }
+    let userId: string
+    const { data: newUser, error: createErr } = await service.auth.admin.createUser({
+      email: app.contact_email,
+      password: tempPassword,
+      email_confirm: true,
+    })
+
+    if (createErr) {
+      // User already exists — find them and reset their password
+      const { data: listData, error: listErr } = await service.auth.admin.listUsers({ perPage: 1000 })
+      if (listErr) return { error: listErr.message }
+      const existing = listData.users.find(u => u.email === app.contact_email)
+      if (!existing) return { error: `Could not create or locate user: ${createErr.message}` }
+      userId = existing.id
+      await service.auth.admin.updateUserById(userId, { password: tempPassword })
     } else {
-      userId = inviteData.user.id
+      userId = newUser.user.id
     }
 
-    // 3. Generate a unique slug from the brand name
+    // 4. Generate a unique slug from the brand name
     const slug = await generateUniqueSlug(service, app.brand_name_en)
 
-    // 4. Create the brand record
+    // 5. Create the brand record
     const { data: brand, error: brandErr } = await service
       .from('brands')
       .insert({
@@ -134,7 +284,7 @@ export async function reviewApplication(
 
     if (brandErr || !brand) return { error: brandErr?.message ?? 'Failed to create brand' }
 
-    // 5. Link the user to the brand as owner
+    // 6. Link user to brand as owner
     const { error: memberErr } = await service
       .from('brand_members')
       .insert({
@@ -148,7 +298,7 @@ export async function reviewApplication(
 
     if (memberErr) return { error: memberErr.message }
 
-    // 6. Assign the brand_owner role in user_roles
+    // 7. Assign brand_owner role
     const { data: roleRow } = await service
       .from('roles')
       .select('id')
@@ -156,13 +306,12 @@ export async function reviewApplication(
       .single()
 
     if (roleRow) {
-      // upsert is safe: no-op if the user already has this role
       await service
         .from('user_roles')
         .upsert({ user_id: userId, role_id: roleRow.id })
     }
 
-    // 7. Mark the application as approved and link the new brand
+    // 8. Mark application approved
     const { error: appUpdateErr } = await service
       .from('brand_applications')
       .update({
@@ -174,6 +323,25 @@ export async function reviewApplication(
       .eq('id', id)
 
     if (appUpdateErr) return { error: appUpdateErr.message }
+
+    // 9. Send branded approval email via Resend
+    const apiKey = process.env.RESEND_API_KEY
+    if (apiKey) {
+      try {
+        const resend = new Resend(apiKey)
+        await resend.emails.send({
+          from: 'Merchant Club SA <applications@merchantclubsa.com>',
+          to: [app.contact_email],
+          subject: `Your application has been approved — ${app.brand_name_en}`,
+          html: buildApprovalEmailHtml(app.brand_name_en, app.contact_email, tempPassword, siteUrl),
+        })
+      } catch (emailErr) {
+        console.error('[admin] Approval email failed (account created):', emailErr)
+        console.error('[admin] Temp password for manual delivery:', tempPassword)
+      }
+    } else {
+      console.warn('[admin] RESEND_API_KEY not set — temp password for manual delivery:', tempPassword)
+    }
 
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Unexpected error' }

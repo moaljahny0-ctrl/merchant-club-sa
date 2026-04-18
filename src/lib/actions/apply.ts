@@ -1,6 +1,7 @@
 'use server';
 
 import { Resend } from 'resend';
+import { createServiceClient } from '@/lib/supabase/server';
 
 export type ApplicationState = {
   success: boolean;
@@ -23,8 +24,10 @@ function buildEmailHtml(fields: {
   instagram: string;
   email: string;
   website: string;
+  applicationId: string;
+  submittedAt: string;
 }): string {
-  const { brandName, category, story, instagram, email, website } = fields;
+  const { brandName, category, story, instagram, email, website, applicationId, submittedAt } = fields;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -85,10 +88,11 @@ function buildEmailHtml(fields: {
                           <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#777777;">Email</p>
                           <a href="mailto:${esc(email)}" style="color:#D4AF37;font-size:13px;text-decoration:none;">${esc(email)}</a>
                         </td>
+                        ${instagram ? `
                         <td width="50%">
                           <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#777777;">Instagram</p>
-                          <p style="margin:0;font-size:13px;color:#FFFFFF;">${instagram ? esc(instagram) : '—'}</p>
-                        </td>
+                          <p style="margin:0;font-size:13px;color:#FFFFFF;">${esc(instagram)}</p>
+                        </td>` : '<td width="50%"></td>'}
                       </tr>
                     </table>
                   </td>
@@ -102,6 +106,23 @@ function buildEmailHtml(fields: {
                   </td>
                 </tr>` : ''}
 
+                <tr>
+                  <td style="padding-bottom:28px;border-top:1px solid #252525;padding-top:28px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="50%" style="padding-right:16px;">
+                          <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#777777;">Submitted</p>
+                          <p style="margin:0;font-size:13px;color:#AAAAAA;">${esc(submittedAt)}</p>
+                        </td>
+                        <td width="50%">
+                          <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:#777777;">Application ID</p>
+                          <p style="margin:0;font-size:11px;color:#555555;font-family:monospace;">${esc(applicationId)}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
               </table>
             </td>
           </tr>
@@ -110,7 +131,7 @@ function buildEmailHtml(fields: {
           <tr>
             <td style="padding:28px 40px 36px;border-top:1px solid #252525;margin-top:8px;">
               <p style="margin:0;font-size:10px;color:#555555;letter-spacing:0.1em;">
-                Submitted via merchantclubsa.com/apply
+                Submitted via merchantclubsa.com/apply/partner
               </p>
             </td>
           </tr>
@@ -138,10 +159,37 @@ export async function submitApplication(
     return { success: false, error: 'required' };
   }
 
+  // Insert into brand_applications — this is the source of truth for the admin queue
+  const supabase = createServiceClient();
+  const { data: inserted, error: dbError } = await supabase
+    .from('brand_applications')
+    .insert({
+      brand_name_en:     brandName,
+      category,
+      brand_description: story,
+      contact_name:      brandName,
+      contact_email:     email,
+      instagram_url:     instagram || null,
+      website_url:       website   || null,
+    })
+    .select('id, created_at')
+    .single();
+
+  if (dbError || !inserted) {
+    console.error('[apply] DB insert error:', dbError);
+    return { success: false, error: 'send_failed' };
+  }
+
+  const applicationId = inserted.id as string;
+  const submittedAt   = new Date(inserted.created_at as string).toLocaleString('en-GB', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Riyadh',
+  });
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    // Key not yet configured — log and succeed silently so the form UX still works
-    console.warn('[apply] RESEND_API_KEY not set — application not emailed:', { brandName, email });
+    console.warn('[apply] RESEND_API_KEY not set — application saved to DB but not emailed:', applicationId);
     return { success: true, error: null };
   }
 
@@ -149,19 +197,18 @@ export async function submitApplication(
     const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
       from: 'Merchant Club SA <applications@merchantclubsa.com>',
-      to:   ['info@merchantclubsa.com'],
+      to:   ['applications@merchantclubsa.com'],
       replyTo: email,
       subject: `New Application: ${brandName}`,
-      html: buildEmailHtml({ brandName, category, story, instagram, email, website }),
+      html: buildEmailHtml({ brandName, category, story, instagram, email, website, applicationId, submittedAt }),
     });
 
     if (error) {
-      console.error('[apply] Resend error:', error);
-      return { success: false, error: 'send_failed' };
+      // DB row already saved — log email failure but don't fail the user
+      console.error('[apply] Resend error (DB row saved):', error);
     }
   } catch (err) {
-    console.error('[apply] Unexpected error:', err);
-    return { success: false, error: 'send_failed' };
+    console.error('[apply] Resend threw (DB row saved):', err);
   }
 
   return { success: true, error: null };

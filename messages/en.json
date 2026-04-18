@@ -4,19 +4,20 @@
     "members": "Members",
     "apply": "Apply",
     "about": "About",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "login": "Login"
   },
   "home": {
-    "hero_eyebrow": "Built for Saudi Brands and Creators",
+    "hero_eyebrow": "Saudi Arabia's Brand Platform",
     "hero_headline": "Your name deserves more than a feed.",
-    "hero_subline": "Merchant Club SA is where Saudi independent brands get showcased — and where creators, athletes, and clubs turn their audience into products.",
+    "hero_subline": "We curate and showcase Saudi independent brands worth discovering — and build product lines for creators with the audience to back them.",
     "hero_cta": "Apply to Join",
     "hero_secondary_cta": "Browse Partners",
     "showcase_heading": "Our partners.",
     "showcase_cta": "Browse our partners' stores",
     "coming_soon": "First partners arriving soon.",
     "cta_headline": "You've built something real. We'll make sure the right people see it.",
-    "cta_sub": "Applications are open to Saudi independent brands across all categories. We review every submission personally."
+    "cta_sub": "Open to Saudi independent brands across all categories. Every application is reviewed personally."
   },
   "brands": {
     "eyebrow": "Merchant Club SA",

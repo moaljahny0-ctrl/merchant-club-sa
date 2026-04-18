@@ -27,6 +27,61 @@ async function getActiveBrandId(): Promise<string> {
   return member.brand_id
 }
 
+async function uploadProductImage(
+  brandId: string,
+  productId: string,
+  file: File
+): Promise<string | null> {
+  const service = createServiceClient()
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+  const storagePath = `${brandId}/${productId}/primary.${ext}`
+  const bytes = await file.arrayBuffer()
+
+  const { error: uploadErr } = await service.storage
+    .from('product-images')
+    .upload(storagePath, bytes, { contentType: file.type, upsert: true })
+
+  if (uploadErr) {
+    console.error('[products] Image upload error:', uploadErr)
+    return null
+  }
+
+  const { data: urlData } = service.storage.from('product-images').getPublicUrl(storagePath)
+
+  await service.from('product_images').insert({
+    product_id: productId,
+    url: urlData.publicUrl,
+    storage_path: storagePath,
+    is_primary: true,
+    sort_order: 0,
+  })
+
+  return urlData.publicUrl
+}
+
+async function replaceProductImage(
+  brandId: string,
+  productId: string,
+  file: File
+): Promise<void> {
+  const service = createServiceClient()
+
+  // Remove existing primary image from storage and DB
+  const { data: existing } = await service
+    .from('product_images')
+    .select('storage_path')
+    .eq('product_id', productId)
+    .eq('is_primary', true)
+    .maybeSingle()
+
+  if (existing?.storage_path) {
+    await service.storage.from('product-images').remove([existing.storage_path])
+  }
+  await service.from('product_images').delete().eq('product_id', productId).eq('is_primary', true)
+
+  await uploadProductImage(brandId, productId, file)
+}
+
 // ── create ────────────────────────────────────────────────────────────────────
 
 export async function createProduct(
@@ -39,18 +94,13 @@ export async function createProduct(
     const brandId = await getActiveBrandId()
 
     const title_en = (formData.get('title_en') as string)?.trim()
-    const title_ar = (formData.get('title_ar') as string)?.trim() ?? ''
     const description_en = (formData.get('description_en') as string)?.trim() ?? ''
-    const description_ar = (formData.get('description_ar') as string)?.trim() ?? ''
     const priceRaw = formData.get('price') as string
     const price = parseFloat(priceRaw)
-    const category = (formData.get('category') as string)?.trim() ?? ''
-    const sku = (formData.get('sku') as string)?.trim() || null
-    const stockRaw = formData.get('stock_quantity') as string
-    const stock_quantity = parseInt(stockRaw ?? '0', 10)
+    const imageFile = formData.get('image') as File | null
 
     if (!title_en || isNaN(price) || price < 0) {
-      return { error: 'Title and a valid price are required.' }
+      return { error: 'Product name and a valid price are required.' }
     }
 
     const supabase = await createClient()
@@ -59,13 +109,11 @@ export async function createProduct(
       .insert({
         brand_id: brandId,
         title_en,
-        title_ar,
+        title_ar: '',
         description_en,
-        description_ar,
+        description_ar: '',
         price,
-        category,
-        sku,
-        stock_quantity,
+        category: '',
         status: 'draft',
       })
       .select('id')
@@ -73,6 +121,10 @@ export async function createProduct(
 
     if (error) return { error: error.message }
     newId = data.id
+
+    if (imageFile && imageFile.size > 0 && newId) {
+      await uploadProductImage(brandId, newId, imageFile)
+    }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Unexpected error' }
   }
@@ -92,31 +144,32 @@ export async function updateProduct(
     const brandId = await getActiveBrandId()
 
     const title_en = (formData.get('title_en') as string)?.trim()
-    const title_ar = (formData.get('title_ar') as string)?.trim() ?? ''
     const description_en = (formData.get('description_en') as string)?.trim() ?? ''
-    const description_ar = (formData.get('description_ar') as string)?.trim() ?? ''
     const price = parseFloat(formData.get('price') as string)
-    const category = (formData.get('category') as string)?.trim() ?? ''
-    const sku = (formData.get('sku') as string)?.trim() || null
-    const stock_quantity = parseInt((formData.get('stock_quantity') as string) ?? '0', 10)
+    const imageFile = formData.get('image') as File | null
 
     if (!title_en || isNaN(price) || price < 0) {
-      return { error: 'Title and a valid price are required.' }
+      return { error: 'Product name and a valid price are required.' }
     }
 
     const supabase = await createClient()
     const { error } = await supabase
       .from('products')
-      .update({ title_en, title_ar, description_en, description_ar, price, category, sku, stock_quantity })
+      .update({ title_en, description_en, price })
       .eq('id', id)
       .eq('brand_id', brandId)
 
     if (error) return { error: error.message }
+
+    if (imageFile && imageFile.size > 0) {
+      await replaceProductImage(brandId, id, imageFile)
+    }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Unexpected error' }
   }
 
   revalidatePath('/dashboard/brand/products')
+  revalidatePath(`/dashboard/brand/products/${id}`)
   return { error: null }
 }
 
@@ -161,6 +214,18 @@ export async function deleteProduct(id: string): Promise<{ error: string | null 
   try {
     const brandId = await getActiveBrandId()
     const supabase = await createClient()
+
+    // Remove images from storage first
+    const service = createServiceClient()
+    const { data: images } = await service
+      .from('product_images')
+      .select('storage_path')
+      .eq('product_id', id)
+
+    if (images && images.length > 0) {
+      const paths = images.map(i => i.storage_path).filter(Boolean)
+      if (paths.length) await service.storage.from('product-images').remove(paths)
+    }
 
     const { error } = await supabase
       .from('products')

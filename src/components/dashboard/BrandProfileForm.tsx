@@ -1,14 +1,104 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState, useTransition } from 'react'
 import { updateBrandProfile } from '@/lib/actions/brands'
+import { createClient } from '@/lib/supabase/client'
 import type { Brand } from '@/lib/types/database'
+
+function ChangePasswordForm() {
+  const [newPassword, setNewPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  const [isPending, startTransition] = useTransition()
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setSuccess(false)
+
+    if (newPassword.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+    if (newPassword !== confirm) {
+      setError('Passwords do not match.')
+      return
+    }
+
+    startTransition(async () => {
+      const supabase = createClient()
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) {
+        setError(error.message)
+      } else {
+        setSuccess(true)
+        setNewPassword('')
+        setConfirm('')
+      }
+    })
+  }
+
+  return (
+    <section>
+      <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Change password</h2>
+
+      {error && (
+        <div className="border border-red-500/30 bg-red-500/10 px-4 py-3 mb-4">
+          <p className="text-red-400 text-xs">{error}</p>
+        </div>
+      )}
+      {success && (
+        <div className="border border-green-500/30 bg-green-500/10 px-4 py-3 mb-4">
+          <p className="text-green-400 text-xs">Password updated successfully.</p>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
+        <div>
+          <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
+            New password
+          </label>
+          <input
+            type="password"
+            required
+            autoComplete="new-password"
+            value={newPassword}
+            onChange={e => setNewPassword(e.target.value)}
+            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
+            Confirm password
+          </label>
+          <input
+            type="password"
+            required
+            autoComplete="new-password"
+            value={confirm}
+            onChange={e => setConfirm(e.target.value)}
+            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={isPending}
+          className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
+        >
+          {isPending ? 'Updating…' : 'Update password'}
+        </button>
+      </form>
+    </section>
+  )
+}
 
 export function BrandProfileForm({ brand }: { brand: Brand }) {
   const boundAction = updateBrandProfile.bind(null, brand.id)
   const [state, formAction, isPending] = useActionState(boundAction, { error: null })
 
   return (
+    <div>
     <form action={formAction} className="space-y-8 max-w-2xl">
 
       {state.error && (
@@ -171,5 +261,10 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
         {isPending ? 'Saving…' : 'Save profile'}
       </button>
     </form>
+
+    <div className="mt-12 pt-10 border-t border-border max-w-2xl">
+      <ChangePasswordForm />
+    </div>
+    </div>
   )
 }
