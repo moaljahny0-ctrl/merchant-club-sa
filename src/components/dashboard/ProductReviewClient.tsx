@@ -4,7 +4,11 @@ import { useState, useTransition } from 'react'
 import { adminReviewProduct } from '@/lib/actions/admin'
 import type { Product } from '@/lib/types/database'
 
-type ProductWithBrand = Product & { brands?: { name_en: string } | null }
+type ProductImage = { url: string; is_primary: boolean; sort_order: number }
+type ProductWithBrand = Product & {
+  brands?: { name_en: string } | null
+  product_images?: ProductImage[]
+}
 
 const STATUS_COLORS: Record<string, string> = {
   draft: 'text-muted',
@@ -29,7 +33,7 @@ export function ProductReviewClient({ products }: { products: ProductWithBrand[]
     <div>
       {/* Filter tabs */}
       <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto">
-        {['all', 'submitted', 'approved', 'rejected', 'live'].map(tab => (
+        {['all', 'submitted', 'rejected', 'live'].map(tab => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
@@ -107,6 +111,32 @@ function ProductReviewCard({ product }: { product: ProductWithBrand }) {
 
       {expanded && (
         <div className="border-t border-border px-5 py-5 space-y-4">
+          {/* Images */}
+          {product.product_images && product.product_images.length > 0 && (
+            <div>
+              <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-3">Images</p>
+              <div className="flex flex-wrap gap-3">
+                {[...product.product_images]
+                  .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order)
+                  .map((img, i) => (
+                    <div key={i} className="relative border border-border">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={img.url}
+                        alt={`Product image ${i + 1}`}
+                        className="w-40 h-40 object-cover block"
+                      />
+                      {img.is_primary && (
+                        <span className="absolute top-1 left-1 bg-gold text-ink text-[8px] tracking-[0.1em] uppercase px-1.5 py-0.5">
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { label: 'SKU', value: product.sku },

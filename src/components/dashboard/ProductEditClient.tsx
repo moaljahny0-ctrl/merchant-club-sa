@@ -1,6 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { ProductForm } from './ProductForm'
 import { submitProductForReview, deleteProduct, updateProduct } from '@/lib/actions/products'
 import type { Product } from '@/lib/types/database'
@@ -14,11 +15,16 @@ type Props = {
 
 export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl }: Props) {
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   function handleSubmitForReview() {
     startTransition(async () => {
       const result = await submitProductForReview(product.id)
-      if (result.error) alert(result.error)
+      if (result.error) {
+        alert(result.error)
+      } else {
+        router.refresh()
+      }
     })
   }
 

@@ -97,6 +97,7 @@ export async function createProduct(
     const description_en = (formData.get('description_en') as string)?.trim() ?? ''
     const priceRaw = formData.get('price') as string
     const price = parseFloat(priceRaw)
+    const stock_quantity = parseInt(formData.get('stock_quantity') as string, 10)
     const imageFile = formData.get('image') as File | null
 
     if (!title_en || isNaN(price) || price < 0) {
@@ -113,6 +114,7 @@ export async function createProduct(
         description_en,
         description_ar: '',
         price,
+        stock_quantity: isNaN(stock_quantity) ? 1 : Math.max(0, stock_quantity),
         category: '',
         status: 'draft',
       })
@@ -130,7 +132,7 @@ export async function createProduct(
   }
 
   revalidatePath('/dashboard/brand/products')
-  redirect(`/dashboard/brand/products/${newId}`)
+  redirect('/dashboard/brand/products')
 }
 
 // ── update ────────────────────────────────────────────────────────────────────
@@ -146,6 +148,7 @@ export async function updateProduct(
     const title_en = (formData.get('title_en') as string)?.trim()
     const description_en = (formData.get('description_en') as string)?.trim() ?? ''
     const price = parseFloat(formData.get('price') as string)
+    const stock_quantity = parseInt(formData.get('stock_quantity') as string, 10)
     const imageFile = formData.get('image') as File | null
 
     if (!title_en || isNaN(price) || price < 0) {
@@ -155,7 +158,12 @@ export async function updateProduct(
     const supabase = await createClient()
     const { error } = await supabase
       .from('products')
-      .update({ title_en, description_en, price })
+      .update({
+        title_en,
+        description_en,
+        price,
+        stock_quantity: isNaN(stock_quantity) ? 1 : Math.max(0, stock_quantity),
+      })
       .eq('id', id)
       .eq('brand_id', brandId)
 
@@ -256,14 +264,15 @@ export async function adminReviewProduct(
     if (!user) return { error: 'Unauthenticated' }
 
     const serviceClient = createServiceClient()
-    const newStatus: ProductStatus = action === 'approve' ? 'approved' : 'rejected'
+    const now = new Date().toISOString()
 
     const { error } = await serviceClient
       .from('products')
       .update({
-        status: newStatus,
+        status: action === 'approve' ? 'live' : 'rejected',
         reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
+        reviewed_at: now,
+        ...(action === 'approve' ? { published_at: now } : {}),
         ...(action === 'reject' ? { rejection_reason: rejectionReason ?? 'Did not meet requirements.' } : {}),
       })
       .eq('id', id)

@@ -46,12 +46,49 @@ export default async function AdminOverviewPage() {
     { label: 'Total Orders', value: totalOrders, href: '/dashboard/admin/orders' },
   ]
 
+  const hasActions = pendingApps > 0 || pendingProducts > 0
+
   return (
     <div className="p-6 md:p-10 max-w-4xl">
       <div className="mb-8">
         <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-2">Admin</p>
         <h1 className="font-display text-3xl md:text-4xl font-light text-parchment">Platform overview</h1>
       </div>
+
+      {/* Priority Action Card */}
+      {hasActions && (
+        <div className="border border-gold/30 bg-gold/5 px-6 py-5 mb-8">
+          <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-4">Requires attention</p>
+          <div className="flex flex-col gap-3">
+            {pendingApps > 0 && (
+              <div className="flex items-center justify-between">
+                <p className="text-parchment text-sm">
+                  {pendingApps} brand application{pendingApps !== 1 ? 's' : ''} pending review
+                </p>
+                <Link
+                  href="/dashboard/admin/applications"
+                  className="text-[10px] text-gold tracking-[0.15em] uppercase hover:text-gold-light transition-colors shrink-0 ml-4"
+                >
+                  Review →
+                </Link>
+              </div>
+            )}
+            {pendingProducts > 0 && (
+              <div className="flex items-center justify-between">
+                <p className="text-parchment text-sm">
+                  {pendingProducts} product{pendingProducts !== 1 ? 's' : ''} awaiting approval
+                </p>
+                <Link
+                  href="/dashboard/admin/products"
+                  className="text-[10px] text-gold tracking-[0.15em] uppercase hover:text-gold-light transition-colors shrink-0 ml-4"
+                >
+                  Review →
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
         {stats.map(stat => (
@@ -71,6 +108,12 @@ export default async function AdminOverviewPage() {
       </div>
 
       <div className="flex flex-wrap gap-3">
+        <Link
+          href="/dashboard/admin/brands"
+          className="border border-border text-parchment text-xs tracking-[0.15em] uppercase px-6 py-3 hover:border-gold hover:text-gold transition-colors"
+        >
+          Manage brands
+        </Link>
         <Link
           href="/dashboard/admin/applications"
           className="border border-border text-parchment text-xs tracking-[0.15em] uppercase px-6 py-3 hover:border-gold hover:text-gold transition-colors"

@@ -81,9 +81,9 @@ export default async function ProductEditPage({ params }: Props) {
         </div>
       )}
 
-      {product.status === 'approved' && (
-        <div className="border border-blue-500/30 bg-blue-500/5 px-5 py-4 mb-8">
-          <p className="text-blue-400 text-xs">This product has been approved and will go live with your storefront.</p>
+      {product.status === 'live' && (
+        <div className="border border-green-500/30 bg-green-500/5 px-5 py-4 mb-8">
+          <p className="text-green-400 text-xs">This product is live and visible on your brand page.</p>
         </div>
       )}
 

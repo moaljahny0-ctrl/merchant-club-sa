@@ -276,7 +276,7 @@ export async function reviewApplication(
         contact_email: app.contact_email,
         contact_phone: app.contact_phone ?? null,
         website_url: app.website_url ?? null,
-        status: 'pending',
+        status: 'approved',
         onboarding_state: 'invited',
       })
       .select('id')
@@ -362,21 +362,62 @@ export async function adminReviewProduct(
     const user = await assertAdmin()
     const serviceClient = createServiceClient()
 
+    const now = new Date().toISOString()
+
     const { error } = await serviceClient
       .from('products')
       .update({
-        status: action === 'approve' ? 'approved' : 'rejected',
+        status: action === 'approve' ? 'live' : 'rejected',
         reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
+        reviewed_at: now,
+        ...(action === 'approve' ? { published_at: now } : {}),
         ...(action === 'reject' ? { rejection_reason: rejectionReason ?? '' } : {}),
       })
       .eq('id', id)
+
+    if (error) return { error: error.message }
+
+    // Revalidate brand storefront pages so newly live products appear immediately
+    if (action === 'approve') {
+      const { data: product } = await serviceClient
+        .from('products')
+        .select('brands(slug)')
+        .eq('id', id)
+        .single()
+      const slug = (product?.brands as { slug?: string } | null)?.slug
+      if (slug) {
+        revalidatePath(`/en/brands/${slug}`)
+        revalidatePath(`/ar/brands/${slug}`)
+      }
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unexpected error' }
+  }
+
+  revalidatePath('/dashboard/admin/products')
+  return { error: null }
+}
+
+// ── brands ────────────────────────────────────────────────────────────────────
+
+export async function adminUpdateBrandStatus(
+  brandId: string,
+  status: 'approved' | 'suspended' | 'active'
+): Promise<{ error: string | null }> {
+  try {
+    await assertAdmin()
+    const service = createServiceClient()
+
+    const { error } = await service
+      .from('brands')
+      .update({ status })
+      .eq('id', brandId)
 
     if (error) return { error: error.message }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Unexpected error' }
   }
 
-  revalidatePath('/dashboard/admin/products')
+  revalidatePath('/dashboard/admin/brands')
   return { error: null }
 }

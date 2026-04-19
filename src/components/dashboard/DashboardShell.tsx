@@ -25,11 +25,13 @@ const brandNav = [
   { label: 'Overview', href: '/dashboard/brand' },
   { label: 'Products', href: '/dashboard/brand/products' },
   { label: 'Orders', href: '/dashboard/brand/orders' },
+  { label: 'Storefront', href: '/dashboard/brand/storefront' },
   { label: 'Profile', href: '/dashboard/brand/profile' },
 ]
 
 const adminNav = [
   { label: 'Overview', href: '/dashboard/admin' },
+  { label: 'Brands', href: '/dashboard/admin/brands' },
   { label: 'Applications', href: '/dashboard/admin/applications' },
   { label: 'Products', href: '/dashboard/admin/products' },
   { label: 'Orders', href: '/dashboard/admin/orders' },

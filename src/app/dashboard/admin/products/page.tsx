@@ -26,7 +26,7 @@ export default async function AdminProductsPage() {
 
   const { data: products } = await supabase
     .from('products')
-    .select('*, brands(name_en)')
+    .select('*, brands(name_en), product_images(url, is_primary, sort_order)')
     .order('updated_at', { ascending: false })
     .limit(200)
 

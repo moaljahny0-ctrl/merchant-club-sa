@@ -43,21 +43,38 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
         />
       </div>
 
-      {/* Price */}
-      <div>
-        <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
-          Price (SAR) <span className="text-gold">*</span>
-        </label>
-        <input
-          name="price"
-          type="number"
-          required
-          min={0}
-          step={0.01}
-          defaultValue={defaultValues?.price}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
-          placeholder="0.00"
-        />
+      {/* Price + Stock row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+            Price (SAR) <span className="text-gold">*</span>
+          </label>
+          <input
+            name="price"
+            type="number"
+            required
+            min={0}
+            step={0.01}
+            defaultValue={defaultValues?.price}
+            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
+            placeholder="0.00"
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+            Stock quantity <span className="text-gold">*</span>
+          </label>
+          <input
+            name="stock_quantity"
+            type="number"
+            required
+            min={0}
+            step={1}
+            defaultValue={defaultValues?.stock_quantity ?? 1}
+            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
+            placeholder="1"
+          />
+        </div>
       </div>
 
       {/* Short description */}
