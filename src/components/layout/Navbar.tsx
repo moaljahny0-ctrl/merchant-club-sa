@@ -1,19 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const locale = useLocale();
   const t = useTranslations('nav');
   const pathname = usePathname();
   const isRTL = locale === 'ar';
+  const isHome = pathname === '/';
+
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 24)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const transparent = isHome && !scrolled
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 border-b border-border bg-ink/90 backdrop-blur-sm">
+    <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      transparent
+        ? 'border-b border-transparent bg-transparent'
+        : 'border-b border-border bg-ink/90 backdrop-blur-sm'
+    }`}>
       <nav className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
 
         {/* Logo */}
@@ -31,25 +47,25 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-8">
           <Link
             href="/about"
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('about')}
           </Link>
           <Link
             href="/brands"
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('brands')}
           </Link>
           <Link
             href="/members"
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('members')}
           </Link>
           <Link
             href="/auth/login"
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('login')}
           </Link>
@@ -62,7 +78,7 @@ export function Navbar() {
           <Link
             href={pathname}
             locale={isRTL ? 'en' : 'ar'}
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-widest"
+            className={`text-xs hover:text-parchment transition-colors tracking-widest ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {isRTL ? 'EN' : 'ع'}
           </Link>

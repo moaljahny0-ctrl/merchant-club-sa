@@ -30,10 +30,13 @@ export default async function HomePage({ params }: Props) {
 async function Hero() {
   const t = await getTranslations('home');
   return (
-    <section className="relative min-h-screen flex flex-col md:grid md:grid-cols-[48%_52%]">
+    <section className="relative min-h-screen overflow-hidden flex items-center">
 
-      {/* ── Mobile image strip (md:hidden) ──────────────────────── */}
-      <div className="md:hidden relative h-[58vw] w-full overflow-hidden">
+      {/* ── Layer 1: Image + color grading (isolated — filter does not affect text) ── */}
+      <div
+        className="absolute inset-0"
+        style={{ filter: 'contrast(1.05) brightness(0.95) saturate(1.1)' }}
+      >
         <Image
           src="/hero.png"
           alt="Merchant Club SA"
@@ -41,21 +44,46 @@ async function Hero() {
           priority
           className="object-cover object-center"
           sizes="100vw"
-          quality={90}
+          quality={92}
         />
-        {/* Bottom fade into page background */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink to-transparent" />
       </div>
 
-      {/* ── Text column ─────────────────────────────────────────── */}
-      <div className="flex flex-col justify-center px-6 md:px-10 lg:px-16 pt-10 pb-20 md:pt-0 md:pb-0 md:min-h-screen">
-        <div className="max-w-xl">
+      {/* ── Layer 2: Directional gradient — left dark, right open ── */}
+      <div
+        className="absolute inset-0 z-10"
+        style={{
+          background:
+            'linear-gradient(to right, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.52) 45%, rgba(0,0,0,0.15) 100%)',
+        }}
+      />
+
+      {/* ── Layer 3: Radial vignette — edge depth + focus ── */}
+      <div
+        className="absolute inset-0 z-10"
+        style={{
+          background:
+            'radial-gradient(ellipse at 28% 50%, transparent 30%, rgba(0,0,0,0.32) 100%)',
+        }}
+      />
+
+      {/* ── Layer 4: Bottom section fade into ink ── */}
+      <div className="absolute inset-x-0 bottom-0 h-44 z-10 bg-gradient-to-t from-ink to-transparent" />
+
+      {/* ── Layer 5: Inset bottom shadow — depth ── */}
+      <div
+        className="absolute inset-0 z-10 pointer-events-none"
+        style={{ boxShadow: 'inset 0 -100px 150px rgba(0,0,0,0.40)' }}
+      />
+
+      {/* ── Content — above all overlays ── */}
+      <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 flex items-center min-h-screen">
+        <div className="max-w-xl lg:max-w-2xl">
 
           <p className="text-[9px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
             {t('hero_eyebrow')}
           </p>
 
-          <h1 className="font-display text-[2.75rem] md:text-6xl lg:text-[5.25rem] font-light text-parchment leading-[1.05] tracking-tight">
+          <h1 className="font-display text-[2.75rem] md:text-6xl lg:text-[5.5rem] font-light text-parchment leading-[1.05] tracking-tight">
             {t('hero_headline')}
           </h1>
 
@@ -72,30 +100,13 @@ async function Hero() {
             </Link>
             <Link
               href="/brands"
-              className="inline-flex items-center justify-center border border-border text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
+              className="inline-flex items-center justify-center border border-parchment/30 text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
             >
               {t('hero_secondary_cta')}
             </Link>
           </div>
 
         </div>
-      </div>
-
-      {/* ── Image column (desktop only) ──────────────────────────── */}
-      <div className="hidden md:block relative overflow-hidden">
-        <Image
-          src="/hero.png"
-          alt="Merchant Club SA — brand collection"
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="52vw"
-          quality={92}
-        />
-        {/* Left-edge gradient — melts into text column */}
-        <div className="absolute inset-y-0 left-0 w-36 bg-gradient-to-r from-ink to-transparent" />
-        {/* Bottom fade for seamless section transition */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink to-transparent" />
       </div>
 
     </section>
