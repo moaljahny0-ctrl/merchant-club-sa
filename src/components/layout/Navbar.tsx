@@ -12,7 +12,7 @@ export function Navbar() {
   const t = useTranslations('nav');
   const pathname = usePathname();
   const isRTL = locale === 'ar';
-  const isHome = pathname === '/';
+  const isHome = pathname === '/' || pathname === '/members';
 
   useEffect(() => {
     function onScroll() {
