@@ -24,7 +24,7 @@ const inter = Inter({
 });
 
 const hanazad = localFont({
-  src: '../fonts/TSHanazad-Display.otf',
+  src: '../fonts/TSHanazad-Display.woff2',
   variable: '--font-hanazad',
   display: 'swap',
 });
