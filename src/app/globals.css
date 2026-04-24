@@ -44,6 +44,28 @@ body {
   font-family: var(--font-arabic), var(--font-body);
 }
 
+[dir="rtl"] * {
+  font-family: var(--font-arabic) !important;
+}
+
+[dir="rtl"] h1 {
+  font-size: 1.15em;
+  letter-spacing: 0;
+}
+
+[dir="rtl"] h2 {
+  font-size: 1.15em;
+  letter-spacing: 0;
+}
+
+[dir="rtl"] p,
+[dir="rtl"] a,
+[dir="rtl"] button,
+[dir="rtl"] span {
+  font-size: 1.1em;
+  letter-spacing: 0;
+}
+
 ::selection {
   background-color: #D4AF37;
   color: #0D0D0D;
