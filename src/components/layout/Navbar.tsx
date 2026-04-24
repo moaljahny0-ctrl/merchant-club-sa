@@ -78,7 +78,9 @@ export function Navbar() {
           <Link
             href={pathname}
             locale={isRTL ? 'en' : 'ar'}
-            className={`text-xs hover:text-parchment transition-colors tracking-widest ${transparent ? 'text-parchment/80' : 'text-muted'}`}
+            className={`text-xs hover:text-parchment transition-colors tracking-widest ${
+              isRTL ? 'text-parchment/80' : (transparent ? 'text-parchment/80' : 'text-muted')
+            }`}
           >
             {isRTL ? 'EN' : 'ع'}
           </Link>
@@ -89,7 +91,7 @@ export function Navbar() {
           <Link
             href={pathname}
             locale={isRTL ? 'en' : 'ar'}
-            className="text-xs text-muted hover:text-parchment transition-colors"
+            className={`text-xs hover:text-parchment transition-colors ${isRTL ? 'text-parchment/80' : 'text-muted'}`}
           >
             {isRTL ? 'EN' : 'ع'}
           </Link>

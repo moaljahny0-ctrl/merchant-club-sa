@@ -123,6 +123,15 @@ body {
   font-size: 0.95rem;
   letter-spacing: 0.06em;
   line-height: 1.5;
+  color: inherit;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[dir="rtl"] button:hover,
+[dir="rtl"] a[class*="px-"]:hover {
+  transform: scale(1.03);
+  box-shadow: 0 2px 0 0 currentColor;
 }
 
 ::selection {
