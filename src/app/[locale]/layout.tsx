@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import { Playfair_Display, Inter, Cairo } from 'next/font/google';
+import { Playfair_Display, Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -22,10 +23,9 @@ const inter = Inter({
   display: 'swap',
 });
 
-const cairo = Cairo({
-  subsets: ['arabic', 'latin'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-cairo',
+const hanazad = localFont({
+  src: '../fonts/TSHanazad-Display.otf',
+  variable: '--font-hanazad',
   display: 'swap',
 });
 
@@ -85,7 +85,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html
       lang={locale}
       dir={isRTL ? 'rtl' : 'ltr'}
-      className={`${playfair.variable} ${inter.variable} ${cairo.variable}`}
+      className={`${playfair.variable} ${inter.variable} ${hanazad.variable}`}
     >
       <body>
         <Analytics />

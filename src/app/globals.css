@@ -18,8 +18,8 @@
   --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
   /* Inter: all EN body, UI, buttons, nav                       */
   --font-body:    var(--font-inter), system-ui, -apple-system, sans-serif;
-  /* Cairo: all Arabic — headings + body                        */
-  --font-arabic:  var(--font-cairo), "Arabic Typesetting", sans-serif;
+  /* TSHanazad Display: all Arabic — headings + body            */
+  --font-arabic:  var(--font-hanazad), "Arabic Typesetting", sans-serif;
 }
 
 *,
