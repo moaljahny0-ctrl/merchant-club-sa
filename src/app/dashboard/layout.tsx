@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
+import './admin-shell.css'
 
 type Props = {
   children: ReactNode
@@ -41,11 +42,25 @@ export default async function DashboardLayout({ children }: Props) {
     ? (Array.isArray(rawBrand) ? rawBrand[0] : rawBrand)
     : null
 
+  // Sidebar badge counts (admin only)
+  let adminBadges = { brands: 0, pendingApps: 0 }
+  if (isAdmin) {
+    const [brandsCountRes, pendingAppsRes] = await Promise.all([
+      supabase.from('brands').select('id', { count: 'exact', head: true }),
+      supabase.from('brand_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    ])
+    adminBadges = {
+      brands:      brandsCountRes.count   ?? 0,
+      pendingApps: pendingAppsRes.count   ?? 0,
+    }
+  }
+
   return (
     <DashboardShell
       isAdmin={isAdmin}
       brand={brand as { id: string; name_en: string; status: string; onboarding_state: string } | null}
       userEmail={user.email ?? ''}
+      adminBadges={adminBadges}
     >
       {children}
     </DashboardShell>

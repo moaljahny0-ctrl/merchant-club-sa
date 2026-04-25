@@ -1,160 +1,199 @@
 'use client'
 
 import {
-  ResponsiveContainer,
-  LineChart,
+  ComposedChart,
+  Area,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
+  ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
 } from 'recharts'
+import { useAdminTheme } from './AdminTheme'
 
-export type MonthlyDatum = { month: string; revenue: number; orders: number }
-export type DistributionDatum = { name: string; value: number }
+export type TrendDatum       = { month: string; applications: number; brands: number }
+export type BrandStatusDatum = { label: string; value: number }
 
-const GOLD = '#D4AF37'
-const PIE_COLORS = ['#D4AF37', '#A67C00', '#7A5C00', '#B8860B', '#C8960C', '#9A7209']
-
-const tooltipStyle = {
-  background: '#1A1A1A',
-  border: '1px solid #252525',
-  borderRadius: 0,
-  color: '#E8DCC8',
-  fontSize: 12,
+// Color palettes keyed by mode
+const DARK = {
+  grid: '#1e1e1c', tick: '#555',
+  gold: '#b8975a', green: '#4caf7d', blue: '#5b8df5',
+  goldFill: 'rgba(184,151,90,0.08)',
+  tooltip: '#111110', ttTitle: '#c9a96e', ttBody: '#888', ttBorder: '#2a2a27',
+  donut: ['#b8975a', '#4caf7d', '#5b8df5'],
+}
+const LIGHT = {
+  grid: '#ede9e2', tick: '#aaa',
+  gold: '#8c6a2e', green: '#1e7a4a', blue: '#2a5fc4',
+  goldFill: 'rgba(140,106,46,0.06)',
+  tooltip: '#fff', ttTitle: '#8c6a2e', ttBody: '#666', ttBorder: '#e0dbd0',
+  donut: ['#8c6a2e', '#1e7a4a', '#2a5fc4'],
 }
 
 export function AdminCharts({
-  monthlyData,
-  distributionData,
+  trendData,
+  brandStatusData,
 }: {
-  monthlyData: MonthlyDatum[]
-  distributionData: DistributionDatum[]
+  trendData: TrendDatum[]
+  brandStatusData: BrandStatusDatum[]
 }) {
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-px bg-border mt-px">
+  const { isDark } = useAdminTheme()
+  const C = isDark ? DARK : LIGHT
+  const totalBrands = brandStatusData.reduce((s, d) => s + d.value, 0)
 
-      {/* Revenue vs Orders line chart */}
-      <div className="bg-surface p-6 md:p-8">
-        <p className="text-[9px] text-muted tracking-[0.25em] uppercase mb-1">Revenue vs Orders</p>
-        <p className="text-parchment text-sm mb-6">Last 6 months</p>
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={monthlyData} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#252525" vertical={false} />
+  const tooltipStyle = {
+    background: C.tooltip,
+    border: `1px solid ${C.ttBorder}`,
+    borderRadius: 8,
+    color: C.ttBody,
+    fontSize: 11,
+  }
+
+  return (
+    <div className="a-charts-row">
+
+      {/* ── Trend line chart ──────────────────────────── */}
+      <div className="a-chart-card">
+        <div className="a-card-header">
+          <div>
+            <div className="a-card-title">Applications &amp; Brands Trend</div>
+            <div className="a-card-sub">Monthly performance overview</div>
+          </div>
+          <div className="a-tab-row">
+            <button className="a-tab a-tab-active">Monthly</button>
+            <button className="a-tab">Weekly</button>
+            <button className="a-tab">Daily</button>
+          </div>
+        </div>
+
+        <ResponsiveContainer width="100%" height={155}>
+          <ComposedChart data={trendData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor={C.gold} stopOpacity={0.15} />
+                <stop offset="95%" stopColor={C.gold} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid stroke={C.grid} vertical={false} />
             <XAxis
               dataKey="month"
-              tick={{ fill: '#666', fontSize: 10 }}
+              tick={{ fill: C.tick, fontSize: 10 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              yAxisId="revenue"
-              orientation="left"
-              tick={{ fill: '#666', fontSize: 10 }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
-            />
-            <YAxis
-              yAxisId="orders"
-              orientation="right"
-              tick={{ fill: '#555', fontSize: 10 }}
+              tick={{ fill: C.tick, fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               allowDecimals={false}
+              width={24}
             />
             <Tooltip
               contentStyle={tooltipStyle}
-              formatter={(value, name) =>
-                name === 'Revenue (SAR)'
-                  ? [`SAR ${Number(value).toLocaleString('en-SA', { minimumFractionDigits: 0 })}`, name as string]
-                  : [value, name as string]
-              }
+              labelStyle={{ color: C.ttTitle, fontWeight: 600, marginBottom: 4 }}
             />
-            <Line
-              yAxisId="revenue"
+            <Area
               type="monotone"
-              dataKey="revenue"
-              stroke={GOLD}
+              dataKey="applications"
+              name="Applications"
+              stroke={C.gold}
               strokeWidth={2}
-              dot={false}
-              name="Revenue (SAR)"
+              fill="url(#goldGrad)"
+              dot={{ fill: C.gold, r: 3, strokeWidth: 0 }}
+              activeDot={{ r: 4 }}
             />
             <Line
-              yAxisId="orders"
               type="monotone"
-              dataKey="orders"
-              stroke="#555555"
-              strokeWidth={1.5}
-              dot={false}
+              dataKey="brands"
+              name="Active Brands"
+              stroke={C.green}
+              strokeWidth={2}
               strokeDasharray="4 3"
-              name="Orders"
+              dot={{ fill: C.green, r: 3, strokeWidth: 0 }}
+              activeDot={{ r: 4 }}
             />
-          </LineChart>
+          </ComposedChart>
         </ResponsiveContainer>
-        <div className="flex gap-6 mt-4">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-px" style={{ background: GOLD }} />
-            <p className="text-[10px] text-muted">Revenue</p>
+
+        <div className="a-chart-legend">
+          <div className="a-chart-legend-item">
+            <span className="a-legend-line" style={{ background: C.gold }} />
+            Applications
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-px border-t border-dashed border-[#555]" />
-            <p className="text-[10px] text-muted">Orders</p>
+          <div className="a-chart-legend-item">
+            <span
+              className="a-legend-line"
+              style={{
+                background: 'none',
+                borderTop: `2px dashed ${C.green}`,
+                display: 'inline-block',
+                width: 10,
+                height: 0,
+                verticalAlign: 'middle',
+              }}
+            />
+            Active Brands
           </div>
         </div>
       </div>
 
-      {/* Sales distribution donut */}
-      <div className="bg-surface p-6 md:p-8">
-        <p className="text-[9px] text-muted tracking-[0.25em] uppercase mb-1">Sales Distribution</p>
-        <p className="text-parchment text-sm mb-4">By brand</p>
-        {distributionData.length === 0 ? (
-          <div className="h-[180px] flex items-center justify-center">
-            <p className="text-muted text-xs tracking-[0.1em]">No sales data yet</p>
+      {/* ── Donut: Brands by Status ───────────────────── */}
+      <div className="a-chart-card a-donut-section">
+        <div className="a-card-header" style={{ width: '100%' }}>
+          <div>
+            <div className="a-card-title">Brands by Status</div>
+            <div className="a-card-sub">Distribution this quarter</div>
+          </div>
+        </div>
+
+        {totalBrands === 0 ? (
+          <div style={{ height: 110, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 11, color: 'var(--text3)' }}>No brands yet</span>
           </div>
         ) : (
-          <>
-            <ResponsiveContainer width="100%" height={160}>
-              <PieChart>
-                <Pie
-                  data={distributionData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={46}
-                  outerRadius={72}
-                  dataKey="value"
-                  paddingAngle={2}
-                  strokeWidth={0}
-                >
-                  {distributionData.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={tooltipStyle}
-                  formatter={(v) => [`SAR ${Number(v).toFixed(0)}`, 'Revenue']}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="mt-4 space-y-2">
-              {distributionData.slice(0, 5).map((d, i) => (
-                <div key={d.name} className="flex items-center gap-2.5">
-                  <div
-                    className="w-1.5 h-1.5 rounded-full shrink-0"
-                    style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
-                  />
-                  <p className="text-[10px] text-muted truncate flex-1">{d.name}</p>
-                  <p className="text-[10px] text-parchment tabular-nums shrink-0">
-                    SAR {d.value.toLocaleString('en-SA', { minimumFractionDigits: 0 })}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </>
+          <ResponsiveContainer width={110} height={110}>
+            <PieChart>
+              <Pie
+                data={brandStatusData}
+                cx="50%"
+                cy="50%"
+                innerRadius={41}
+                outerRadius={55}
+                dataKey="value"
+                paddingAngle={2}
+                strokeWidth={0}
+              >
+                {brandStatusData.map((_, i) => (
+                  <Cell key={i} fill={C.donut[i % C.donut.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={tooltipStyle}
+                formatter={(v, name) => [v, name]}
+              />
+            </PieChart>
+          </ResponsiveContainer>
         )}
+
+        <div className="a-donut-total">{totalBrands} Total</div>
+
+        <div style={{ width: '100%' }}>
+          {brandStatusData.map((d, i) => (
+            <div key={d.label} className="a-legend-item">
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                <span className="a-ldot" style={{ background: C.donut[i % C.donut.length] }} />
+                {d.label}
+              </span>
+              <span>
+                {d.value} — {totalBrands > 0 ? Math.round((d.value / totalBrands) * 100) : 0}%
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
     </div>

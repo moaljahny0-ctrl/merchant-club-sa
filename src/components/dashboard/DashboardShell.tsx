@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { AdminDashboardShell } from './AdminDashboardShell'
 
 type Brand = {
   id: string
@@ -19,6 +20,7 @@ type Props = {
   isAdmin: boolean
   brand: Brand
   userEmail: string
+  adminBadges?: { brands: number; pendingApps: number }
 }
 
 const brandNav = [
@@ -37,10 +39,22 @@ const adminNav = [
   { label: 'Orders', href: '/dashboard/admin/orders' },
 ]
 
-export function DashboardShell({ children, isAdmin, brand, userEmail }: Props) {
+export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadges }: Props) {
+  // Hooks must be called unconditionally (Rules of Hooks)
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  if (isAdmin) {
+    return (
+      <AdminDashboardShell
+        userEmail={userEmail}
+        adminBadges={adminBadges ?? { brands: 0, pendingApps: 0 }}
+      >
+        {children}
+      </AdminDashboardShell>
+    )
+  }
 
   const nav = isAdmin ? adminNav : brandNav
   const sectionLabel = isAdmin ? 'Admin' : (brand?.name_en ?? 'Brand')
