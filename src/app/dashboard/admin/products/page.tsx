@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { ProductReviewClient } from '@/components/dashboard/ProductReviewClient'
 
 async function assertAdmin(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
@@ -24,7 +24,8 @@ export default async function AdminProductsPage() {
 
   await assertAdmin(supabase, user.id)
 
-  const { data: products } = await supabase
+  const service = createServiceClient()
+  const { data: products } = await service
     .from('products')
     .select('*, brands(name_en), product_images(url, is_primary, sort_order)')
     .order('updated_at', { ascending: false })

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { adminReviewProduct } from '@/lib/actions/admin'
+import { adminReviewProduct, adminUnpublishProduct, adminDeleteProduct } from '@/lib/actions/admin'
 import type { Product } from '@/lib/types/database'
 
 type ProductImage = { url: string; is_primary: boolean; sort_order: number }
@@ -83,6 +83,24 @@ function ProductReviewCard({ product }: { product: ProductWithBrand }) {
     setActionError(null)
     startTransition(async () => {
       const result = await adminReviewProduct(product.id, 'reject', rejectionReason)
+      if (result.error) setActionError(result.error)
+    })
+  }
+
+  function handleUnpublish() {
+    if (!confirm('Unpublish this product? It will be hidden from the brand page.')) return
+    setActionError(null)
+    startTransition(async () => {
+      const result = await adminUnpublishProduct(product.id)
+      if (result.error) setActionError(result.error)
+    })
+  }
+
+  function handleAdminDelete() {
+    if (!confirm('Permanently delete this product and its images? This cannot be undone.')) return
+    setActionError(null)
+    startTransition(async () => {
+      const result = await adminDeleteProduct(product.id)
       if (result.error) setActionError(result.error)
     })
   }
@@ -205,6 +223,35 @@ function ProductReviewCard({ product }: { product: ProductWithBrand }) {
               </div>
             </div>
           )}
+
+          {/* Admin controls available at any status */}
+          <div className="border-t border-border pt-4 flex flex-wrap gap-3">
+            {product.status !== 'submitted' && (
+              <button
+                onClick={handleApprove}
+                disabled={isPending}
+                className="bg-gold text-ink text-xs font-medium tracking-[0.15em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors disabled:opacity-50"
+              >
+                {isPending ? '…' : 'Approve / Set live'}
+              </button>
+            )}
+            {product.status === 'live' && (
+              <button
+                onClick={handleUnpublish}
+                disabled={isPending}
+                className="border border-border text-muted text-xs tracking-[0.15em] uppercase px-5 py-2.5 hover:border-parchment hover:text-parchment transition-colors disabled:opacity-50"
+              >
+                {isPending ? '…' : 'Unpublish'}
+              </button>
+            )}
+            <button
+              onClick={handleAdminDelete}
+              disabled={isPending}
+              className="border border-red-500/40 text-red-400 text-xs tracking-[0.15em] uppercase px-5 py-2.5 hover:border-red-400 transition-colors disabled:opacity-50 ml-auto"
+            >
+              {isPending ? '…' : 'Delete'}
+            </button>
+          </div>
         </div>
       )}
     </div>

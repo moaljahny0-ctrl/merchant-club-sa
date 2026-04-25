@@ -39,18 +39,12 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
 
   return (
     <div className="space-y-8">
-      {canEdit ? (
-        <ProductForm
-          action={boundUpdateProduct}
-          defaultValues={product}
-          submitLabel="Save changes"
-          currentImageUrl={currentImageUrl}
-        />
-      ) : (
-        <div className="max-w-xl space-y-6 opacity-60 pointer-events-none select-none">
-          <ProductFormReadOnly product={product} currentImageUrl={currentImageUrl} />
-        </div>
-      )}
+      <ProductForm
+        action={boundUpdateProduct}
+        defaultValues={product}
+        submitLabel={product.status === 'live' ? 'Save & resubmit for review' : 'Save changes'}
+        currentImageUrl={currentImageUrl}
+      />
 
       {/* Actions */}
       <div className="border-t border-border pt-6 max-w-xl flex flex-wrap gap-3">
@@ -63,15 +57,13 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
             {isPending ? 'Submitting…' : 'Submit for review'}
           </button>
         )}
-        {canEdit && (
-          <button
-            onClick={handleDelete}
-            disabled={isPending}
-            className="border border-red-500/40 text-red-400 text-xs tracking-[0.15em] uppercase px-6 py-3 hover:border-red-400 transition-colors disabled:opacity-50"
-          >
-            Delete product
-          </button>
-        )}
+        <button
+          onClick={handleDelete}
+          disabled={isPending}
+          className="border border-red-500/40 text-red-400 text-xs tracking-[0.15em] uppercase px-6 py-3 hover:border-red-400 transition-colors disabled:opacity-50"
+        >
+          Delete product
+        </button>
       </div>
     </div>
   )

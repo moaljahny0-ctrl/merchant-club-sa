@@ -26,6 +26,7 @@ function buildEmailHtml(fields: {
   website: string;
   applicationId: string;
   submittedAt: string;
+  adminUrl: string;
 }): string {
   const { brandName, category, story, instagram, email, website, applicationId, submittedAt } = fields;
 
@@ -127,11 +128,24 @@ function buildEmailHtml(fields: {
             </td>
           </tr>
 
+          <!-- CTA -->
+          <tr>
+            <td style="padding:0 40px 36px;">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background:#D4AF37;">
+                    <a href="${fields.adminUrl}" style="display:inline-block;padding:16px 36px;font-size:11px;font-family:Georgia,serif;letter-spacing:0.2em;text-transform:uppercase;color:#0D0D0D;text-decoration:none;font-weight:600;">Review application →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
           <!-- Footer -->
           <tr>
-            <td style="padding:28px 40px 36px;border-top:1px solid #252525;margin-top:8px;">
-              <p style="margin:0;font-size:10px;color:#555555;letter-spacing:0.1em;">
-                Submitted via merchantclubsa.com/apply/partner
+            <td style="padding:20px 40px 28px;border-top:1px solid #252525;">
+              <p style="margin:0;font-size:10px;color:#444444;letter-spacing:0.1em;">
+                merchantclubsa.com &nbsp;·&nbsp; info@merchantclubsa.com
               </p>
             </td>
           </tr>
@@ -193,14 +207,16 @@ export async function submitApplication(
     return { success: true, error: null };
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com';
+
   try {
     const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
       from: 'Merchant Club SA <applications@merchantclubsa.com>',
-      to:   ['applications@merchantclubsa.com'],
+      to:   ['info@merchantclubsa.com'],
       replyTo: email,
-      subject: `New Application: ${brandName}`,
-      html: buildEmailHtml({ brandName, category, story, instagram, email, website, applicationId, submittedAt }),
+      subject: `New partner application — ${brandName}`,
+      html: buildEmailHtml({ brandName, category, story, instagram, email, website, applicationId, submittedAt, adminUrl: `${siteUrl}/dashboard/admin/applications` }),
     });
 
     if (error) {

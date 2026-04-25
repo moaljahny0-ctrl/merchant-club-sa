@@ -38,7 +38,7 @@ type TFn = Awaited<ReturnType<typeof getTranslations<'brands'>>>
 
 async function PartnersHero({ t }: { t: TFn }) {
   return (
-    <section className="relative min-h-screen overflow-hidden flex items-center">
+    <section className="relative min-h-[80vh] md:min-h-screen overflow-hidden flex items-center">
 
       {/* Layer 1 — image + color grading */}
       <div
@@ -84,7 +84,7 @@ async function PartnersHero({ t }: { t: TFn }) {
       />
 
       {/* Content */}
-      <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 flex items-center min-h-screen">
+      <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 flex items-center min-h-[80vh] md:min-h-screen">
         <div className="max-w-xl lg:max-w-2xl">
 
           <p className="text-[9px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
@@ -251,7 +251,7 @@ function ComingSoonSection({
           </div>
 
           {/* Dimmed placeholder grid */}
-          <div className="grid grid-cols-2 gap-3 opacity-25">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-25">
             {slots.map((slot) => (
               <PartnerCard key={slot.id} partner={slot} locale={locale} />
             ))}
@@ -286,7 +286,7 @@ function ActivePartnersSection({
             {partners.length} partner{partners.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
           {partners.map((partner) => (
             <PartnerCard key={partner.id} partner={partner} locale={locale} />
           ))}

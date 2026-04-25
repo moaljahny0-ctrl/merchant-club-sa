@@ -10,7 +10,7 @@ export async function Footer() {
         <span className="font-display text-gold tracking-[0.25em] uppercase">
           Merchant Club SA
         </span>
-        <div className="flex items-center gap-8 text-muted">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-muted">
           <Link href="/about" className="hover:text-parchment transition-colors tracking-[0.15em] uppercase">
             {t('about')}
           </Link>

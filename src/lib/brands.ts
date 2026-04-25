@@ -9,7 +9,8 @@ export type Partner = {
   category: string;
   categoryAr: string;
   imageUrl?: string;    // product / lifestyle photo from the partner
-  storeUrl?: string;    // link to their store or profile
+  storeUrl?: string;    // external link (Instagram, etc.) — only used if no slug
+  slug?: string;        // internal brand slug → /brands/[slug]
 };
 
 // ─── Placeholder slots ────────────────────────────────────────────────────────

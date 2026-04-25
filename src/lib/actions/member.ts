@@ -159,17 +159,15 @@ export async function submitMemberEnquiry(
       from: 'Merchant Club SA <applications@merchantclubsa.com>',
       to:   ['info@merchantclubsa.com'],
       replyTo: email,
-      subject: `New Member Enquiry: ${name}`,
+      subject: `New member inquiry — ${name}`,
       html: buildMemberEmailHtml({ name, type, platform, audience: audience ?? '', idea, email, instagram }),
     });
 
     if (error) {
-      console.error('[member] Resend error:', error);
-      return { success: false, error: 'send_failed' };
+      console.error('[member] Resend error (enquiry not blocked):', error);
     }
   } catch (err) {
-    console.error('[member] Unexpected error:', err);
-    return { success: false, error: 'send_failed' };
+    console.error('[member] Resend threw (enquiry not blocked):', err);
   }
 
   return { success: true, error: null };

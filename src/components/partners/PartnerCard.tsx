@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { Link } from '@/i18n/navigation';
 import type { Partner } from '@/lib/brands';
 
 type Props = {
@@ -14,7 +15,7 @@ export function PartnerCard({ partner, locale }: Props) {
   const hasName  = !!name;
 
   const card = (
-    <div className="group flex flex-col">
+    <div className="group flex flex-col cursor-pointer">
 
       {/* Image area — 3:4 portrait */}
       <div className="relative aspect-[3/4] bg-surface border border-border overflow-hidden">
@@ -23,8 +24,8 @@ export function PartnerCard({ partner, locale }: Props) {
             src={partner.imageUrl!}
             alt={name}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 25vw"
           />
         ) : (
           /* Empty slot — awaiting partner content */
@@ -56,7 +57,15 @@ export function PartnerCard({ partner, locale }: Props) {
     </div>
   );
 
-  // If partner has a store link, wrap in an anchor
+  // Internal brand page takes priority over external storeUrl
+  if (partner.slug) {
+    return (
+      <Link href={`/brands/${partner.slug}`}>
+        {card}
+      </Link>
+    );
+  }
+
   if (partner.storeUrl) {
     return (
       <a href={partner.storeUrl} target="_blank" rel="noopener noreferrer">

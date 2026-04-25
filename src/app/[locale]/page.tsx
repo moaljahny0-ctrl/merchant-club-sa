@@ -4,7 +4,8 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { PartnerCard } from '@/components/partners/PartnerCard';
 import { Link } from '@/i18n/navigation';
-import { activePartners, placeholderSlots } from '@/lib/brands';
+import { placeholderSlots } from '@/lib/brands';
+import { createServiceClient } from '@/lib/supabase/server';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -30,7 +31,7 @@ export default async function HomePage({ params }: Props) {
 async function Hero() {
   const t = await getTranslations('home');
   return (
-    <section className="relative min-h-screen overflow-hidden flex items-center">
+    <section className="relative min-h-[80vh] md:min-h-screen overflow-hidden flex items-center">
 
       {/* ── Layer 1: Image + color grading (isolated — filter does not affect text) ── */}
       <div
@@ -76,8 +77,8 @@ async function Hero() {
       />
 
       {/* ── Content — above all overlays ── */}
-      <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 flex items-center min-h-screen">
-        <div className="max-w-xl lg:max-w-2xl">
+      <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 rtl:md:px-12 rtl:lg:px-24 rtl:xl:px-32 flex items-center min-h-[80vh] md:min-h-screen">
+        <div className="hero-content max-w-xl lg:max-w-2xl rtl:max-w-3xl">
 
           <p className="text-[9px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
             {t('hero_eyebrow')}
@@ -117,9 +118,47 @@ async function Hero() {
 
 async function PartnerShowcase({ locale }: { locale: string }) {
   const t = await getTranslations('home');
+  const isAr = locale === 'ar';
 
-  const display = activePartners.length > 0
-    ? activePartners.slice(0, 4)
+  type ProductImage = { url: string; is_primary: boolean }
+  type Product = { status: string; product_images: ProductImage[] }
+  type BrandRow = {
+    id: string
+    name_en: string
+    name_ar: string | null
+    slug: string
+    tagline_en: string | null
+    tagline_ar: string | null
+    products: Product[]
+  }
+
+  const supabase = createServiceClient();
+  const { data: brandsRaw } = await supabase
+    .from('brands')
+    .select('id, name_en, name_ar, slug, tagline_en, tagline_ar, products(status, product_images(url, is_primary))')
+    .in('status', ['approved', 'active'])
+    .order('created_at', { ascending: false })
+    .limit(8);
+
+  const brands = (brandsRaw ?? []) as BrandRow[];
+
+  const display = brands.length > 0
+    ? brands.slice(0, 4).map(brand => {
+        const liveProducts = (brand.products ?? []).filter(p => p.status === 'live');
+        const firstProduct = liveProducts[0];
+        const primaryImage =
+          firstProduct?.product_images?.find(i => i.is_primary) ??
+          firstProduct?.product_images?.[0];
+        return {
+          id: brand.id,
+          name: brand.name_en,
+          nameAr: brand.name_ar ?? brand.name_en,
+          category: (!isAr && brand.tagline_en) ? brand.tagline_en : (isAr && brand.tagline_ar ? brand.tagline_ar : ''),
+          categoryAr: brand.tagline_ar ?? brand.tagline_en ?? '',
+          imageUrl: primaryImage?.url,
+          slug: brand.slug,
+        };
+      })
     : placeholderSlots;
 
   return (
@@ -139,7 +178,7 @@ async function PartnerShowcase({ locale }: { locale: string }) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           {display.map((partner) => (
             <PartnerCard key={partner.id} partner={partner} locale={locale} />
           ))}
@@ -173,7 +212,7 @@ async function ApplyCTA() {
     <section className="px-6 md:px-10 py-24 md:py-40 border-t border-border">
       <div className="max-w-7xl mx-auto">
         <div className="max-w-2xl">
-          <h2 className="font-display text-4xl md:text-6xl font-light text-parchment leading-tight mb-6">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-6xl font-light text-parchment leading-tight mb-6">
             {t('cta_headline')}
           </h2>
           <p className="text-muted text-sm mb-10 leading-relaxed max-w-sm">

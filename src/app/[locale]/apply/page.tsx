@@ -17,7 +17,7 @@ export default async function ApplyGatewayPage() {
             <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-8">
               {t('eyebrow')}
             </p>
-            <h1 className="font-display text-5xl md:text-7xl font-light text-parchment leading-tight mb-4">
+            <h1 className="font-display text-4xl md:text-5xl lg:text-7xl font-light text-parchment leading-tight mb-4">
               {t('heading')}
             </h1>
             <p className="text-muted text-base max-w-xs leading-relaxed">

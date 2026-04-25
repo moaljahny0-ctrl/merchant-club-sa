@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
+import { Link } from '@/i18n/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
 
 type Props = {
@@ -103,7 +104,7 @@ export default async function BrandStorefrontPage({ params }: Props) {
                 <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-10">
                   {isAr ? 'المنتجات' : 'Products'} ({liveProducts.length})
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
                   {liveProducts.map(product => {
                     const images = (product.product_images as { url: string; is_primary: boolean }[]) ?? []
                     const primaryImage = images.find(i => i.is_primary) ?? images[0]
@@ -112,14 +113,18 @@ export default async function BrandStorefrontPage({ params }: Props) {
                     const salePrice = product.sale_price ? Number(product.sale_price) : null
 
                     return (
-                      <div key={product.id} className="group flex flex-col">
+                      <Link
+                        key={product.id}
+                        href={`/brands/${slug}/products/${product.id}`}
+                        className="group flex flex-col cursor-pointer"
+                      >
                         <div className="relative aspect-[3/4] bg-surface border border-border overflow-hidden">
                           {primaryImage ? (
                             <Image
                               src={primaryImage.url}
                               alt={title}
                               fill
-                              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                               sizes="(max-width: 768px) 50vw, 25vw"
                             />
                           ) : (
@@ -141,7 +146,7 @@ export default async function BrandStorefrontPage({ params }: Props) {
                             )}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     )
                   })}
                 </div>

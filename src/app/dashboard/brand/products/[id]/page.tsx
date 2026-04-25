@@ -6,6 +6,7 @@ import type { Product, ProductImage } from '@/lib/types/database'
 
 type Props = {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ imageError?: string }>
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -18,8 +19,9 @@ const STATUS_LABELS: Record<string, string> = {
   out_of_stock: 'Out of stock',
 }
 
-export default async function ProductEditPage({ params }: Props) {
+export default async function ProductEditPage({ params, searchParams }: Props) {
   const { id } = await params
+  const { imageError } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
@@ -45,7 +47,7 @@ export default async function ProductEditPage({ params }: Props) {
   const images = (product.product_images as ProductImage[]) ?? []
   const primaryImage = images.find(img => img.is_primary) ?? images[0]
 
-  const canEdit = ['draft', 'rejected'].includes(product.status)
+  const canEdit = true
   const canSubmit = ['draft', 'rejected'].includes(product.status)
 
   return (
@@ -66,6 +68,13 @@ export default async function ProductEditPage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      {imageError && (
+        <div className="border border-yellow-500/30 bg-yellow-500/5 px-5 py-4 mb-8">
+          <p className="text-yellow-400 text-xs font-medium mb-1">Image upload failed</p>
+          <p className="text-muted text-xs">Your product was saved but the image could not be uploaded. Please upload an image below and save again.</p>
+        </div>
+      )}
 
       {product.status === 'rejected' && product.rejection_reason && (
         <div className="border border-red-500/30 bg-red-500/10 px-5 py-4 mb-8">
