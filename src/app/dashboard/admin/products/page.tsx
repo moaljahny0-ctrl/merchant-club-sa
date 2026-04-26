@@ -31,14 +31,5 @@ export default async function AdminProductsPage() {
     .order('updated_at', { ascending: false })
     .limit(200)
 
-  return (
-    <div className="p-6 md:p-10 max-w-5xl">
-      <div className="mb-8">
-        <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-1">Admin</p>
-        <h1 className="font-display text-3xl font-light text-parchment">Product review</h1>
-      </div>
-
-      <ProductReviewClient products={products ?? []} />
-    </div>
-  )
+  return <ProductReviewClient products={products ?? []} />
 }

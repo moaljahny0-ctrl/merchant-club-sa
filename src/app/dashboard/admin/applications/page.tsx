@@ -30,14 +30,5 @@ export default async function AdminApplicationsPage() {
     .order('created_at', { ascending: false })
     .limit(100)
 
-  return (
-    <div className="p-6 md:p-10 max-w-5xl">
-      <div className="mb-8">
-        <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-1">Admin</p>
-        <h1 className="font-display text-3xl font-light text-parchment">Brand applications</h1>
-      </div>
-
-      <ApplicationReviewClient applications={applications ?? []} />
-    </div>
-  )
+  return <ApplicationReviewClient applications={applications ?? []} />
 }

@@ -15,83 +15,127 @@ type Brand = {
   live_products: number
 }
 
-const STATUS_BADGE: Record<string, string> = {
-  approved: 'border-green-700/40 text-green-400/80 bg-green-900/10',
-  active:   'border-green-700/40 text-green-400/80 bg-green-900/10',
-  pending:  'border-yellow-700/40 text-yellow-400/80 bg-yellow-900/10',
-  suspended:'border-red-700/40 text-red-400/80 bg-red-900/10',
-  rejected: 'border-border text-muted/60',
+const TABS = ['all', 'approved', 'active', 'pending', 'suspended', 'rejected'] as const
+type Tab = typeof TABS[number]
+
+function pillCls(status: string) {
+  if (status === 'approved' || status === 'active') return 'a-pill a-p-active'
+  if (status === 'pending') return 'a-pill a-p-pending'
+  return 'a-pill a-p-review'
 }
 
 export function BrandsClient({ brands }: { brands: Brand[] }) {
-  const [filter, setFilter] = useState('all')
+  const [filter, setFilter] = useState<Tab>('all')
   const [search, setSearch] = useState('')
 
   const counts: Record<string, number> = { all: brands.length }
-  for (const b of brands) {
-    counts[b.status] = (counts[b.status] ?? 0) + 1
-  }
+  for (const b of brands) counts[b.status] = (counts[b.status] ?? 0) + 1
 
   const filtered = brands.filter(b => {
-    const matchesFilter = filter === 'all' || b.status === filter
-    const matchesSearch = !search || b.name_en.toLowerCase().includes(search.toLowerCase())
-    return matchesFilter && matchesSearch
+    if (filter !== 'all' && b.status !== filter) return false
+    if (search && !b.name_en.toLowerCase().includes(search.toLowerCase())) return false
+    return true
   })
 
   return (
-    <div>
-      {/* Search */}
-      <div className="mb-5">
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search brands…"
-          className="w-full max-w-sm bg-surface border border-border text-parchment text-sm px-4 py-2.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
-        />
+    <>
+      <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: '22px', fontWeight: 700, color: 'var(--text)', margin: '0 0 16px' }}>
+        Brands
+      </h1>
+
+      {/* Mini stat boxes */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '18px', flexWrap: 'wrap' }}>
+        <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--gold)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
+          <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{brands.length}</div>
+          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Total</div>
+        </div>
+        <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--green)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
+          <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{(counts.approved ?? 0) + (counts.active ?? 0)}</div>
+          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Approved</div>
+        </div>
+        <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--red)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
+          <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.suspended ?? 0}</div>
+          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Suspended</div>
+        </div>
+        <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--gold)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
+          <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.pending ?? 0}</div>
+          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Pending</div>
+        </div>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto">
-        {['all', 'approved', 'active', 'pending', 'suspended', 'rejected'].map(tab => (
-          <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            className={`px-4 py-2.5 text-xs tracking-[0.15em] uppercase whitespace-nowrap transition-colors ${
-              filter === tab
-                ? 'text-gold border-b border-gold'
-                : 'text-muted hover:text-parchment'
-            }`}
-          >
-            {tab} {counts[tab] ? `(${counts[tab]})` : ''}
-          </button>
-        ))}
-      </div>
-
-      {filtered.length === 0 ? (
-        <p className="text-muted text-sm">No brands in this filter.</p>
-      ) : (
-        <div className="border border-border divide-y divide-border">
-          {/* Header */}
-          <div className="hidden md:grid grid-cols-[1fr_120px_80px_100px_160px] gap-4 px-5 py-3 bg-surface">
-            {['Brand', 'Status', 'Live Products', 'Joined', 'Actions'].map(h => (
-              <p key={h} className="text-[8px] text-muted/50 tracking-[0.2em] uppercase">{h}</p>
-            ))}
-          </div>
-
-          {filtered.map(brand => (
-            <BrandRow key={brand.id} brand={brand} />
+      {/* Controls row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="a-tab-row">
+          {TABS.map(tab => (
+            <button
+              key={tab}
+              className={`a-tab${filter === tab ? ' a-tab-active' : ''}`}
+              onClick={() => setFilter(tab)}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {(counts[tab] ?? 0) > 0 && (
+                <span style={{
+                  marginLeft: '5px', fontSize: '9px', padding: '1px 5px', borderRadius: '8px',
+                  background: filter === tab ? 'rgba(184,151,90,0.3)' : 'var(--border2)',
+                  color: filter === tab ? 'var(--gold)' : 'var(--text3)',
+                }}>
+                  {counts[tab]}
+                </span>
+              )}
+            </button>
           ))}
         </div>
-      )}
 
-      <p className="text-[9px] text-muted/40 tracking-wide mt-5">
+        <div className="a-search-bar" style={{ minWidth: '200px' }}>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden style={{ flexShrink: 0, color: 'var(--text3)' }}>
+            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="11" y1="11" x2="15" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <input
+            className="a-search-input"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search brands…"
+            autoComplete="off"
+          />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="a-chart-card" style={{ padding: 0, overflow: 'hidden' }}>
+        {filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '11px' }}>
+            No brands found
+          </div>
+        ) : (
+          <table className="a-stat-table" style={{ marginTop: 0 }}>
+            <thead>
+              <tr>
+                <th>Brand</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Products</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((brand, i) => (
+                <BrandRow key={brand.id} brand={brand} index={i} />
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '10px' }}>
         {filtered.length} brand{filtered.length !== 1 ? 's' : ''}
-      </p>
-    </div>
+      </div>
+    </>
   )
 }
 
-function BrandRow({ brand }: { brand: Brand }) {
+function BrandRow({ brand, index }: { brand: Brand; index: number }) {
   const [expanded, setExpanded] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [actionError, setActionError] = useState<string | null>(null)
@@ -104,68 +148,92 @@ function BrandRow({ brand }: { brand: Brand }) {
     })
   }
 
+  const rowBg = index % 2 === 0 ? 'var(--bg)' : 'var(--bg2)'
+  const canApprove = brand.status !== 'approved' && brand.status !== 'active'
+  const canSuspend = brand.status !== 'suspended'
+
   return (
-    <div>
-      <button
-        className="w-full text-left px-5 py-4 hover:bg-surface transition-colors md:grid md:grid-cols-[1fr_120px_80px_100px_160px] gap-4 items-center flex justify-between"
-        onClick={() => setExpanded(v => !v)}
-      >
-        <div className="min-w-0">
-          <p className="text-parchment text-sm font-medium truncate">{brand.name_en}</p>
-          <p className="text-muted text-xs mt-0.5 truncate">{brand.contact_email ?? '—'}</p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0 md:shrink">
-          <span className={`hidden md:inline-block text-[8px] tracking-[0.2em] uppercase px-2 py-0.5 border ${STATUS_BADGE[brand.status] ?? 'border-border text-muted/60'}`}>
-            {brand.status}
+    <>
+      <tr className="a-trow" style={{ background: rowBg }}>
+        <td style={{ color: 'var(--text)', fontWeight: 500 }}>
+          {brand.name_en}
+          {brand.name_ar && (
+            <span style={{ fontSize: '10px', color: 'var(--text3)', marginLeft: '6px', fontWeight: 400 }}>
+              {brand.name_ar}
+            </span>
+          )}
+        </td>
+        <td>{brand.contact_email ?? '—'}</td>
+        <td>
+          <span
+            className={pillCls(brand.status)}
+            style={brand.status === 'suspended' ? { background: 'var(--red-bg)', color: 'var(--red)' } : undefined}
+          >
+            {brand.status.charAt(0).toUpperCase() + brand.status.slice(1)}
           </span>
-          <p className="hidden md:block text-parchment text-sm text-center">{brand.live_products}</p>
-          <p className="hidden md:block text-muted text-xs">
-            {new Date(brand.created_at).toLocaleDateString('en-SA', { day: 'numeric', month: 'short', year: 'numeric' })}
-          </p>
-          <span className="text-muted text-xs ml-2">{expanded ? '↑' : '↓'}</span>
-        </div>
-      </button>
-
-      {expanded && (
-        <div className="border-t border-border bg-surface/50 px-5 py-5 space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Slug', value: brand.slug },
-              { label: 'Status', value: brand.status },
-              { label: 'Phone', value: brand.contact_phone },
-              { label: 'Live Products', value: String(brand.live_products) },
-            ].map(f => (
-              <div key={f.label}>
-                <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">{f.label}</p>
-                <p className="text-parchment text-sm">{f.value ?? '—'}</p>
-              </div>
-            ))}
-          </div>
-
-          {actionError && <p className="text-red-400 text-xs">{actionError}</p>}
-
-          <div className="flex gap-3 pt-1">
-            {brand.status !== 'approved' && brand.status !== 'active' && (
+        </td>
+        <td>{brand.live_products}</td>
+        <td>
+          {new Date(brand.created_at).toLocaleDateString('en-SA', {
+            day: 'numeric', month: 'short', year: 'numeric',
+          })}
+        </td>
+        <td>
+          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+            <button
+              className="a-action-btn"
+              onClick={() => setExpanded(v => !v)}
+              style={{ padding: '4px 10px', fontSize: '10px' }}
+            >
+              {expanded ? 'Close' : 'View'}
+            </button>
+            {canApprove && (
               <button
+                className="a-action-btn"
                 onClick={() => handleStatus('approved')}
                 disabled={isPending}
-                className="bg-gold text-ink text-xs font-medium tracking-[0.15em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors disabled:opacity-50"
+                style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
               >
-                {isPending ? '…' : 'Activate'}
+                Approve
               </button>
             )}
-            {brand.status !== 'suspended' && (
+            {canSuspend && (
               <button
+                className="a-action-btn"
                 onClick={() => handleStatus('suspended')}
                 disabled={isPending}
-                className="border border-red-500/40 text-red-400 text-xs tracking-[0.15em] uppercase px-5 py-2.5 hover:border-red-400 transition-colors disabled:opacity-50"
+                style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--red-bg)', borderColor: 'var(--red)', color: 'var(--red)', opacity: isPending ? 0.5 : 1 }}
               >
-                {isPending ? '…' : 'Suspend'}
+                Suspend
               </button>
             )}
           </div>
-        </div>
+        </td>
+      </tr>
+      {expanded && (
+        <tr className="a-tr-detail">
+          <td colSpan={6} style={{ background: 'var(--bg3)', padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px' }}>
+              {[
+                { label: 'Slug',          value: brand.slug },
+                { label: 'Phone',         value: brand.contact_phone },
+                { label: 'Live Products', value: String(brand.live_products) },
+                { label: 'Status',        value: brand.status },
+              ].map(f => (
+                <div key={f.label}>
+                  <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '3px' }}>
+                    {f.label}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text)' }}>{f.value ?? '—'}</div>
+                </div>
+              ))}
+            </div>
+            {actionError && (
+              <div style={{ fontSize: '11px', color: 'var(--red)', marginTop: '10px' }}>{actionError}</div>
+            )}
+          </td>
+        </tr>
       )}
-    </div>
+    </>
   )
 }

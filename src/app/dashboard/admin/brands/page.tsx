@@ -47,14 +47,5 @@ export default async function AdminBrandsPage() {
     live_products: liveCountByBrand[b.id] ?? 0,
   }))
 
-  return (
-    <div className="p-6 md:p-10 max-w-6xl">
-      <div className="mb-8">
-        <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-1">Admin</p>
-        <h1 className="font-display text-3xl font-light text-parchment">Brands</h1>
-      </div>
-
-      <BrandsClient brands={brandsWithCounts} />
-    </div>
-  )
+  return <BrandsClient brands={brandsWithCounts} />
 }

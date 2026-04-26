@@ -821,3 +821,8 @@
   text-align: center;
   animation: admin-pulse 1s infinite;
 }
+
+/* ── Table row interactions ───────────────────────────────── */
+.admin-shell .a-trow:hover td {
+  background: var(--bg3);
+}
