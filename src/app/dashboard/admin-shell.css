@@ -37,6 +37,7 @@
 
 /* ── Light mode ─────────────────────────────────────────── */
 .admin-shell.light {
+  /* Admin design-system vars */
   --bg: #f4f2ee;
   --bg2: #fff;
   --bg3: #ede9e2;
@@ -55,6 +56,18 @@
   --red: #b83232;
   --red-bg: rgba(184,50,50,0.1);
   --card-bg: #fff;
+
+  /* Remap Tailwind CSS 4 @theme tokens so sub-pages using
+     bg-surface, text-parchment, border-border, etc. adapt
+     automatically without touching any component files. */
+  --color-ink:        #f4f2ee;
+  --color-surface:    #fff;
+  --color-surface-2:  #ede9e2;
+  --color-border:     #e0dbd0;
+  --color-parchment:  #1a1a18;
+  --color-muted:      #666;
+  --color-gold:       #8c6a2e;
+  --color-gold-light: #a07c3a;
 }
 
 /* ── Sidebar ─────────────────────────────────────────────── */
@@ -280,6 +293,10 @@
   gap: 10px;
 }
 
+.admin-shell .a-search-wrap {
+  position: relative;
+}
+
 .admin-shell .a-search-bar {
   display: flex;
   align-items: center;
@@ -291,6 +308,26 @@
   font-size: 11px;
   color: var(--text3);
   min-width: 160px;
+  transition: border-color .15s;
+}
+
+.admin-shell .a-search-bar:focus-within {
+  border-color: var(--border2);
+}
+
+.admin-shell .a-search-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 11px;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  flex: 1;
+  min-width: 80px;
+}
+
+.admin-shell .a-search-input::placeholder {
+  color: var(--text3);
 }
 
 .admin-shell .a-live-pill {
@@ -696,4 +733,91 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
+}
+
+/* ── Selection ───────────────────────────────────────────── */
+.admin-shell ::selection {
+  background: var(--gold-bg);
+  color: var(--text);
+}
+
+/* ── Search dropdown ─────────────────────────────────────── */
+.admin-shell .a-search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.admin-shell .a-search-section {
+  padding: 4px 0;
+}
+
+.admin-shell .a-search-section + .a-search-section {
+  border-top: 1px solid var(--border);
+}
+
+.admin-shell .a-search-section-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text3);
+  padding: 7px 12px 3px;
+}
+
+.admin-shell .a-search-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 32px;
+  font-size: 11px;
+  color: var(--text2);
+  text-decoration: none;
+  transition: background .1s;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.admin-shell .a-search-result:hover {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.admin-shell .a-search-result-type {
+  font-size: 9px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  width: 52px;
+}
+
+.admin-shell .a-search-result-name {
+  color: var(--gold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.admin-shell .a-search-empty {
+  padding: 16px 12px;
+  font-size: 11px;
+  color: var(--text3);
+  text-align: center;
+}
+
+.admin-shell .a-search-loading {
+  padding: 12px;
+  font-size: 11px;
+  color: var(--text3);
+  text-align: center;
+  animation: admin-pulse 1s infinite;
 }

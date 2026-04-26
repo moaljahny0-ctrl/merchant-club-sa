@@ -1,18 +1,18 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { AdminThemeCtx } from './AdminTheme'
 
 const PAGE_NAMES: Record<string, string> = {
-  '/dashboard/admin': 'Dashboard',
-  '/dashboard/admin/brands': 'Brands',
+  '/dashboard/admin':              'Dashboard',
+  '/dashboard/admin/brands':       'Brands',
   '/dashboard/admin/applications': 'Applications',
-  '/dashboard/admin/products': 'Products',
-  '/dashboard/admin/orders': 'Orders',
+  '/dashboard/admin/products':     'Products',
+  '/dashboard/admin/orders':       'Orders',
 }
 
 const NAV = [
@@ -32,6 +32,11 @@ function parseEmail(email: string) {
   }
 }
 
+type SearchResult = { id: string; name: string; href: string }
+type SearchResults = { brands: SearchResult[]; products: SearchResult[]; orders: SearchResult[] }
+
+const EMPTY: SearchResults = { brands: [], products: [], orders: [] }
+
 type Props = {
   children: ReactNode
   userEmail: string
@@ -43,8 +48,74 @@ export function AdminDashboardShell({ children, userEmail, adminBadges }: Props)
   const router   = useRouter()
   const [isDark, setIsDark] = useState(true)
 
+  // ── Search state ─────────────────────────────────────────
+  const [query,       setQuery]       = useState('')
+  const [results,     setResults]     = useState<SearchResults>(EMPTY)
+  const [showResults, setShowResults] = useState(false)
+  const [searching,   setSearching]   = useState(false)
+  const searchWrapRef = useRef<HTMLDivElement>(null)
+  const debounceRef   = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const { initials, name } = parseEmail(userEmail)
   const pageName = PAGE_NAMES[pathname] ?? 'Dashboard'
+
+  // Debounced search
+  const runSearch = useCallback(async (q: string) => {
+    if (q.length < 2) {
+      setResults(EMPTY)
+      setShowResults(false)
+      return
+    }
+    setSearching(true)
+    setShowResults(true)
+    const supabase = createClient()
+    const pattern  = `%${q}%`
+
+    const [brandsRes, productsRes, ordersRes] = await Promise.all([
+      supabase.from('brands').select('id, name_en').ilike('name_en', pattern).limit(3),
+      supabase.from('products').select('id, title_en').ilike('title_en', pattern).limit(3),
+      supabase.from('orders').select('id, order_number').ilike('order_number', pattern).not('order_number', 'is', null).limit(3),
+    ])
+
+    setResults({
+      brands:   (brandsRes.data   ?? []).map(b => ({ id: b.id,  name: b.name_en,     href: '/dashboard/admin/brands' })),
+      products: (productsRes.data ?? []).map(p => ({ id: p.id,  name: p.title_en,    href: '/dashboard/admin/products' })),
+      orders:   (ordersRes.data   ?? []).map(o => ({ id: o.id,  name: o.order_number, href: '/dashboard/admin/orders' })),
+    })
+    setSearching(false)
+  }, [])
+
+  function handleQueryChange(value: string) {
+    setQuery(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => runSearch(value), 300)
+  }
+
+  // Click outside → close
+  useEffect(() => {
+    function onMouseDown(e: MouseEvent) {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        setShowResults(false)
+      }
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [])
+
+  // Escape → close + clear
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') { setShowResults(false); setQuery('') }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  function navigateTo(href: string) {
+    setShowResults(false)
+    setQuery('')
+    router.push(href)
+  }
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -52,6 +123,8 @@ export function AdminDashboardShell({ children, userEmail, adminBadges }: Props)
     router.push('/auth/login')
     router.refresh()
   }
+
+  const totalResults = results.brands.length + results.products.length + results.orders.length
 
   return (
     <AdminThemeCtx.Provider value={{ isDark }}>
@@ -114,12 +187,82 @@ export function AdminDashboardShell({ children, userEmail, adminBadges }: Props)
             </div>
 
             <div className="a-topbar-right">
-              <div className="a-search-bar">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
-                  <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-                  <line x1="11" y1="11" x2="15" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                Search brands, orders…
+
+              {/* Search */}
+              <div className="a-search-wrap" ref={searchWrapRef}>
+                <div className="a-search-bar">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden style={{ flexShrink: 0, color: 'var(--text3)' }}>
+                    <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                    <line x1="11" y1="11" x2="15" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  <input
+                    className="a-search-input"
+                    value={query}
+                    onChange={e => handleQueryChange(e.target.value)}
+                    onFocus={() => query.length >= 2 && setShowResults(true)}
+                    placeholder="Search brands, orders…"
+                    aria-label="Search"
+                    autoComplete="off"
+                  />
+                </div>
+
+                {showResults && (
+                  <div className="a-search-dropdown">
+                    {searching ? (
+                      <div className="a-search-loading">Searching…</div>
+                    ) : totalResults === 0 ? (
+                      <div className="a-search-empty">No results for &ldquo;{query}&rdquo;</div>
+                    ) : (
+                      <>
+                        {results.brands.length > 0 && (
+                          <div className="a-search-section">
+                            <div className="a-search-section-label">Brands</div>
+                            {results.brands.map(r => (
+                              <div
+                                key={r.id}
+                                className="a-search-result"
+                                onClick={() => navigateTo(r.href)}
+                              >
+                                <span className="a-search-result-type">Brand</span>
+                                <span className="a-search-result-name">{r.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {results.products.length > 0 && (
+                          <div className="a-search-section">
+                            <div className="a-search-section-label">Products</div>
+                            {results.products.map(r => (
+                              <div
+                                key={r.id}
+                                className="a-search-result"
+                                onClick={() => navigateTo(r.href)}
+                              >
+                                <span className="a-search-result-type">Product</span>
+                                <span className="a-search-result-name">{r.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {results.orders.length > 0 && (
+                          <div className="a-search-section">
+                            <div className="a-search-section-label">Orders</div>
+                            {results.orders.map(r => (
+                              <div
+                                key={r.id}
+                                className="a-search-result"
+                                onClick={() => navigateTo(r.href)}
+                              >
+                                <span className="a-search-result-type">Order</span>
+                                <span className="a-search-result-name">{r.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="a-live-pill">
@@ -159,6 +302,7 @@ export function AdminDashboardShell({ children, userEmail, adminBadges }: Props)
                 </div>
                 <span className="a-theme-label">{isDark ? 'Dark' : 'Light'}</span>
               </div>
+
             </div>
           </div>
 
