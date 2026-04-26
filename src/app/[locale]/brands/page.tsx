@@ -4,7 +4,8 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { PartnerCard } from '@/components/partners/PartnerCard';
 import { Link } from '@/i18n/navigation';
-import { activePartners, placeholderSlots, type Partner } from '@/lib/brands';
+import { placeholderSlots, type Partner } from '@/lib/brands';
+import { createServiceClient } from '@/lib/supabase/server';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -13,6 +14,50 @@ type Props = {
 export default async function PartnersPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations('brands');
+  const isAr = locale === 'ar';
+
+  const supabase = createServiceClient();
+
+  type ProductImage = { url: string; is_primary: boolean }
+  type BrandProduct = { status: string; product_images: ProductImage[] }
+  type BrandRow = {
+    id: string
+    name_en: string
+    name_ar: string | null
+    slug: string
+    tagline_en: string | null
+    tagline_ar: string | null
+    logo_url: string | null
+    products: BrandProduct[]
+  }
+
+  const { data: brandsRaw } = await supabase
+    .from('brands')
+    .select('id, name_en, name_ar, slug, tagline_en, tagline_ar, logo_url, products(status, product_images(url, is_primary))')
+    .in('status', ['approved', 'active'])
+    .order('created_at', { ascending: true });
+
+  const brands = (brandsRaw ?? []) as BrandRow[];
+
+  // Only surface brands that have at least one live product
+  const partners: Partner[] = brands
+    .filter(brand => (brand.products ?? []).some(p => p.status === 'live'))
+    .map(brand => {
+      const liveProducts = (brand.products ?? []).filter(p => p.status === 'live');
+      const firstProduct = liveProducts[0];
+      const primaryImage =
+        firstProduct?.product_images?.find(i => i.is_primary) ??
+        firstProduct?.product_images?.[0];
+      return {
+        id: brand.id,
+        name: brand.name_en,
+        nameAr: brand.name_ar ?? brand.name_en,
+        category: isAr ? (brand.tagline_ar ?? brand.tagline_en ?? '') : (brand.tagline_en ?? ''),
+        categoryAr: brand.tagline_ar ?? brand.tagline_en ?? '',
+        imageUrl: primaryImage?.url ?? brand.logo_url ?? undefined,
+        slug: brand.slug,
+      };
+    });
 
   return (
     <div className="min-h-screen flex flex-col bg-ink">
@@ -20,8 +65,8 @@ export default async function PartnersPage({ params }: Props) {
       <main className="flex-1">
         <PartnersHero t={t} />
         <PartnerCategories locale={locale} />
-        {activePartners.length > 0 ? (
-          <ActivePartnersSection partners={activePartners} locale={locale} t={t} />
+        {partners.length > 0 ? (
+          <ActivePartnersSection partners={partners} locale={locale} t={t} />
         ) : (
           <ComingSoonSection slots={placeholderSlots} locale={locale} t={t} />
         )}
