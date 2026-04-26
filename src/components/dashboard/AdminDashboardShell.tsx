@@ -133,7 +133,8 @@ export function AdminDashboardShell({ children, userEmail, adminBadges }: Props)
         {/* ── Sidebar ─────────────────────────────────────── */}
         <div className="a-sidebar">
           <div className="a-sidebar-logo">
-            <div className="a-crest"><span>MC</span></div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Merchant Club SA" style={{ width: '36px', height: '36px', borderRadius: '50%', display: 'block' }} />
             <div className="a-brand">Merchant Club SA</div>
             <div className="a-sub">Platform Admin</div>
           </div>
