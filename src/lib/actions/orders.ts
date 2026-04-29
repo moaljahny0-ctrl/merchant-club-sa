@@ -1,8 +1,14 @@
 'use server'
 
-import { createServiceClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { revalidatePath } from 'next/cache'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import {
+  sendOrderEmail,
+  buildOrderPlacedCustomerHtml,
+  buildOrderPlacedBrandHtml,
+  buildOrderStatusHtml,
+} from '@/lib/email'
 
 export type OrderFormState = {
   error: string | null
@@ -95,41 +101,140 @@ export async function createOrder(
     return { error: 'Failed to place order. Please try again.', orderId: null }
   }
 
-  // Notify brand by email — failure does not abort the order
+  // Decrement stock — fire-and-forget, never blocks the order
+  const newStock = Math.max(0, (product.stock_quantity ?? 0) - quantity)
+  const stockUpdate: Record<string, unknown> = { stock_quantity: newStock }
+  if (newStock === 0) stockUpdate.status = 'out_of_stock'
+  service
+    .from('products')
+    .update(stockUpdate)
+    .eq('id', productId)
+    .then(({ error }) => {
+      if (error) console.error('[stock] decrement failed:', error)
+    })
+
   const brand = (product.brands as unknown) as { name_en: string; contact_email: string | null } | null
-  if (brand?.contact_email && process.env.RESEND_API_KEY) {
-    try {
-      const resend = new Resend(process.env.RESEND_API_KEY)
-      await resend.emails.send({
-        from: 'Merchant Club SA <orders@merchantclubsa.com>',
-        to:   [brand.contact_email],
-        subject: `New Order ${order.order_number} — ${brand.name_en}`,
-        html: `
-          <div style="background:#0D0D0D;padding:40px;font-family:Georgia,serif;color:#F5F0E8;max-width:600px;">
-            <p style="color:#D4AF37;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;margin:0 0 24px;">Merchant Club SA — New Order</p>
-            <h2 style="font-weight:400;font-size:22px;margin:0 0 8px;">${order.order_number}</h2>
-            <p style="color:#BFBFBF;font-size:13px;margin:0 0 28px;">
-              A new order has been placed for <strong style="color:#F5F0E8;">${product.title_en}</strong>
-            </p>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:13px;">
-              <tr><td style="padding:9px 0;color:#BFBFBF;border-bottom:1px solid #2A2A2A;">Customer</td><td style="padding:9px 0;text-align:right;border-bottom:1px solid #2A2A2A;">${name}</td></tr>
-              <tr><td style="padding:9px 0;color:#BFBFBF;border-bottom:1px solid #2A2A2A;">Phone</td><td style="padding:9px 0;text-align:right;border-bottom:1px solid #2A2A2A;">${phone}</td></tr>
-              ${email ? `<tr><td style="padding:9px 0;color:#BFBFBF;border-bottom:1px solid #2A2A2A;">Email</td><td style="padding:9px 0;text-align:right;border-bottom:1px solid #2A2A2A;">${email}</td></tr>` : ''}
-              <tr><td style="padding:9px 0;color:#BFBFBF;border-bottom:1px solid #2A2A2A;">City</td><td style="padding:9px 0;text-align:right;border-bottom:1px solid #2A2A2A;">${city}</td></tr>
-              <tr><td style="padding:9px 0;color:#BFBFBF;border-bottom:1px solid #2A2A2A;">Address</td><td style="padding:9px 0;text-align:right;border-bottom:1px solid #2A2A2A;">${address}</td></tr>
-              <tr><td style="padding:9px 0;color:#BFBFBF;border-bottom:1px solid #2A2A2A;">Qty × Price</td><td style="padding:9px 0;text-align:right;border-bottom:1px solid #2A2A2A;">${quantity} × SAR ${unitPrice.toFixed(2)}</td></tr>
-              <tr><td style="padding:9px 0;color:#D4AF37;font-weight:bold;">Total</td><td style="padding:9px 0;color:#D4AF37;font-weight:bold;text-align:right;">SAR ${subtotal.toFixed(2)}</td></tr>
-            </table>
-            ${notes ? `<p style="color:#BFBFBF;font-size:12px;margin-bottom:24px;">Notes: ${notes}</p>` : ''}
-            <p style="color:#555;font-size:11px;">Manage this order in your brand dashboard.</p>
-          </div>
-        `,
-      })
-    } catch (_) {
-      // email failure does not abort the order
-    }
+
+  // Email A — customer confirmation
+  if (email) {
+    sendOrderEmail({
+      to: email,
+      subject: `Order Confirmed — #${order.order_number}`,
+      html: buildOrderPlacedCustomerHtml({
+        customerName: name,
+        orderNumber:  order.order_number,
+        productTitle: product.title_en,
+        quantity,
+        unitPrice,
+        subtotal,
+        city,
+        address,
+      }),
+    }).catch(console.error)
+  }
+
+  // Email B — brand notification
+  if (brand?.contact_email) {
+    sendOrderEmail({
+      to: brand.contact_email,
+      subject: `New Order — #${order.order_number}`,
+      html: buildOrderPlacedBrandHtml({
+        brandName:    brand.name_en,
+        orderNumber:  order.order_number,
+        customerName: name,
+        customerPhone: phone,
+        city,
+        productTitle: product.title_en,
+        quantity,
+        subtotal,
+      }),
+    }).catch(console.error)
   }
 
   const prefix = locale === 'ar' ? '/ar' : ''
   redirect(`${prefix}/brands/${slug}/products/${productId}/order/confirmation?id=${order.id}`)
+}
+
+export async function brandUpdateOrderStatus(
+  orderId: string,
+  newStatus: 'confirmed' | 'shipped' | 'delivered' | 'cancelled',
+  trackingNumber?: string
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthenticated' }
+
+    const service = createServiceClient()
+
+    const { data: order } = await service
+      .from('orders')
+      .select('id, brand_id, status, order_number, customer_name, customer_email, items, subtotal, tracking_number')
+      .eq('id', orderId)
+      .single()
+
+    if (!order) return { error: 'Order not found' }
+
+    // Verify caller is an active member of the brand
+    const { data: member } = await supabase
+      .from('brand_members')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('brand_id', order.brand_id)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    if (!member) return { error: 'Forbidden' }
+
+    const allowed: Record<string, string[]> = {
+      pending:   ['confirmed', 'cancelled'],
+      confirmed: ['shipped',   'cancelled'],
+      shipped:   ['delivered'],
+    }
+    if (!allowed[order.status]?.includes(newStatus)) {
+      return { error: `Cannot transition from ${order.status} to ${newStatus}` }
+    }
+
+    const resolvedTracking = newStatus === 'shipped' ? (trackingNumber?.trim() || null) : null
+    const update: Record<string, unknown> = { status: newStatus }
+    if (resolvedTracking) update.tracking_number = resolvedTracking
+
+    const { error } = await service
+      .from('orders')
+      .update(update)
+      .eq('id', orderId)
+
+    if (error) return { error: error.message }
+
+    // Status-change email to customer (fire-and-forget)
+    type OrderItem = { title?: string }
+    const items = Array.isArray(order.items) ? (order.items as OrderItem[]) : []
+    const productTitle = items[0]?.title ?? 'Your item'
+
+    if (order.customer_email) {
+      const subjects: Record<string, string> = {
+        confirmed: `Order Confirmed — #${order.order_number}`,
+        shipped:   `Your Order Has Shipped — #${order.order_number}`,
+        delivered: `Order Delivered — #${order.order_number}`,
+        cancelled: `Order Cancelled — #${order.order_number}`,
+      }
+      sendOrderEmail({
+        to: order.customer_email as string,
+        subject: subjects[newStatus] ?? `Order Update — #${order.order_number}`,
+        html: buildOrderStatusHtml({
+          customerName:   (order.customer_name as string | null) ?? 'Customer',
+          orderNumber:    order.order_number as string,
+          productTitle,
+          subtotal:       Number(order.subtotal),
+          status:         newStatus,
+          trackingNumber: resolvedTracking ?? (order.tracking_number as string | null) ?? undefined,
+        }),
+      }).catch(console.error)
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unexpected error' }
+  }
+
+  revalidatePath('/dashboard/brand/orders')
+  return { error: null }
 }

@@ -1,6 +1,7 @@
 'use server';
 
 import { Resend } from 'resend';
+import { createClient } from '@/lib/supabase/server';
 
 export type MemberEnquiryState = {
   success: boolean;
@@ -148,26 +149,38 @@ export async function submitMemberEnquiry(
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
+  if (apiKey) {
+    try {
+      const resend = new Resend(apiKey);
+      const { error } = await resend.emails.send({
+        from: 'Merchant Club SA <applications@merchantclubsa.com>',
+        to:   ['info@merchantclubsa.com'],
+        replyTo: email,
+        subject: `New member inquiry — ${name}`,
+        html: buildMemberEmailHtml({ name, type, platform, audience: audience ?? '', idea, email, instagram }),
+      });
+      if (error) console.error('[member] Resend error:', error);
+    } catch (err) {
+      console.error('[member] Resend threw:', err);
+    }
+  } else {
     console.warn('[member] RESEND_API_KEY not set — enquiry not emailed:', { name, email });
-    return { success: true, error: null };
   }
 
+  // Insert into members table if the user is logged in
   try {
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: 'Merchant Club SA <applications@merchantclubsa.com>',
-      to:   ['info@merchantclubsa.com'],
-      replyTo: email,
-      subject: `New member inquiry — ${name}`,
-      html: buildMemberEmailHtml({ name, type, platform, audience: audience ?? '', idea, email, instagram }),
-    });
-
-    if (error) {
-      console.error('[member] Resend error (enquiry not blocked):', error);
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('members').upsert({
+        user_id:   user.id,
+        full_name: name,
+        email:     user.email ?? email,
+        status:    'pending',
+      }, { onConflict: 'user_id' });
     }
-  } catch (err) {
-    console.error('[member] Resend threw (enquiry not blocked):', err);
+  } catch (_) {
+    // Non-critical — DB insert failure does not block the form
   }
 
   return { success: true, error: null };

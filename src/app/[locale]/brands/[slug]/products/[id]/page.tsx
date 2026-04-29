@@ -11,19 +11,23 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params
+  const { locale, id } = await params
+  const isAr = locale === 'ar'
   const supabase = createServiceClient()
   const { data } = await supabase
     .from('products')
-    .select('title_en, description_en')
+    .select('title_en, title_ar, description_en, description_ar')
     .eq('id', id)
     .eq('status', 'live')
     .single()
 
   if (!data) return {}
+  const title = isAr && data.title_ar ? data.title_ar : data.title_en
+  const description = (isAr && data.description_ar ? data.description_ar : data.description_en) ?? undefined
   return {
-    title: data.title_en,
-    description: data.description_en ?? undefined,
+    title,
+    description,
+    openGraph: { title, description, locale: isAr ? 'ar_SA' : 'en_SA' },
   }
 }
 

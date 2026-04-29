@@ -12,9 +12,9 @@ type Props = {
 };
 
 export default async function PartnersPage({ params }: Props) {
-  const { locale } = await params;
-  const t = await getTranslations('brands');
-  const isAr = locale === 'ar';
+  const { locale } = await params
+  const t = await getTranslations('brands')
+  const isAr = locale === 'ar'
 
   const supabase = createServiceClient();
 
@@ -63,14 +63,14 @@ export default async function PartnersPage({ params }: Props) {
     <div className="min-h-screen flex flex-col bg-ink">
       <Navbar />
       <main className="flex-1">
-        <PartnersHero t={t} />
+        <PartnersHero t={t} isAr={isAr} />
         <PartnerCategories locale={locale} />
         {partners.length > 0 ? (
           <ActivePartnersSection partners={partners} locale={locale} t={t} />
         ) : (
           <ComingSoonSection slots={placeholderSlots} locale={locale} t={t} />
         )}
-        <ApplySection t={t} />
+        <ApplySection t={t} isAr={isAr} />
       </main>
       <Footer />
     </div>
@@ -81,7 +81,7 @@ export default async function PartnersPage({ params }: Props) {
 
 type TFn = Awaited<ReturnType<typeof getTranslations<'brands'>>>
 
-async function PartnersHero({ t }: { t: TFn }) {
+async function PartnersHero({ t, isAr }: { t: TFn; isAr: boolean }) {
   return (
     <section className="relative min-h-[80vh] md:min-h-screen overflow-hidden flex items-center">
 
@@ -158,7 +158,7 @@ async function PartnersHero({ t }: { t: TFn }) {
               href="#categories"
               className="inline-flex items-center justify-center border border-parchment/30 text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
             >
-              See categories
+              {isAr ? 'استعرض التصنيفات' : 'See categories'}
             </Link>
           </div>
 
@@ -179,6 +179,7 @@ const CATEGORIES = [
     description: 'Niche and luxury fragrance houses. Oud, oriental, and contemporary scents from independent Saudi perfumers.',
     descriptionAr: 'دور العطور الفاخرة والمستقلة. عطور الشرق والعود والروائح المعاصرة من صانعي العطور السعوديين.',
     detail: 'Oud · Oriental · Niche',
+    detailAr: 'عود · شرقي · مميز',
     index: '01',
   },
   {
@@ -188,6 +189,7 @@ const CATEGORIES = [
     description: 'Saudi fashion labels and independent designers. Streetwear, modest fashion, and performance wear built locally.',
     descriptionAr: 'العلامات التجارية السعودية ومصممو الأزياء المستقلون. موضة الشارع والأزياء المحتشمة وملابس الأداء.',
     detail: 'Streetwear · Modest · Performance',
+    detailAr: 'موضة الشارع · محتشم · أداء',
     index: '02',
   },
   {
@@ -197,6 +199,7 @@ const CATEGORIES = [
     description: 'Home goods, artisan crafts, and interior pieces rooted in Saudi design tradition and contemporary craft.',
     descriptionAr: 'مستلزمات المنزل والحرف اليدوية وقطع الديكور المستوحاة من التصميم السعودي التقليدي والمعاصر.',
     detail: 'Decor · Craft · Artisan',
+    detailAr: 'ديكور · حرف · صناعة يدوية',
     index: '03',
   },
   {
@@ -206,9 +209,10 @@ const CATEGORIES = [
     description: 'Skincare, cosmetics, and personal care brands developed for the Saudi market by independent founders.',
     descriptionAr: 'ماركات العناية بالبشرة ومستحضرات التجميل والعناية الشخصية التي طورها مؤسسون مستقلون للسوق السعودي.',
     detail: 'Skincare · Cosmetics · Wellness',
+    detailAr: 'عناية بالبشرة · مستحضرات · صحة',
     index: '04',
   },
-] as const;
+]
 
 function PartnerCategories({ locale }: { locale: string }) {
   const isAr = locale === 'ar';
@@ -218,9 +222,11 @@ function PartnerCategories({ locale }: { locale: string }) {
 
         <div className="flex items-end justify-between mb-12 md:mb-16">
           <div>
-            <p className="text-[9px] text-gold tracking-[0.4em] uppercase mb-4">What we carry</p>
+            <p className="text-[9px] text-gold tracking-[0.4em] uppercase mb-4">
+              {isAr ? 'ما نحمله' : 'What we carry'}
+            </p>
             <h2 className="font-display text-3xl md:text-5xl font-light text-parchment leading-tight">
-              Product categories
+              {isAr ? 'تصنيفات المنتجات' : 'Product categories'}
             </h2>
           </div>
           <div className="hidden md:block h-px w-24 bg-border mb-3" />
@@ -247,7 +253,7 @@ function PartnerCategories({ locale }: { locale: string }) {
               </div>
 
               <p className="text-[9px] text-gold/50 tracking-[0.2em] uppercase mt-auto">
-                {cat.detail}
+                {isAr ? cat.detailAr : cat.detail}
               </p>
             </div>
           ))}
@@ -269,6 +275,7 @@ function ComingSoonSection({
   locale: string
   t: TFn
 }) {
+  const isAr = locale === 'ar'
   return (
     <section className="px-6 md:px-10 py-20 md:py-32 border-b border-border">
       <div className="max-w-7xl mx-auto">
@@ -279,7 +286,9 @@ function ComingSoonSection({
           <div>
             <div className="flex items-center gap-4 mb-8">
               <div className="h-px w-6 bg-gold/40" />
-              <p className="text-[9px] text-gold/60 tracking-[0.35em] uppercase">Founding partners</p>
+              <p className="text-[9px] text-gold/60 tracking-[0.35em] uppercase">
+                {isAr ? 'الشركاء المؤسسون' : 'Founding partners'}
+              </p>
             </div>
             <h2 className="font-display text-3xl md:text-5xl font-light text-parchment mb-6 leading-tight">
               {t('coming_soon_heading')}
@@ -320,6 +329,7 @@ function ActivePartnersSection({
   locale: string
   t: TFn
 }) {
+  const isAr = locale === 'ar'
   return (
     <section className="px-6 md:px-10 py-16 md:py-24 border-b border-border">
       <div className="max-w-7xl mx-auto">
@@ -328,7 +338,9 @@ function ActivePartnersSection({
             {t('heading')}
           </h2>
           <p className="text-[9px] text-muted tracking-[0.2em] uppercase hidden md:block">
-            {partners.length} partner{partners.length !== 1 ? 's' : ''}
+            {isAr
+              ? `${partners.length} شريك`
+              : `${partners.length} partner${partners.length !== 1 ? 's' : ''}`}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
@@ -343,18 +355,22 @@ function ActivePartnersSection({
 
 // ─── Apply Section ─────────────────────────────────────────────────────────────
 
-function ApplySection({ t }: { t: TFn }) {
+function ApplySection({ t, isAr }: { t: TFn; isAr: boolean }) {
   return (
     <section className="px-6 md:px-10 py-24 md:py-40">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-[1fr_auto] gap-10 items-center">
           <div className="max-w-2xl">
-            <p className="text-[9px] text-gold tracking-[0.4em] uppercase mb-5">Join the platform</p>
+            <p className="text-[9px] text-gold tracking-[0.4em] uppercase mb-5">
+              {isAr ? 'انضم للمنصة' : 'Join the platform'}
+            </p>
             <h2 className="font-display text-4xl md:text-6xl font-light text-parchment leading-tight mb-4">
-              Is your brand ready?
+              {isAr ? 'هل علامتك جاهزة؟' : 'Is your brand ready?'}
             </h2>
             <p className="text-muted text-sm leading-relaxed max-w-sm">
-              We review every application. Founding partner spots are limited and given to brands that are genuinely ready.
+              {isAr
+                ? 'نراجع كل طلب شخصياً. الأماكن التأسيسية محدودة وتُمنح للعلامات الجاهزة حقاً.'
+                : 'We review every application. Founding partner spots are limited and given to brands that are genuinely ready.'}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
@@ -368,7 +384,7 @@ function ApplySection({ t }: { t: TFn }) {
               href="/apply"
               className="inline-flex items-center justify-center border border-border text-parchment text-[10px] tracking-[0.22em] uppercase px-10 py-4 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
             >
-              See all options
+              {isAr ? 'جميع الخيارات' : 'See all options'}
             </Link>
           </div>
         </div>

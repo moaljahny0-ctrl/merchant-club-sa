@@ -13,6 +13,7 @@ const PAGE_NAMES: Record<string, string> = {
   '/dashboard/admin/applications': 'Applications',
   '/dashboard/admin/products':     'Products',
   '/dashboard/admin/orders':       'Orders',
+  '/dashboard/admin/members':      'Members',
 }
 
 const NAV = [
@@ -21,6 +22,7 @@ const NAV = [
   { label: 'Applications', href: '/dashboard/admin/applications', badgeKey: 'pendingApps' as const, badgeRed: true },
   { label: 'Products',     href: '/dashboard/admin/products' },
   { label: 'Orders',       href: '/dashboard/admin/orders' },
+  { label: 'Members',      href: '/dashboard/admin/members' },
 ]
 
 function parseEmail(email: string) {

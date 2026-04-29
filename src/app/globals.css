@@ -41,13 +41,19 @@ body {
 }
 
 /* ── Arabic RTL Typography System ── */
+/*
+  Font stack always includes var(--font-body) as Latin fallback.
+  TSHanazad Display covers Arabic glyphs; Inter covers Latin (brand
+  names, codes, "EN" toggle, untranslated strings) so nothing renders
+  as invisible blank boxes in RTL mode.
+*/
 [dir="rtl"] {
-  font-family: var(--font-arabic);
+  font-family: var(--font-arabic), var(--font-body);
   letter-spacing: 0;
 }
 
 [dir="rtl"] h1 {
-  font-family: var(--font-arabic);
+  font-family: var(--font-arabic), var(--font-body);
   font-size: clamp(3rem, 8vw, 6.5rem);
   font-weight: 400;
   line-height: 1.25;
@@ -55,7 +61,7 @@ body {
 }
 
 [dir="rtl"] h2 {
-  font-family: var(--font-arabic);
+  font-family: var(--font-arabic), var(--font-body);
   font-size: clamp(1.8rem, 4vw, 3.2rem);
   font-weight: 400;
   line-height: 1.3;
@@ -64,7 +70,7 @@ body {
 
 [dir="rtl"] h3,
 [dir="rtl"] h4 {
-  font-family: var(--font-arabic);
+  font-family: var(--font-arabic), var(--font-body);
   font-size: clamp(1.2rem, 2.5vw, 1.8rem);
   font-weight: 400;
   line-height: 1.4;
@@ -72,7 +78,7 @@ body {
 }
 
 [dir="rtl"] p {
-  font-family: var(--font-arabic);
+  font-family: var(--font-arabic), var(--font-body);
   font-size: clamp(1rem, 1.8vw, 1.25rem);
   line-height: 1.9;
   letter-spacing: 0;
@@ -84,7 +90,7 @@ body {
 [dir="rtl"] label,
 [dir="rtl"] li,
 [dir="rtl"] nav {
-  font-family: var(--font-arabic);
+  font-family: var(--font-arabic), var(--font-body);
   letter-spacing: 0;
 }
 

@@ -81,6 +81,7 @@ export function Navbar() {
             className={`text-xs hover:text-parchment transition-colors tracking-widest ${
               isRTL ? 'text-parchment/80' : (transparent ? 'text-parchment/80' : 'text-muted')
             }`}
+            style={isRTL ? { fontFamily: 'var(--font-body)', letterSpacing: '0.1em' } : undefined}
           >
             {isRTL ? 'EN' : 'ع'}
           </Link>
@@ -92,6 +93,7 @@ export function Navbar() {
             href={pathname}
             locale={isRTL ? 'en' : 'ar'}
             className={`text-xs hover:text-parchment transition-colors ${isRTL ? 'text-parchment/80' : 'text-muted'}`}
+            style={isRTL ? { fontFamily: 'var(--font-body)', letterSpacing: '0.1em' } : undefined}
           >
             {isRTL ? 'EN' : 'ع'}
           </Link>
