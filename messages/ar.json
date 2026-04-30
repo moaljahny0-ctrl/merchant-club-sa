@@ -2,6 +2,7 @@
   "nav": {
     "brands": "الشركاء",
     "members": "الأعضاء",
+    "shop": "المتجر",
     "apply": "تقدّم",
     "about": "من نحن",
     "privacy": "الخصوصية",
@@ -151,6 +152,16 @@
     "contact_cta": "info@merchantclubsa.com",
     "apply_label": "جاهز للتقدم؟",
     "apply_cta": "قدّم علامتك"
+  },
+  "store": {
+    "eyebrow": "Merchant Club SA",
+    "heading": "المتجر",
+    "subheading": "تصفّح علاماتنا وتعرّف على أعضائنا.",
+    "brands_heading": "علاماتنا",
+    "members_heading": "أعضاؤنا",
+    "no_brands": "لا توجد علامات متاحة بعد.",
+    "no_members": "لا يوجد أعضاء بعد.",
+    "nav_label": "المتجر"
   },
   "cookie": {
     "message": "نستخدم ملفات تعريف الارتباط لفهم كيفية استخدام الموقع وتحسين التجربة.",

@@ -244,6 +244,7 @@ export default async function AdminOverviewPage() {
             <Link href="/dashboard/admin/applications" className="a-action-btn">Review Applications</Link>
             <Link href="/dashboard/admin/products"     className="a-action-btn">Review Products</Link>
             <Link href="/dashboard/admin/orders"       className="a-action-btn">View Orders</Link>
+            <Link href="/store"                        className="a-action-btn">View Store</Link>
             <button className="a-action-btn">↑ Export Report</button>
           </div>
         </div>

@@ -12,7 +12,7 @@ export function Navbar() {
   const t = useTranslations('nav');
   const pathname = usePathname();
   const isRTL = locale === 'ar';
-  const isHome = pathname === '/' || pathname === '/members' || pathname === '/brands';
+  const isHome = pathname === '/' || pathname === '/members' || pathname === '/brands' || pathname === '/store';
 
   useEffect(() => {
     function onScroll() {
@@ -62,6 +62,12 @@ export function Navbar() {
             className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('members')}
+          </Link>
+          <Link
+            href="/store"
+            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
+          >
+            {t('shop')}
           </Link>
           <Link
             href="/auth/login"
@@ -142,6 +148,13 @@ export function Navbar() {
             className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
           >
             {t('members')}
+          </Link>
+          <Link
+            href="/store"
+            onClick={() => setOpen(false)}
+            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+          >
+            {t('shop')}
           </Link>
           <Link
             href="/apply"

@@ -2,6 +2,7 @@
   "nav": {
     "brands": "Partners",
     "members": "Members",
+    "shop": "Shop",
     "apply": "Apply",
     "about": "About",
     "privacy": "Privacy",
@@ -151,6 +152,16 @@
     "contact_cta": "info@merchantclubsa.com",
     "apply_label": "Ready to apply?",
     "apply_cta": "Submit Your Brand"
+  },
+  "store": {
+    "eyebrow": "Merchant Club SA",
+    "heading": "The Store",
+    "subheading": "Browse our brands and meet our members.",
+    "brands_heading": "Our Brands",
+    "members_heading": "Our Members",
+    "no_brands": "No brands available yet.",
+    "no_members": "No members yet.",
+    "nav_label": "Shop"
   },
   "cookie": {
     "message": "We use cookies to understand how people use our site and improve the experience.",
