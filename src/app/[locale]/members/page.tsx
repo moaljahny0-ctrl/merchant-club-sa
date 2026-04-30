@@ -102,12 +102,14 @@ async function MembersHero({ t }: { t: TFn }) {
             <Link
               href="/apply/member"
               className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
+              style={{ fontFamily: 'var(--font-body)' }}
             >
               {t('enquire_cta')}
             </Link>
             <Link
               href="#membership"
               className="inline-flex items-center justify-center border border-parchment/30 text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
+              style={{ fontFamily: 'var(--font-body)' }}
             >
               Learn more
             </Link>
@@ -233,6 +235,7 @@ function ComingSoonSection({ t }: { t: TFn }) {
             <Link
               href="/apply/member"
               className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
+              style={{ fontFamily: 'var(--font-body)' }}
             >
               {t('enquire_cta')}
             </Link>
