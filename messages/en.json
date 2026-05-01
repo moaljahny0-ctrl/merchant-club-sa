@@ -6,7 +6,9 @@
     "apply": "Apply",
     "about": "About",
     "privacy": "Privacy",
-    "login": "Login"
+    "login": "Login",
+    "partner_login": "Partner Login",
+    "track_order": "Track Order"
   },
   "home": {
     "hero_eyebrow": "Saudi Arabia's Brand Platform",
@@ -157,8 +159,10 @@
     "eyebrow": "Merchant Club SA",
     "heading": "The Store",
     "subheading": "Browse our brands and meet our members.",
+    "featured_heading": "Shop Now",
     "brands_heading": "Our Brands",
     "members_heading": "Our Members",
+    "member_label": "Member",
     "no_brands": "No brands available yet.",
     "no_members": "No members yet.",
     "nav_label": "Shop"

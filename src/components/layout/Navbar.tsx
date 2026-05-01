@@ -70,12 +70,6 @@ export function Navbar() {
             {t('shop')}
           </Link>
           <Link
-            href="/auth/login"
-            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
-          >
-            {t('login')}
-          </Link>
-          <Link
             href="/apply"
             className="text-xs bg-gold text-ink hover:bg-gold-light transition-colors px-5 py-2.5 tracking-[0.2em] uppercase"
           >
@@ -157,6 +151,13 @@ export function Navbar() {
             {t('shop')}
           </Link>
           <Link
+            href="/track-order"
+            onClick={() => setOpen(false)}
+            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+          >
+            {t('track_order')}
+          </Link>
+          <Link
             href="/apply"
             onClick={() => setOpen(false)}
             className="text-xs text-parchment tracking-[0.2em] uppercase"
@@ -166,9 +167,9 @@ export function Navbar() {
           <Link
             href="/auth/login"
             onClick={() => setOpen(false)}
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className="text-xs text-muted/40 hover:text-muted transition-colors tracking-[0.2em] uppercase"
           >
-            {t('login')}
+            {t('partner_login')}
           </Link>
         </div>
       </div>

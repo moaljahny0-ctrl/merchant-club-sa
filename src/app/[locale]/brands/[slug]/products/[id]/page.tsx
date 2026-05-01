@@ -68,7 +68,7 @@ export default async function ProductDetailPage({ params }: Props) {
             className="inline-flex items-center gap-2 text-muted hover:text-gold text-[10px] tracking-[0.2em] uppercase transition-colors mb-10 md:mb-16"
           >
             <span aria-hidden>{isAr ? '→' : '←'}</span>
-            <span>{isAr ? 'العودة للمتجر' : 'Back to store'}</span>
+            <span>{brandName}</span>
           </Link>
 
           {/* Product layout: image left (3fr), details right (2fr) */}
@@ -157,6 +157,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 <Link
                   href={`/brands/${slug}/products/${id}/order`}
                   className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors w-full mt-2"
+                  style={{ fontFamily: 'var(--font-body)' }}
                 >
                   {isAr ? 'اطلب الآن' : 'Order Now'}
                 </Link>
@@ -168,6 +169,25 @@ export default async function ProductDetailPage({ params }: Props) {
                   {isAr ? 'نفذت الكمية' : 'Out of Stock'}
                 </button>
               )}
+
+              {/* Trust strip */}
+              <div className="border border-border/50 bg-surface/40 px-4 py-4 flex flex-col gap-2">
+                <p className="text-[10px] text-muted/80 leading-relaxed">
+                  {isAr
+                    ? '✓ لا يلزم الدفع الإلكتروني — الدفع عند الاستلام'
+                    : '✓ No online payment — Cash on delivery'}
+                </p>
+                <p className="text-[10px] text-muted/80 leading-relaxed">
+                  {isAr
+                    ? '✓ سيتواصل معك المتجر لتأكيد الطلب'
+                    : '✓ The brand will contact you to confirm'}
+                </p>
+                <p className="text-[10px] text-muted/80 leading-relaxed">
+                  {isAr
+                    ? '✓ للاستفسار: info@merchantclubsa.com'
+                    : '✓ Questions? info@merchantclubsa.com'}
+                </p>
+              </div>
 
             </div>
           </div>

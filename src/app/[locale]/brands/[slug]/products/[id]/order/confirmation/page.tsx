@@ -102,10 +102,18 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           {/* Actions */}
           <div className="flex flex-col gap-3">
             <Link
-              href={`/brands/${slug}`}
-              className="inline-flex items-center justify-center border border-border text-parchment text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors w-full"
+              href="/store"
+              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors w-full"
+              style={{ fontFamily: 'var(--font-body)' }}
             >
-              {isAr ? 'العودة للمتجر' : 'Back to Store'}
+              {isAr ? 'تسوّق المزيد' : 'Continue Shopping'}
+            </Link>
+            <Link
+              href="/track-order"
+              className="inline-flex items-center justify-center border border-border text-parchment text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors w-full"
+              style={{ fontFamily: 'var(--font-body)' }}
+            >
+              {isAr ? 'تتبع طلبك' : 'Track your order'}
             </Link>
             <Link
               href="/"

@@ -6,7 +6,9 @@
     "apply": "تقدّم",
     "about": "من نحن",
     "privacy": "الخصوصية",
-    "login": "تسجيل الدخول"
+    "login": "تسجيل الدخول",
+    "partner_login": "دخول الشركاء",
+    "track_order": "تتبع الطلب"
   },
   "home": {
     "hero_eyebrow": "منصة العلامات السعودية",
@@ -157,8 +159,10 @@
     "eyebrow": "Merchant Club SA",
     "heading": "المتجر",
     "subheading": "تصفّح علاماتنا وتعرّف على أعضائنا.",
+    "featured_heading": "تسوّق الآن",
     "brands_heading": "علاماتنا",
     "members_heading": "أعضاؤنا",
+    "member_label": "عضو",
     "no_brands": "لا توجد علامات متاحة بعد.",
     "no_members": "لا يوجد أعضاء بعد.",
     "nav_label": "المتجر"

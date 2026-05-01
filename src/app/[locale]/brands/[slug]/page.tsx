@@ -61,8 +61,21 @@ export default async function BrandStorefrontPage({ params }: Props) {
       <Navbar />
       <main className="flex-1 pt-16">
 
+        {/* Back to store */}
+        <div className="px-6 md:px-10 pt-10">
+          <div className="max-w-7xl mx-auto">
+            <Link
+              href="/store"
+              className="inline-flex items-center gap-2 text-muted hover:text-gold text-[10px] tracking-[0.2em] uppercase transition-colors"
+            >
+              <span aria-hidden>{isAr ? '→' : '←'}</span>
+              <span>{isAr ? 'كل العلامات' : 'All Brands'}</span>
+            </Link>
+          </div>
+        </div>
+
         {/* Brand Header */}
-        <section className="px-6 md:px-10 py-20 md:py-28 border-b border-border">
+        <section className="px-6 md:px-10 py-16 md:py-24 border-b border-border">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16 items-start">
             {brand.logo_url && (
               <div className="shrink-0">

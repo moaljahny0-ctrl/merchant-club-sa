@@ -22,7 +22,7 @@ export default function LoginPage() {
         {/* Header */}
         <div className="mb-10">
           <p className="text-[8px] text-gold tracking-[0.4em] uppercase mb-4">
-            Partner portal
+            Brand & Partner Portal
           </p>
           <h1 className="font-display text-[2.25rem] font-light text-parchment leading-none">
             Sign in
@@ -36,8 +36,18 @@ export default function LoginPage() {
           <LoginForm />
         </Suspense>
 
+        {/* Customer note */}
+        <div className="mt-10 border border-border/40 bg-surface/30 px-4 py-4">
+          <p className="text-[9px] text-muted/60 leading-relaxed text-center">
+            Looking to track your order?{' '}
+            <a href="/track-order" className="text-gold hover:underline">
+              Track it here
+            </a>
+          </p>
+        </div>
+
         {/* Footer */}
-        <p className="mt-16 text-[9px] text-muted/30 tracking-[0.15em] text-center">
+        <p className="mt-8 text-[9px] text-muted/30 tracking-[0.15em] text-center">
           © {new Date().getFullYear()} Merchant Club SA
         </p>
 
