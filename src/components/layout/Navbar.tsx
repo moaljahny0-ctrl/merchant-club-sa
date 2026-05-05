@@ -70,6 +70,12 @@ export function Navbar() {
             {t('shop')}
           </Link>
           <Link
+            href="/auth/login"
+            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
+          >
+            {t('login')}
+          </Link>
+          <Link
             href="/apply"
             className="text-xs bg-gold text-ink hover:bg-gold-light transition-colors px-5 py-2.5 tracking-[0.2em] uppercase"
           >
