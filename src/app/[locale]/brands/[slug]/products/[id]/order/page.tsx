@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/layout/Navbar'
+import { StoreNavbar } from '@/components/layout/StoreNavbar'
 import { Footer } from '@/components/layout/Footer'
 import { createServiceClient } from '@/lib/supabase/server'
 import { OrderForm } from '@/components/order/OrderForm'
@@ -45,9 +45,9 @@ export default async function OrderPage({ params }: Props) {
   if (!inStock) redirect(`/${locale}/brands/${slug}/products/${id}`)
 
   return (
-    <div className="min-h-screen flex flex-col bg-ink">
-      <Navbar />
-      <main className="flex-1 pt-16">
+    <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
+      <StoreNavbar />
+      <main className="flex-1">
         <section className="max-w-5xl mx-auto px-6 md:px-10 py-12 md:py-20">
           <OrderForm
             productId={id}

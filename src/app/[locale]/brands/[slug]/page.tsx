@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { Navbar } from '@/components/layout/Navbar'
+import { StoreNavbar } from '@/components/layout/StoreNavbar'
 import { Footer } from '@/components/layout/Footer'
 import { Link } from '@/i18n/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
@@ -52,21 +52,22 @@ export default async function BrandStorefrontPage({ params }: Props) {
 
   const liveProducts = products ?? []
 
-  const brandName = isAr && brand.name_ar ? brand.name_ar : brand.name_en
-  const brandDesc = isAr && brand.description_ar ? brand.description_ar : brand.description_en
-  const brandTagline = isAr && brand.tagline_ar ? brand.tagline_ar : brand.tagline_en
+  const brandName    = isAr && brand.name_ar    ? brand.name_ar    : brand.name_en
+  const brandDesc    = isAr && brand.description_ar ? brand.description_ar : brand.description_en
+  const brandTagline = isAr && brand.tagline_ar  ? brand.tagline_ar  : brand.tagline_en
 
   return (
-    <div className="min-h-screen flex flex-col bg-ink">
-      <Navbar />
-      <main className="flex-1 pt-16">
+    <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
+      <StoreNavbar />
+      <main className="flex-1">
 
         {/* Back to store */}
         <div className="px-6 md:px-10 pt-10">
           <div className="max-w-7xl mx-auto">
             <Link
               href="/store"
-              className="inline-flex items-center gap-2 text-muted hover:text-gold text-[10px] tracking-[0.2em] uppercase transition-colors"
+              className="inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-60"
+              style={{ color: '#6B5B4E' }}
             >
               <span aria-hidden>{isAr ? '→' : '←'}</span>
               <span>{isAr ? 'كل العلامات' : 'All Brands'}</span>
@@ -75,11 +76,17 @@ export default async function BrandStorefrontPage({ params }: Props) {
         </div>
 
         {/* Brand Header */}
-        <section className="px-6 md:px-10 py-16 md:py-24 border-b border-border">
+        <section
+          className="px-6 md:px-10 py-14 md:py-20"
+          style={{ borderBottom: '1px solid #E5DDD0' }}
+        >
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16 items-start">
             {brand.logo_url && (
               <div className="shrink-0">
-                <div className="relative w-20 h-20 md:w-28 md:h-28 border border-border overflow-hidden">
+                <div
+                  className="relative w-20 h-20 md:w-28 md:h-28 overflow-hidden"
+                  style={{ border: '1px solid #E5DDD0', background: '#FFFFFF' }}
+                >
                   <Image
                     src={brand.logo_url}
                     alt={brandName}
@@ -90,44 +97,56 @@ export default async function BrandStorefrontPage({ params }: Props) {
               </div>
             )}
             <div>
-              <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-4">
+              <p
+                className="text-[10px] tracking-[0.35em] uppercase mb-4"
+                style={{ color: '#B8975A' }}
+              >
                 {isAr ? 'المتجر' : 'Brand'}
               </p>
-              <h1 className="font-display text-4xl md:text-6xl font-light text-parchment mb-3 leading-tight">
+              <h1
+                className="font-display text-4xl md:text-6xl font-light leading-tight mb-3"
+                style={{ color: '#1A1208' }}
+              >
                 {brandName}
               </h1>
               {brandTagline && (
-                <p className="text-muted text-base mb-4 leading-relaxed">{brandTagline}</p>
+                <p className="text-base mb-4 leading-relaxed" style={{ color: '#6B5B4E' }}>
+                  {brandTagline}
+                </p>
               )}
               {brandDesc && (
-                <p className="text-muted text-sm max-w-xl leading-relaxed">{brandDesc}</p>
+                <p className="text-sm max-w-xl leading-relaxed" style={{ color: '#6B5B4E' }}>
+                  {brandDesc}
+                </p>
               )}
             </div>
           </div>
         </section>
 
         {/* Products */}
-        <section className="px-6 md:px-10 py-16 md:py-24">
+        <section className="px-6 md:px-10 py-14 md:py-20">
           <div className="max-w-7xl mx-auto">
-
             {liveProducts.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-muted text-sm">
+                <p className="text-sm" style={{ color: '#6B5B4E' }}>
                   {isAr ? 'لا توجد منتجات متاحة حالياً.' : 'No products available yet.'}
                 </p>
               </div>
             ) : (
               <>
-                <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-10">
+                <p
+                  className="text-[10px] tracking-[0.35em] uppercase mb-10"
+                  style={{ color: '#B8975A' }}
+                >
                   {isAr ? 'المنتجات' : 'Products'} ({liveProducts.length})
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
                   {liveProducts.map(product => {
-                    const images = (product.product_images as { url: string; is_primary: boolean }[]) ?? []
+                    const images      = (product.product_images as { url: string; is_primary: boolean }[]) ?? []
                     const primaryImage = images.find(i => i.is_primary) ?? images[0]
-                    const title = isAr && product.title_ar ? product.title_ar : product.title_en
-                    const price = Number(product.price)
-                    const salePrice = product.sale_price ? Number(product.sale_price) : null
+                    const title       = isAr && product.title_ar ? product.title_ar : product.title_en
+                    const price       = Number(product.price)
+                    const salePrice   = product.sale_price ? Number(product.sale_price) : null
 
                     return (
                       <Link
@@ -135,7 +154,10 @@ export default async function BrandStorefrontPage({ params }: Props) {
                         href={`/brands/${slug}/products/${product.id}`}
                         className="group flex flex-col cursor-pointer"
                       >
-                        <div className="relative aspect-[3/4] bg-surface border border-border overflow-hidden">
+                        <div
+                          className="relative aspect-[3/4] overflow-hidden rounded-lg"
+                          style={{ background: '#F0EBE1' }}
+                        >
                           {primaryImage ? (
                             <Image
                               src={primaryImage.url}
@@ -146,20 +168,28 @@ export default async function BrandStorefrontPage({ params }: Props) {
                             />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="h-px w-8 bg-gold opacity-40" />
+                              <div className="h-px w-8" style={{ background: '#E5DDD0' }} />
                             </div>
                           )}
                         </div>
                         <div className="pt-3 space-y-1">
-                          <p className="text-xs text-parchment font-medium leading-snug">{title}</p>
+                          <p className="text-sm font-medium leading-snug" style={{ color: '#1A1208' }}>
+                            {title}
+                          </p>
                           <div className="flex items-baseline gap-2">
                             {salePrice ? (
                               <>
-                                <span className="text-xs text-gold">SAR {salePrice.toFixed(2)}</span>
-                                <span className="text-[10px] text-muted line-through">SAR {price.toFixed(2)}</span>
+                                <span className="text-sm font-bold" style={{ color: '#B8975A' }}>
+                                  {salePrice.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
+                                </span>
+                                <span className="text-[10px] line-through" style={{ color: '#6B5B4E' }}>
+                                  {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
+                                </span>
                               </>
                             ) : (
-                              <span className="text-xs text-muted">SAR {price.toFixed(2)}</span>
+                              <span className="text-sm font-bold" style={{ color: '#B8975A' }}>
+                                {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -169,7 +199,6 @@ export default async function BrandStorefrontPage({ params }: Props) {
                 </div>
               </>
             )}
-
           </div>
         </section>
 
