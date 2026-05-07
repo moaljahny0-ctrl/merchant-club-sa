@@ -164,6 +164,50 @@ export function buildOrderPlacedBrandHtml(params: {
   `)
 }
 
+export function buildOrderPlacedAdminHtml(params: {
+  orderNumber: string
+  brandName: string
+  customerName: string
+  customerPhone: string
+  customerEmail: string | null
+  city: string
+  productTitle: string
+  quantity: number
+  subtotal: number
+}): string {
+  const { orderNumber, brandName, customerName, customerPhone, customerEmail, city, productTitle, quantity, subtotal } = params
+  const adminUrl = `${SITE_URL}/dashboard/admin/orders`
+  return shell(`
+    <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.32em;text-transform:uppercase;color:#b8975a;">Admin Alert — New Order</p>
+    <h1 style="margin:0 0 10px;font-size:24px;font-weight:400;color:#1a1a1a;letter-spacing:-0.01em;">
+      New order placed.
+    </h1>
+    <p style="margin:0 0 32px;font-size:14px;color:#666666;line-height:1.65;">
+      A new order has been placed on <strong style="color:#1a1a1a;">${esc(brandName)}</strong>.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #efefed;margin-bottom:28px;">
+      ${row('Order', '#' + esc(orderNumber))}
+      ${row('Brand', esc(brandName))}
+      ${row('Customer', esc(customerName))}
+      ${row('Phone', esc(customerPhone))}
+      ${customerEmail ? row('Email', esc(customerEmail)) : ''}
+      ${row('City', esc(city))}
+      ${row('Product', `${esc(productTitle)} &times; ${quantity}`)}
+      ${row('Total', `<strong>SAR ${subtotal.toFixed(2)}</strong>`, true)}
+    </table>
+
+    <table cellpadding="0" cellspacing="0">
+      <tr><td style="background:#1a1a1a;">
+        <a href="${esc(adminUrl)}"
+           style="display:inline-block;padding:14px 32px;font-size:11px;font-family:Georgia,serif;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+          View in admin &rarr;
+        </a>
+      </td></tr>
+    </table>
+  `)
+}
+
 type StatusEmailStatus = 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
 
 export function buildOrderStatusHtml(params: {
@@ -173,8 +217,9 @@ export function buildOrderStatusHtml(params: {
   subtotal: number
   status: StatusEmailStatus
   trackingNumber?: string
+  customerPhone?: string
 }): string {
-  const { customerName, orderNumber, productTitle, subtotal, status, trackingNumber } = params
+  const { customerName, orderNumber, productTitle, subtotal, status, trackingNumber, customerPhone } = params
 
   const headlines: Record<StatusEmailStatus, string> = {
     confirmed: 'Your order is confirmed.',
@@ -216,5 +261,16 @@ export function buildOrderStatusHtml(params: {
       ${trackingNumber ? row('Tracking number', `<span style="font-family:monospace;">${esc(trackingNumber)}</span>`) : ''}
       ${row('Total', `<strong>SAR ${subtotal.toFixed(2)}</strong>`, true)}
     </table>
+
+    ${status === 'shipped' && customerPhone ? `
+    <table cellpadding="0" cellspacing="0" style="margin-top:8px;">
+      <tr><td style="background:#b8975a;">
+        <a href="${SITE_URL}/track-order?order=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(customerPhone)}"
+           style="display:inline-block;padding:14px 32px;font-size:11px;font-family:Georgia,serif;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+          Track your order &rarr;
+        </a>
+      </td></tr>
+    </table>
+    ` : ''}
   `)
 }

@@ -7,6 +7,7 @@ import {
   sendOrderEmail,
   buildOrderPlacedCustomerHtml,
   buildOrderPlacedBrandHtml,
+  buildOrderPlacedAdminHtml,
   buildOrderStatusHtml,
 } from '@/lib/email'
 
@@ -117,6 +118,7 @@ export async function createOrder(
 
   // Email A — customer confirmation
   if (email) {
+    console.log('[email] Customer confirmation firing to:', email, '| order:', order.order_number)
     sendOrderEmail({
       to: email,
       subject: `Order Confirmed — #${order.order_number}`,
@@ -130,26 +132,47 @@ export async function createOrder(
         city,
         address,
       }),
-    }).catch(console.error)
+    }).catch(err => console.error('[email] Customer confirmation failed:', err))
   }
 
   // Email B — brand notification
   if (brand?.contact_email) {
+    console.log('[email] Brand notification firing to:', brand.contact_email, '| order:', order.order_number)
     sendOrderEmail({
       to: brand.contact_email,
       subject: `New Order — #${order.order_number}`,
       html: buildOrderPlacedBrandHtml({
-        brandName:    brand.name_en,
-        orderNumber:  order.order_number,
-        customerName: name,
+        brandName:     brand.name_en,
+        orderNumber:   order.order_number,
+        customerName:  name,
         customerPhone: phone,
         city,
-        productTitle: product.title_en,
+        productTitle:  product.title_en,
         quantity,
         subtotal,
       }),
-    }).catch(console.error)
+    }).catch(err => console.error('[email] Brand notification failed:', err))
+  } else {
+    console.warn('[email] Brand has no contact_email — skipping brand notification | brand_id:', brandId, '| brand:', JSON.stringify(brand))
   }
+
+  // Email C — admin notification (always fires)
+  console.log('[email] Admin notification firing | order:', order.order_number)
+  sendOrderEmail({
+    to: 'info@merchantclubsa.com',
+    subject: `[Admin] New Order — #${order.order_number}`,
+    html: buildOrderPlacedAdminHtml({
+      orderNumber:   order.order_number,
+      brandName:     brand?.name_en ?? 'Unknown Brand',
+      customerName:  name,
+      customerPhone: phone,
+      customerEmail: email,
+      city,
+      productTitle:  product.title_en,
+      quantity,
+      subtotal,
+    }),
+  }).catch(err => console.error('[email] Admin notification failed:', err))
 
   const prefix = locale === 'ar' ? '/ar' : ''
   redirect(`${prefix}/brands/${slug}/products/${productId}/order/confirmation?id=${order.id}`)
@@ -169,7 +192,7 @@ export async function brandUpdateOrderStatus(
 
     const { data: order } = await service
       .from('orders')
-      .select('id, brand_id, status, order_number, customer_name, customer_email, items, subtotal, tracking_number')
+      .select('id, brand_id, status, order_number, customer_name, customer_email, customer_phone, items, subtotal, tracking_number')
       .eq('id', orderId)
       .single()
 
@@ -228,6 +251,7 @@ export async function brandUpdateOrderStatus(
           subtotal:       Number(order.subtotal),
           status:         newStatus,
           trackingNumber: resolvedTracking ?? (order.tracking_number as string | null) ?? undefined,
+          customerPhone:  (order.customer_phone as string | null) ?? undefined,
         }),
       }).catch(console.error)
     }
