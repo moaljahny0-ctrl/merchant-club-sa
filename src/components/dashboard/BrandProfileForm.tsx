@@ -1,7 +1,7 @@
 'use client'
 
-import { useActionState, useState, useTransition } from 'react'
-import { updateBrandProfile } from '@/lib/actions/brands'
+import { useActionState, useRef, useState, useTransition } from 'react'
+import { updateBrandProfile, uploadBrandLogo, saveBrandLogoUrl } from '@/lib/actions/brands'
 import { createClient } from '@/lib/supabase/client'
 import type { Brand } from '@/lib/types/database'
 
@@ -97,9 +97,62 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
   const boundAction = updateBrandProfile.bind(null, brand.id)
   const [state, formAction, isPending] = useActionState(boundAction, { error: null })
 
+  // ── Logo state ──────────────────────────────────────────────────────────────
+  const [logoUrl, setLogoUrl]       = useState<string>(brand.logo_url ?? '')
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [logoError, setLogoError]   = useState<string | null>(null)
+  const [logoSuccess, setLogoSuccess] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setLogoError('Only JPG, PNG, or WebP files are allowed.')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoError('File must be under 2 MB.')
+      return
+    }
+
+    setLogoUploading(true)
+    setLogoError(null)
+    setLogoSuccess(false)
+
+    const fd = new FormData()
+    fd.append('logo', file)
+
+    const { url, error: uploadErr } = await uploadBrandLogo(brand.id, fd)
+
+    if (uploadErr || !url) {
+      setLogoError(uploadErr ?? 'Upload failed.')
+      setLogoUploading(false)
+      return
+    }
+
+    const { error: saveErr } = await saveBrandLogoUrl(brand.id, url)
+    setLogoUploading(false)
+
+    if (saveErr) {
+      setLogoError(saveErr)
+      return
+    }
+
+    setLogoUrl(url)
+    setLogoSuccess(true)
+    setTimeout(() => setLogoSuccess(false), 3000)
+    // Reset file input so the same file can be re-selected if needed
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   return (
     <div>
     <form action={formAction} className="space-y-8 max-w-2xl">
+
+      {/* Hidden field so logo_url is preserved on profile save */}
+      <input type="hidden" name="logo_url" value={logoUrl} />
 
       {state.error && (
         <div className="border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -112,6 +165,51 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
           <p className="text-green-400 text-xs">Profile saved successfully.</p>
         </div>
       )}
+
+      {/* Logo */}
+      <section>
+        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Brand Logo</h2>
+        <div className="flex items-center gap-6">
+
+          {/* Preview */}
+          <div className="relative w-20 h-20 shrink-0 bg-surface border border-border overflow-hidden flex items-center justify-center">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="Brand logo" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-[10px] text-muted/50 tracking-wider uppercase">No logo</span>
+            )}
+            {logoUploading && (
+              <div className="absolute inset-0 bg-ink/60 flex items-center justify-center">
+                <span className="text-[10px] text-parchment/80 tracking-widest uppercase animate-pulse">
+                  Uploading…
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Controls */}
+          <div className="flex flex-col gap-2">
+            <label
+              className={`inline-flex items-center justify-center bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-5 py-2.5 transition-opacity cursor-pointer ${logoUploading ? 'opacity-40 pointer-events-none' : 'hover:bg-gold-light'}`}
+            >
+              {logoUploading ? 'Uploading…' : logoUrl ? 'Change logo' : 'Upload logo'}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                onChange={handleLogoChange}
+                disabled={logoUploading}
+              />
+            </label>
+            <p className="text-[10px] text-muted/60">JPG, PNG or WebP · max 2 MB</p>
+            {logoError && <p className="text-xs text-red-400">{logoError}</p>}
+            {logoSuccess && <p className="text-xs text-green-400">Logo saved ✓</p>}
+          </div>
+
+        </div>
+      </section>
 
       {/* Names */}
       <section>
