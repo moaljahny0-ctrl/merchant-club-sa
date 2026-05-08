@@ -77,7 +77,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
             {/* ── Image ── */}
             <div
-              className="relative aspect-[3/4] overflow-hidden rounded-lg"
+              className="relative aspect-[4/5] overflow-hidden"
               style={{ background: '#F0EBE1' }}
             >
               {primaryImage ? (
@@ -86,8 +86,8 @@ export default async function ProductDetailPage({ params }: Props) {
                   alt={title}
                   fill
                   priority
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 60vw"
+                  className="object-cover object-top"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   quality={90}
                 />
               ) : (

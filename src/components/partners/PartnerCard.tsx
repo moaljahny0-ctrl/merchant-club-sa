@@ -27,8 +27,15 @@ export function PartnerCard({ partner, locale }: Props) {
             className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 25vw"
           />
+        ) : hasName ? (
+          /* Real brand with no logo — show initials on gold */
+          <div className="absolute inset-0 flex items-center justify-center bg-gold">
+            <span style={{ color: '#FFFFFF', fontSize: '2rem', fontWeight: 600, letterSpacing: '0.04em' }}>
+              {name.split(/\s+/).slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase()}
+            </span>
+          </div>
         ) : (
-          /* Empty slot — awaiting partner content */
+          /* Empty placeholder slot — awaiting partner content */
           <div className="absolute inset-0 flex flex-col justify-between p-4 opacity-40">
             <div className="h-px w-5 bg-gold" />
             <p className="text-[9px] tracking-[0.25em] uppercase text-muted">

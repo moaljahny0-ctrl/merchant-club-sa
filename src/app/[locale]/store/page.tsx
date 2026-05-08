@@ -34,12 +34,12 @@ export default async function StorePage({ params }: Props) {
     tagline_en: string | null;
     tagline_ar: string | null;
     logo_url: string | null;
-    products: { status: string; product_images: { url: string; is_primary: boolean }[] }[];
+    products: { status: string }[];
   };
 
   const { data: brandsRaw } = await supabase
     .from('brands')
-    .select('id, name_en, name_ar, slug, tagline_en, tagline_ar, logo_url, products(status, product_images(url, is_primary))')
+    .select('id, name_en, name_ar, slug, tagline_en, tagline_ar, logo_url, products(status)')
     .in('status', ['approved', 'active'])
     .order('created_at', { ascending: true });
 
@@ -47,24 +47,17 @@ export default async function StorePage({ params }: Props) {
 
   const partners: Partner[] = brands
     .filter(brand => (brand.products ?? []).some(p => p.status === 'live'))
-    .map(brand => {
-      const liveProducts = (brand.products ?? []).filter(p => p.status === 'live');
-      const firstProduct = liveProducts[0];
-      const primaryImage =
-        firstProduct?.product_images?.find(i => i.is_primary) ??
-        firstProduct?.product_images?.[0];
-      return {
-        id: brand.id,
-        name: brand.name_en,
-        nameAr: brand.name_ar ?? brand.name_en,
-        category: isAr
-          ? (brand.tagline_ar ?? brand.tagline_en ?? '')
-          : (brand.tagline_en ?? ''),
-        categoryAr: brand.tagline_ar ?? brand.tagline_en ?? '',
-        imageUrl: primaryImage?.url ?? brand.logo_url ?? undefined,
-        slug: brand.slug,
-      };
-    });
+    .map(brand => ({
+      id: brand.id,
+      name: brand.name_en,
+      nameAr: brand.name_ar ?? brand.name_en,
+      category: isAr
+        ? (brand.tagline_ar ?? brand.tagline_en ?? '')
+        : (brand.tagline_en ?? ''),
+      categoryAr: brand.tagline_ar ?? brand.tagline_en ?? '',
+      imageUrl: brand.logo_url ?? undefined,
+      slug: brand.slug,
+    }));
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>

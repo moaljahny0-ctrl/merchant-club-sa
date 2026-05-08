@@ -498,14 +498,13 @@ function LightPartnerCard({ partner, isAr }: { partner: Partner; isAr: boolean }
             sizes="(max-width: 768px) 50vw, 25vw"
           />
         ) : (
-          <div className="absolute inset-0 flex flex-col justify-between p-4 opacity-30">
-            <div className="h-px w-5" style={{ background: C.text2 }} />
-            <p
-              className="text-[9px] tracking-[0.2em] uppercase"
-              style={{ color: C.text2 }}
-            >
-              {isAr ? 'يقبل الطلبات' : 'Accepting applications'}
-            </p>
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: C.gold }}
+          >
+            <span style={{ color: '#FFFFFF', fontSize: '2rem', fontWeight: 600, letterSpacing: '0.04em' }}>
+              {name.split(/\s+/).slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase() || '·'}
+            </span>
           </div>
         )}
       </div>
