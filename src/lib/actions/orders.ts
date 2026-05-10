@@ -9,6 +9,7 @@ import {
   buildOrderPlacedBrandHtml,
   buildOrderPlacedAdminHtml,
   buildOrderStatusHtml,
+  buildGuestInvitationHtml,
 } from '@/lib/email'
 
 export type OrderFormState = {
@@ -133,6 +134,24 @@ export async function createOrder(
         address,
       }),
     }).catch(err => console.error('[email] Customer confirmation failed:', err))
+  }
+
+  // Email D — guest account invitation (fire-and-forget, only for unregistered customers)
+  if (email) {
+    service
+      .from('customer_profiles')
+      .select('id')
+      .eq('phone', phone)
+      .maybeSingle()
+      .then(({ data: existingProfile }) => {
+        if (!existingProfile) {
+          sendOrderEmail({
+            to: email,
+            subject: 'أكمل تسجيلك في Merchant Club SA',
+            html: buildGuestInvitationHtml({ customerName: name, orderNumber: order.order_number }),
+          }).catch(err => console.error('[email] Guest invitation failed:', err))
+        }
+      })
   }
 
   // Email B — brand notification

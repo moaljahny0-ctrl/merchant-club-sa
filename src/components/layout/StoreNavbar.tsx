@@ -1,16 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 export function StoreNavbar() {
   const [open, setOpen] = useState(false);
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
   const locale = useLocale();
   const t = useTranslations('nav');
   const pathname = usePathname();
   const isRTL = locale === 'ar';
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setIsCustomerLoggedIn(!!data.user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsCustomerLoggedIn(!!session?.user);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const links = [
     { href: '/about', label: t('about') },
@@ -64,6 +75,15 @@ export function StoreNavbar() {
             {isRTL ? 'EN' : 'ع'}
           </Link>
         </div>
+
+        {/* Auth link — desktop */}
+        <Link
+          href={isCustomerLoggedIn ? '/store/account' : '/store/login'}
+          className="hidden md:block text-xs tracking-[0.12em] uppercase transition-opacity hover:opacity-70"
+          style={{ color: '#B8975A' }}
+        >
+          {isCustomerLoggedIn ? 'حسابي' : 'دخول'}
+        </Link>
 
         {/* Cart + mobile hamburger — last child (left in RTL) */}
         <div className="flex items-center gap-4">
@@ -141,6 +161,14 @@ export function StoreNavbar() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href={isCustomerLoggedIn ? '/store/account' : '/store/login'}
+            onClick={() => setOpen(false)}
+            className="text-xs tracking-[0.15em] uppercase transition-colors"
+            style={{ color: '#B8975A' }}
+          >
+            {isCustomerLoggedIn ? 'حسابي' : 'دخول'}
+          </Link>
         </div>
       </div>
     </header>

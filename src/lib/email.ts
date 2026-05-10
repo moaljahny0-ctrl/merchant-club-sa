@@ -208,6 +208,35 @@ export function buildOrderPlacedAdminHtml(params: {
   `)
 }
 
+export function buildGuestInvitationHtml(params: {
+  customerName: string
+  orderNumber: string
+}): string {
+  const { customerName, orderNumber } = params
+  const registerUrl = `${SITE_URL}/store/register`
+  return shell(`
+    <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.32em;text-transform:uppercase;color:#b8975a;">Merchant Club SA</p>
+    <h1 style="margin:0 0 10px;font-size:24px;font-weight:400;color:#1a1a1a;letter-spacing:-0.01em;">
+      أكمل تسجيلك في Merchant Club SA
+    </h1>
+    <p style="margin:0 0 8px;font-size:14px;color:#666666;line-height:1.65;">
+      Thank you, ${esc(customerName)}, for your order <strong style="color:#1a1a1a;">#${esc(orderNumber)}</strong>.
+    </p>
+    <p style="margin:0 0 32px;font-size:14px;color:#666666;line-height:1.65;">
+      Create your account to track your orders easily and shop faster next time.
+    </p>
+
+    <table cellpadding="0" cellspacing="0">
+      <tr><td style="background:#b8975a;">
+        <a href="${esc(registerUrl)}"
+           style="display:inline-block;padding:14px 32px;font-size:11px;font-family:Georgia,serif;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+          Create Account &rarr;
+        </a>
+      </td></tr>
+    </table>
+  `)
+}
+
 type StatusEmailStatus = 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
 
 export function buildOrderStatusHtml(params: {

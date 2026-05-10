@@ -173,10 +173,19 @@ export interface CreatorLink {
   created_at: string
 }
 
+export interface CustomerProfile {
+  id: string
+  full_name: string | null
+  phone: string | null
+  email: string | null
+  created_at: string
+}
+
 export interface Order {
   id: string
   brand_id: string
   order_number: string
+  customer_user_id: string | null
   customer_name: string | null
   customer_email: string | null
   customer_phone: string | null
@@ -230,6 +239,7 @@ export interface Database {
       product_images: TableDef<ProductImage, Omit<ProductImage, 'id' | 'created_at'>>
       storefronts: TableDef<Storefront, Omit<Storefront, 'id' | 'created_at' | 'updated_at'>>
       creator_links: TableDef<CreatorLink, Omit<CreatorLink, 'id' | 'created_at'>>
+      customer_profiles: TableDef<CustomerProfile, Omit<CustomerProfile, 'created_at'>>
       orders: TableDef<Order, Omit<Order, 'id' | 'created_at' | 'updated_at'>>
       analytics_events: TableDef<AnalyticsEvent, Omit<AnalyticsEvent, 'id' | 'created_at'>>
     }
