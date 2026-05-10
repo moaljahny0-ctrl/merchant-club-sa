@@ -28,7 +28,7 @@ export function StoreNavbar() {
       <nav className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
 
         {/* Brand — first child (right in RTL) */}
-        <Link href="/" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
+        <Link href="/store" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
           <Image src="/logo.png" alt="Merchant Club SA" width={32} height={32} priority />
           <span
             className="text-[11px] tracking-[0.2em] uppercase hidden sm:block"
