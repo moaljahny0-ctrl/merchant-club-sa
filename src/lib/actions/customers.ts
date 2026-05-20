@@ -82,32 +82,51 @@ export async function logoutCustomer(): Promise<void> {
 
 export async function sendCustomerPasswordReset(email: string): Promise<void> {
   const service = createServiceClient()
+  const normalizedEmail = email.toLowerCase().trim()
 
-  const { data: customer } = await service
+  const { data: customer, error: lookupError } = await service
     .from('customers')
     .select('id')
-    .eq('email', email.toLowerCase().trim())
+    .eq('email', normalizedEmail)
     .maybeSingle()
 
-  if (!customer) return // don't reveal whether email exists
+  if (lookupError) {
+    console.error('[reset] customer lookup failed:', lookupError.message, '| email:', normalizedEmail)
+    return
+  }
+  if (!customer) {
+    console.log('[reset] no customer found for:', normalizedEmail)
+    return
+  }
 
   const rawToken = randomBytes(32).toString('base64url')
   const tokenHash = createHash('sha256').update(rawToken).digest('hex')
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
 
-  await service.from('customer_reset_tokens').insert({
+  const { error: insertError } = await service.from('customer_reset_tokens').insert({
     customer_id: customer.id,
     token_hash: tokenHash,
     expires_at: expiresAt,
   })
 
-  const resetLink = `${SITE_URL}/store/reset-password?token=${rawToken}`
+  if (insertError) {
+    console.error('[reset] token insert failed:', insertError.message)
+    return
+  }
 
-  sendEmail({
-    to: email,
-    subject: 'إعادة تعيين كلمة المرور — Merchant Club SA',
-    html: buildPasswordResetEmailHtml({ resetLink }),
-  }).catch(err => console.error('[customers] reset email failed:', err))
+  const resetLink = `${SITE_URL}/store/reset-password?token=${rawToken}`
+  console.log('[reset] sending email to:', normalizedEmail, '| link:', resetLink)
+
+  try {
+    await sendEmail({
+      to: normalizedEmail,
+      subject: 'إعادة تعيين كلمة المرور — Merchant Club SA',
+      html: buildPasswordResetEmailHtml({ resetLink }),
+    })
+    console.log('[reset] email sent successfully to:', normalizedEmail)
+  } catch (err) {
+    console.error('[reset] EMAIL FAILED:', err)
+  }
 }
 
 export async function resetCustomerPassword(
