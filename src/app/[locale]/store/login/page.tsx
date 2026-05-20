@@ -27,6 +27,23 @@ export default async function StoreLoginPage({ params }: Props) {
               Welcome back
             </h1>
             <StoreLoginForm />
+            <p style={{ fontSize: '11px', color: '#6B5B4E', textAlign: 'center', marginTop: '20px', lineHeight: 1.6 }}>
+              {locale === 'ar' ? (
+                <>
+                  هل أنت شريك علامة تجارية؟{' '}
+                  <a href="/auth/login" style={{ color: '#B8975A', textDecoration: 'none' }}>
+                    سجّل دخولك هنا ←
+                  </a>
+                </>
+              ) : (
+                <>
+                  Are you a brand partner?{' '}
+                  <a href="/auth/login" style={{ color: '#B8975A', textDecoration: 'none' }}>
+                    Login here →
+                  </a>
+                </>
+              )}
+            </p>
           </div>
         </div>
       </main>

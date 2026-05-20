@@ -36,8 +36,14 @@ export default function LoginPage() {
           <LoginForm />
         </Suspense>
 
-        {/* Customer note */}
-        <div className="mt-10 border border-border/40 bg-surface/30 px-4 py-4">
+        {/* Cross-links */}
+        <div className="mt-10 border border-border/40 bg-surface/30 px-4 py-4 flex flex-col gap-2">
+          <p className="text-[9px] text-muted/60 leading-relaxed text-center">
+            Are you a customer?{' '}
+            <a href="/store/login" className="text-gold hover:underline">
+              Login here →
+            </a>
+          </p>
           <p className="text-[9px] text-muted/60 leading-relaxed text-center">
             Looking to track your order?{' '}
             <a href="/track-order" className="text-gold hover:underline">
