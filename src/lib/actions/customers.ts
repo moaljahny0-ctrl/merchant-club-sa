@@ -1,89 +1,150 @@
 'use server'
 
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
+import { hashPassword, verifyPassword, createSession, clearSession } from '@/lib/customer-auth'
 import { sendEmail, buildWelcomeEmailHtml, buildPasswordResetEmailHtml } from '@/lib/email'
+import { randomBytes, createHash } from 'crypto'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
 
-export async function setupCustomerProfile(
+export async function registerCustomer(
   fullName: string,
-  phone: string
+  phone: string,
+  email: string,
+  password: string
 ): Promise<{ error: string | null }> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'Not authenticated' }
-
   const service = createServiceClient()
 
-  const { error: profileError } = await service
-    .from('customer_profiles')
-    .upsert(
-      { id: user.id, full_name: fullName, phone, email: user.email ?? null },
-      { onConflict: 'id' }
-    )
+  const { data: existing } = await service
+    .from('customers')
+    .select('id')
+    .eq('email', email.toLowerCase().trim())
+    .maybeSingle()
 
-  if (profileError) return { error: profileError.message }
+  if (existing) return { error: 'البريد الإلكتروني مسجل بالفعل.' }
 
-  // Tag user as customer in app_metadata — lets middleware detect role without a DB query
-  await service.auth.admin.updateUserById(user.id, {
-    app_metadata: { role: 'customer' },
-  })
+  const password_hash = await hashPassword(password)
 
-  // Link unowned guest orders by phone — fire-and-forget
-  service
-    .from('orders')
-    .update({ customer_user_id: user.id })
-    .eq('customer_phone', phone)
-    .is('customer_user_id', null)
-    .then(({ error }) => {
-      if (error) console.error('[customers] order link failed:', error)
-    })
+  const { data: customer, error: insertError } = await service
+    .from('customers')
+    .insert({ full_name: fullName.trim(), phone: phone.trim(), email: email.toLowerCase().trim(), password_hash })
+    .select('id, email, full_name, phone')
+    .single()
+
+  if (insertError || !customer) return { error: insertError?.message ?? 'فشل إنشاء الحساب.' }
+
+  // Link guest orders placed with the same phone number
+  if (phone.trim()) {
+    service
+      .from('orders')
+      .update({ customer_user_id: customer.id })
+      .eq('customer_phone', phone.trim())
+      .is('customer_user_id', null)
+      .then(({ error }) => { if (error) console.error('[customers] order link failed:', error) })
+  }
+
+  await createSession({ id: customer.id, email: customer.email, full_name: customer.full_name, phone: customer.phone })
+
+  sendEmail({
+    to: customer.email,
+    subject: 'مرحباً في Merchant Club SA',
+    html: buildWelcomeEmailHtml({ fullName: customer.full_name }),
+  }).catch(err => console.error('[customers] welcome email failed:', err))
 
   return { error: null }
 }
 
-export async function sendWelcomeEmail(
-  fullName: string,
-  email: string
-): Promise<void> {
-  try {
-    await sendEmail({
-      to: email,
-      subject: 'مرحباً في Merchant Club SA',
-      html: buildWelcomeEmailHtml({ fullName }),
-    })
-  } catch (err) {
-    console.error('[customers] welcome email failed:', err)
-  }
-}
-
-export async function sendPasswordResetEmail(
-  email: string
+export async function loginCustomer(
+  email: string,
+  password: string
 ): Promise<{ error: string | null }> {
   const service = createServiceClient()
 
-  try {
-    const { data, error } = await service.auth.admin.generateLink({
-      type: 'recovery',
-      email,
-      options: {
-        redirectTo: `${SITE_URL}/auth/callback?next=/store/reset-password`,
-      },
-    })
+  const { data: customer } = await service
+    .from('customers')
+    .select('id, email, full_name, phone, password_hash')
+    .eq('email', email.toLowerCase().trim())
+    .maybeSingle()
 
-    if (error || !data?.properties?.action_link) {
-      // User not found or other error — don't reveal to caller
-      return { error: null }
-    }
+  if (!customer) return { error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' }
 
-    await sendEmail({
-      to: email,
-      subject: 'إعادة تعيين كلمة المرور — Merchant Club SA',
-      html: buildPasswordResetEmailHtml({ resetLink: data.properties.action_link }),
-    })
-  } catch (err) {
-    console.error('[customers] reset email failed:', err)
-  }
+  const valid = await verifyPassword(password, customer.password_hash)
+  if (!valid) return { error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' }
+
+  await createSession({ id: customer.id, email: customer.email, full_name: customer.full_name, phone: customer.phone })
+
+  return { error: null }
+}
+
+export async function logoutCustomer(): Promise<void> {
+  await clearSession()
+}
+
+export async function sendCustomerPasswordReset(email: string): Promise<void> {
+  const service = createServiceClient()
+
+  const { data: customer } = await service
+    .from('customers')
+    .select('id')
+    .eq('email', email.toLowerCase().trim())
+    .maybeSingle()
+
+  if (!customer) return // don't reveal whether email exists
+
+  const rawToken = randomBytes(32).toString('base64url')
+  const tokenHash = createHash('sha256').update(rawToken).digest('hex')
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+
+  await service.from('customer_reset_tokens').insert({
+    customer_id: customer.id,
+    token_hash: tokenHash,
+    expires_at: expiresAt,
+  })
+
+  const resetLink = `${SITE_URL}/store/reset-password?token=${rawToken}`
+
+  sendEmail({
+    to: email,
+    subject: 'إعادة تعيين كلمة المرور — Merchant Club SA',
+    html: buildPasswordResetEmailHtml({ resetLink }),
+  }).catch(err => console.error('[customers] reset email failed:', err))
+}
+
+export async function resetCustomerPassword(
+  rawToken: string,
+  newPassword: string
+): Promise<{ error: string | null }> {
+  const service = createServiceClient()
+
+  const tokenHash = createHash('sha256').update(rawToken).digest('hex')
+
+  const { data: tokenRow } = await service
+    .from('customer_reset_tokens')
+    .select('id, customer_id, expires_at, used_at')
+    .eq('token_hash', tokenHash)
+    .maybeSingle()
+
+  if (!tokenRow) return { error: 'الرابط غير صالح.' }
+  if (tokenRow.used_at) return { error: 'تم استخدام هذا الرابط مسبقاً.' }
+  if (new Date(tokenRow.expires_at) < new Date()) return { error: 'انتهت صلاحية الرابط. يرجى طلب رابط جديد.' }
+
+  const password_hash = await hashPassword(newPassword)
+
+  const { data: customer, error: updateError } = await service
+    .from('customers')
+    .update({ password_hash, updated_at: new Date().toISOString() })
+    .eq('id', tokenRow.customer_id)
+    .select('id, email, full_name, phone')
+    .single()
+
+  if (updateError || !customer) return { error: 'فشل تحديث كلمة المرور.' }
+
+  await service
+    .from('customer_reset_tokens')
+    .update({ used_at: new Date().toISOString() })
+    .eq('id', tokenRow.id)
+
+  await createSession({ id: customer.id, email: customer.email, full_name: customer.full_name, phone: customer.phone })
 
   return { error: null }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { sendPasswordResetEmail } from '@/lib/actions/customers';
+import { sendCustomerPasswordReset } from '@/lib/actions/customers';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -35,7 +35,7 @@ export function ForgotPasswordForm({ locale }: Props) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      await sendPasswordResetEmail(email);
+      await sendCustomerPasswordReset(email);
       setSent(true);
     });
   }

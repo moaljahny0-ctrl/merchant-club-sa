@@ -3,8 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { setupCustomerProfile, sendWelcomeEmail } from '@/lib/actions/customers';
+import { registerCustomer } from '@/lib/actions/customers';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -54,39 +53,13 @@ export function RegisterForm() {
     }
 
     startTransition(async () => {
-      const supabase = createClient();
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/store/account`,
-        },
-      });
-
-      if (signUpError) {
-        setError(signUpError.message);
+      const result = await registerCustomer(fullName, phone, email, password);
+      if (result.error) {
+        setError(result.error);
         return;
       }
-
-      if (data.session) {
-        // Email confirmation is disabled — set up profile immediately
-        const result = await setupCustomerProfile(fullName, phone);
-        if (result.error) {
-          setError(result.error);
-          return;
-        }
-        // Send branded welcome email (non-blocking)
-        sendWelcomeEmail(fullName, email);
-        router.push('/store/account');
-        router.refresh();
-      } else {
-        // Email confirmation still enabled — show generic message (no Supabase branding)
-        setError(
-          ar
-            ? 'تحقق من بريدك الإلكتروني لتفعيل حسابك.'
-            : 'Check your email to confirm your account.'
-        );
-      }
+      router.push('/store/account');
+      router.refresh();
     });
   }
 

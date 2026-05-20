@@ -173,11 +173,22 @@ export interface CreatorLink {
   created_at: string
 }
 
-export interface CustomerProfile {
+export interface Customer {
   id: string
-  full_name: string | null
+  email: string
+  password_hash: string
+  full_name: string
   phone: string | null
-  email: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CustomerResetToken {
+  id: string
+  customer_id: string
+  token_hash: string
+  expires_at: string
+  used_at: string | null
   created_at: string
 }
 
@@ -239,7 +250,8 @@ export interface Database {
       product_images: TableDef<ProductImage, Omit<ProductImage, 'id' | 'created_at'>>
       storefronts: TableDef<Storefront, Omit<Storefront, 'id' | 'created_at' | 'updated_at'>>
       creator_links: TableDef<CreatorLink, Omit<CreatorLink, 'id' | 'created_at'>>
-      customer_profiles: TableDef<CustomerProfile, Omit<CustomerProfile, 'created_at'>>
+      customers: TableDef<Customer, Omit<Customer, 'id' | 'created_at' | 'updated_at'>>
+      customer_reset_tokens: TableDef<CustomerResetToken, Omit<CustomerResetToken, 'id' | 'created_at'>>
       orders: TableDef<Order, Omit<Order, 'id' | 'created_at' | 'updated_at'>>
       analytics_events: TableDef<AnalyticsEvent, Omit<AnalyticsEvent, 'id' | 'created_at'>>
     }

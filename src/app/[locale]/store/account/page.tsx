@@ -1,4 +1,5 @@
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { getCustomerSession } from '@/lib/customer-auth';
+import { createServiceClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
 import { Footer } from '@/components/layout/Footer';
@@ -38,39 +39,29 @@ export default async function AccountPage({ params }: Props) {
   const { locale } = await params;
   const prefix = locale === 'ar' ? '/ar' : '';
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`${prefix}/store/login`);
+  const session = await getCustomerSession();
+  if (!session) redirect(`${prefix}/store/login`);
 
   const service = createServiceClient();
 
-  const { data: profile } = await service
-    .from('customer_profiles')
-    .select('full_name, phone, email')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  // Non-customer users (admin/brand) must not access the customer account page
-  if (!profile) redirect(`${prefix}/store/login`);
-
   let orders: OrderRow[] = [];
-  if (profile?.phone) {
+  if (session.phone) {
     const { data } = await service
       .from('orders')
       .select('id, order_number, items, subtotal, status, created_at, customer_phone')
-      .or(`customer_user_id.eq.${user.id},customer_phone.eq.${profile.phone}`)
+      .or(`customer_user_id.eq.${session.id},customer_phone.eq.${session.phone}`)
       .order('created_at', { ascending: false });
     orders = (data ?? []) as OrderRow[];
   } else {
     const { data } = await service
       .from('orders')
       .select('id, order_number, items, subtotal, status, created_at, customer_phone')
-      .eq('customer_user_id', user.id)
+      .eq('customer_user_id', session.id)
       .order('created_at', { ascending: false });
     orders = (data ?? []) as OrderRow[];
   }
 
-  const firstName = (profile?.full_name ?? user.email ?? '').split(' ')[0];
+  const firstName = session.full_name.split(' ')[0];
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
@@ -164,9 +155,9 @@ export default async function AccountPage({ params }: Props) {
           </h2>
           <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0' }}>
             {[
-              { label: 'Name',  value: profile?.full_name ?? '—' },
-              { label: 'Phone', value: profile?.phone ?? '—' },
-              { label: 'Email', value: profile?.email ?? user.email ?? '—' },
+              { label: 'Name',  value: session.full_name },
+              { label: 'Phone', value: session.phone ?? '—' },
+              { label: 'Email', value: session.email },
             ].map(({ label, value }, i, arr) => (
               <div
                 key={label}

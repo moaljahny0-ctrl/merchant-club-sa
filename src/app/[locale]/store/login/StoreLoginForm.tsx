@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { loginCustomer } from '@/lib/actions/customers';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -34,40 +34,17 @@ export function StoreLoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isPartnerError, setIsPartnerError] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setIsPartnerError(false);
 
     startTransition(async () => {
-      const supabase = createClient();
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (signInError) {
-        setError(ar ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' : 'Incorrect email or password.');
+      const result = await loginCustomer(email, password);
+      if (result.error) {
+        setError(result.error);
         return;
       }
-
-      // Verify user has a customer profile — brand/admin users must not login here
-      const { data: profile } = await supabase
-        .from('customer_profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .maybeSingle();
-
-      if (!profile) {
-        await supabase.auth.signOut();
-        setIsPartnerError(true);
-        setError(
-          ar
-            ? 'هذا الحساب مخصص للشركاء. يرجى تسجيل الدخول من هنا.'
-            : 'This account is for brand partners. Please use the partner login.'
-        );
-        return;
-      }
-
       router.push('/store/account');
       router.refresh();
     });
@@ -103,17 +80,7 @@ export function StoreLoginForm() {
       </div>
 
       {error && (
-        <p style={{ fontSize: '12px', color: '#cc5555', lineHeight: 1.5 }}>
-          {error}
-          {isPartnerError && (
-            <>
-              {' '}
-              <a href="/auth/login" style={{ color: '#B8975A', textDecoration: 'none' }}>
-                {ar ? 'دخول الشركاء ←' : 'Partner Login →'}
-              </a>
-            </>
-          )}
-        </p>
+        <p style={{ fontSize: '12px', color: '#cc5555', lineHeight: 1.5 }}>{error}</p>
       )}
 
       <button

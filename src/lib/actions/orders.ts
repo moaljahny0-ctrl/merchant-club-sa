@@ -139,12 +139,12 @@ export async function createOrder(
   // Email D — guest account invitation (fire-and-forget, only for unregistered customers)
   if (email) {
     service
-      .from('customer_profiles')
+      .from('customers')
       .select('id')
       .eq('phone', phone)
       .maybeSingle()
-      .then(({ data: existingProfile }) => {
-        if (!existingProfile) {
+      .then(({ data: existingCustomer }) => {
+        if (!existingCustomer) {
           sendOrderEmail({
             to: email,
             subject: 'أكمل تسجيلك في Merchant Club SA',

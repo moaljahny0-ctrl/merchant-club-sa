@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from '@/i18n/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { resetCustomerPassword } from '@/lib/actions/customers';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -25,9 +25,9 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
-type Props = { locale: string };
+type Props = { locale: string; token: string };
 
-export function ResetPasswordForm({ locale }: Props) {
+export function ResetPasswordForm({ locale, token }: Props) {
   const ar = locale === 'ar';
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -49,10 +49,9 @@ export function ResetPasswordForm({ locale }: Props) {
     }
 
     startTransition(async () => {
-      const supabase = createClient();
-      const { error: updateError } = await supabase.auth.updateUser({ password });
-      if (updateError) {
-        setError(updateError.message);
+      const result = await resetCustomerPassword(token, password);
+      if (result.error) {
+        setError(result.error);
         return;
       }
       router.push('/store/account');

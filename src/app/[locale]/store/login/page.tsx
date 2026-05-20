@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { getCustomerSession } from '@/lib/customer-auth';
 import { redirect } from 'next/navigation';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
 import { Footer } from '@/components/layout/Footer';
@@ -10,10 +10,8 @@ export default async function StoreLoginPage({ params }: Props) {
   const { locale } = await params;
   const prefix = locale === 'ar' ? '/ar' : '';
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  // Only redirect if already logged in as a customer (not admin/brand users browsing the store)
-  if (user?.app_metadata?.role === 'customer') redirect(`${prefix}/store/account`);
+  const session = await getCustomerSession();
+  if (session) redirect(`${prefix}/store/account`);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>

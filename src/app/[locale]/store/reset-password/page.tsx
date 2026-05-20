@@ -1,19 +1,20 @@
-import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
 import { Footer } from '@/components/layout/Footer';
 import { ResetPasswordForm } from './ResetPasswordForm';
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ token?: string }>;
+};
 
-export default async function ResetPasswordPage({ params }: Props) {
+export default async function ResetPasswordPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const { token } = await searchParams;
   const prefix = locale === 'ar' ? '/ar' : '';
   const ar = locale === 'ar';
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`${prefix}/store/forgot-password`);
+  if (!token) redirect(`${prefix}/store/forgot-password`);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
@@ -27,7 +28,7 @@ export default async function ResetPasswordPage({ params }: Props) {
             <h1 style={{ color: '#1A1208', fontSize: '22px', fontWeight: 400, marginBottom: '32px', lineHeight: 1.2 }}>
               {ar ? 'اختر كلمة مرور جديدة' : 'Set a new password'}
             </h1>
-            <ResetPasswordForm locale={locale} />
+            <ResetPasswordForm locale={locale} token={token} />
           </div>
         </div>
       </main>

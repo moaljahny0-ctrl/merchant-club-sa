@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react';
 import { useRouter } from '@/i18n/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { logoutCustomer } from '@/lib/actions/customers';
 
 export function LogoutButton() {
   const router = useRouter();
@@ -10,8 +10,7 @@ export function LogoutButton() {
 
   function handleLogout() {
     startTransition(async () => {
-      const supabase = createClient();
-      await supabase.auth.signOut();
+      await logoutCustomer();
       router.push('/store');
       router.refresh();
     });
@@ -35,7 +34,7 @@ export function LogoutButton() {
         opacity: isPending ? 0.5 : 1,
       }}
     >
-      {isPending ? 'Signing out…' : 'Sign out'}
+      {isPending ? 'جارٍ الخروج…' : 'تسجيل الخروج'}
     </button>
   );
 }
