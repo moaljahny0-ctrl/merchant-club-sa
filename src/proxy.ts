@@ -5,10 +5,10 @@ import { routing } from './i18n/routing'
 
 const intlMiddleware = createIntlMiddleware(routing)
 
-// Routes that require authentication
+// Routes that require authentication (admin/brand)
 const PROTECTED_PREFIXES = ['/dashboard']
 
-// Routes only accessible to unauthenticated users
+// Routes only accessible to unauthenticated users (admin/brand side)
 const AUTH_ONLY_PATHS = ['/auth/login', '/auth/reset-password']
 
 export async function proxy(request: NextRequest) {
@@ -43,6 +43,12 @@ export async function proxy(request: NextRequest) {
 
   // ── Dashboard protection ──────────────────────────────────────────────────
   const isProtected = PROTECTED_PREFIXES.some(p => pathname.startsWith(p))
+
+  // Customers must never reach the admin dashboard — redirect to store
+  if (isProtected && user?.app_metadata?.role === 'customer') {
+    return NextResponse.redirect(new URL('/store', request.url))
+  }
+
   if (isProtected && !user) {
     const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('redirect', pathname)

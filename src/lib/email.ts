@@ -237,6 +237,80 @@ export function buildGuestInvitationHtml(params: {
   `)
 }
 
+// ── Auth email helpers ────────────────────────────────────────────────────────
+
+export async function sendEmail(params: {
+  to: string
+  subject: string
+  html: string
+  from?: string
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    console.warn('[email] RESEND_API_KEY not set — skipping to', params.to)
+    return
+  }
+  const resend = new Resend(apiKey)
+  const { error } = await resend.emails.send({
+    from: params.from ?? 'Merchant Club SA <info@merchantclubsa.com>',
+    to:   [params.to],
+    subject: params.subject,
+    html: params.html,
+  })
+  if (error) throw new Error(typeof error === 'object' ? JSON.stringify(error) : String(error))
+}
+
+export function buildWelcomeEmailHtml(params: { fullName: string }): string {
+  const { fullName } = params
+  const firstName = fullName.split(' ')[0]
+  const storeUrl = `${SITE_URL}/store`
+  return shell(`
+    <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.32em;text-transform:uppercase;color:#b8975a;">مرحباً بك</p>
+    <h1 style="margin:0 0 10px;font-size:24px;font-weight:400;color:#1a1a1a;letter-spacing:-0.01em;">
+      أهلاً، ${esc(firstName)}.
+    </h1>
+    <p style="margin:0 0 16px;font-size:14px;color:#666666;line-height:1.65;">
+      تم إنشاء حسابك في Merchant Club SA بنجاح.
+    </p>
+    <p style="margin:0 0 32px;font-size:14px;color:#666666;line-height:1.65;">
+      يمكنك الآن تصفح متجرنا وتتبع طلباتك بسهولة من حسابك الشخصي.
+    </p>
+    <table cellpadding="0" cellspacing="0">
+      <tr><td style="background:#b8975a;">
+        <a href="${esc(storeUrl)}"
+           style="display:inline-block;padding:14px 32px;font-size:11px;font-family:Georgia,serif;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+          تصفّح المتجر &rarr;
+        </a>
+      </td></tr>
+    </table>
+  `)
+}
+
+export function buildPasswordResetEmailHtml(params: { resetLink: string }): string {
+  const { resetLink } = params
+  return shell(`
+    <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.32em;text-transform:uppercase;color:#b8975a;">إعادة تعيين كلمة المرور</p>
+    <h1 style="margin:0 0 10px;font-size:24px;font-weight:400;color:#1a1a1a;letter-spacing:-0.01em;">
+      أعد تعيين كلمة مرورك.
+    </h1>
+    <p style="margin:0 0 32px;font-size:14px;color:#666666;line-height:1.65;">
+      انقر على الزر أدناه لإعادة تعيين كلمة مرور حسابك في Merchant Club SA.
+      هذا الرابط صالح لمدة ساعة واحدة.
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr><td style="background:#b8975a;">
+        <a href="${esc(resetLink)}"
+           style="display:inline-block;padding:14px 32px;font-size:11px;font-family:Georgia,serif;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+          إعادة تعيين كلمة المرور &rarr;
+        </a>
+      </td></tr>
+    </table>
+    <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
+      إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد الإلكتروني بأمان.
+    </p>
+  `)
+}
+
 type StatusEmailStatus = 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
 
 export function buildOrderStatusHtml(params: {

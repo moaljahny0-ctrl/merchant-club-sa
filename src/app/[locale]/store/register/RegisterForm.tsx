@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { setupCustomerProfile } from '@/lib/actions/customers';
+import { setupCustomerProfile, sendWelcomeEmail } from '@/lib/actions/customers';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -27,10 +28,11 @@ const inputStyle: React.CSSProperties = {
 };
 
 export function RegisterForm() {
+  const locale = useLocale();
+  const ar = locale === 'ar';
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -43,11 +45,11 @@ export function RegisterForm() {
     setError(null);
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setError(ar ? 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' : 'Password must be at least 8 characters.');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(ar ? 'كلمة المرور غير متطابقة.' : 'Passwords do not match.');
       return;
     }
 
@@ -67,39 +69,32 @@ export function RegisterForm() {
       }
 
       if (data.session) {
-        // No email confirmation required — set up profile immediately
+        // Email confirmation is disabled — set up profile immediately
         const result = await setupCustomerProfile(fullName, phone);
         if (result.error) {
           setError(result.error);
           return;
         }
+        // Send branded welcome email (non-blocking)
+        sendWelcomeEmail(fullName, email);
         router.push('/store/account');
         router.refresh();
       } else {
-        // Email confirmation required
-        setEmailSent(true);
+        // Email confirmation still enabled — show generic message (no Supabase branding)
+        setError(
+          ar
+            ? 'تحقق من بريدك الإلكتروني لتفعيل حسابك.'
+            : 'Check your email to confirm your account.'
+        );
       }
     });
-  }
-
-  if (emailSent) {
-    return (
-      <div style={{ textAlign: 'center', padding: '8px 0' }}>
-        <p style={{ color: '#B8975A', fontSize: '9px', letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '12px' }}>
-          Check your inbox
-        </p>
-        <p style={{ color: '#1A1208', fontSize: '14px', lineHeight: 1.65 }}>
-          We sent a verification link to <strong>{email}</strong>. Click it to activate your account.
-        </p>
-      </div>
-    );
   }
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
       <div>
-        <label style={labelStyle}>Full Name</label>
+        <label style={labelStyle}>{ar ? 'الاسم الكامل' : 'Full Name'}</label>
         <input
           type="text"
           required
@@ -111,7 +106,7 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label style={labelStyle}>Phone</label>
+        <label style={labelStyle}>{ar ? 'رقم الجوال' : 'Phone Number'}</label>
         <input
           type="tel"
           required
@@ -124,7 +119,7 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label style={labelStyle}>Email</label>
+        <label style={labelStyle}>{ar ? 'البريد الإلكتروني' : 'Email'}</label>
         <input
           type="email"
           required
@@ -137,7 +132,7 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label style={labelStyle}>Password</label>
+        <label style={labelStyle}>{ar ? 'كلمة المرور' : 'Password'}</label>
         <input
           type="password"
           required
@@ -150,7 +145,7 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label style={labelStyle}>Confirm Password</label>
+        <label style={labelStyle}>{ar ? 'تأكيد كلمة المرور' : 'Confirm Password'}</label>
         <input
           type="password"
           required
@@ -182,14 +177,21 @@ export function RegisterForm() {
           transition: 'background 0.2s',
         }}
       >
-        {isPending ? 'Creating account…' : 'Create account'}
+        {isPending
+          ? (ar ? 'جارٍ الإنشاء…' : 'Creating account…')
+          : (ar ? 'إنشاء الحساب' : 'Create account')}
       </button>
 
       <p style={{ fontSize: '12px', color: '#6B5B4E', textAlign: 'center' }}>
-        Already have an account?{' '}
-        <a href="/store/login" style={{ color: '#B8975A', textDecoration: 'none' }}>
-          Login →
-        </a>
+        {ar ? (
+          <>لديك حساب بالفعل؟{' '}
+            <a href="/store/login" style={{ color: '#B8975A', textDecoration: 'none' }}>تسجيل الدخول ←</a>
+          </>
+        ) : (
+          <>Already have an account?{' '}
+            <a href="/store/login" style={{ color: '#B8975A', textDecoration: 'none' }}>Sign in →</a>
+          </>
+        )}
       </p>
 
     </form>

@@ -50,6 +50,9 @@ export default async function AccountPage({ params }: Props) {
     .eq('id', user.id)
     .maybeSingle();
 
+  // Non-customer users (admin/brand) must not access the customer account page
+  if (!profile) redirect(`${prefix}/store/login`);
+
   let orders: OrderRow[] = [];
   if (profile?.phone) {
     const { data } = await service
@@ -67,7 +70,7 @@ export default async function AccountPage({ params }: Props) {
     orders = (data ?? []) as OrderRow[];
   }
 
-  const displayName = profile?.full_name ?? user.email ?? '';
+  const firstName = (profile?.full_name ?? user.email ?? '').split(' ')[0];
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
@@ -81,7 +84,7 @@ export default async function AccountPage({ params }: Props) {
             My Account
           </p>
           <h1 style={{ color: '#1A1208', fontSize: '28px', fontWeight: 400, lineHeight: 1.2 }}>
-            مرحباً {displayName}.
+            مرحباً {firstName}.
           </h1>
         </div>
 
@@ -93,8 +96,15 @@ export default async function AccountPage({ params }: Props) {
 
           {orders.length === 0 ? (
             <p style={{ color: '#6B5B4E', fontSize: '14px', lineHeight: 1.65 }}>
-              No orders yet.{' '}
-              <a href="/store" style={{ color: '#B8975A', textDecoration: 'none' }}>Start shopping →</a>
+              {locale === 'ar' ? (
+                <>لا يوجد طلبات بعد.{' '}
+                  <a href="/store" style={{ color: '#B8975A', textDecoration: 'none' }}>ابدأ التسوق →</a>
+                </>
+              ) : (
+                <>No orders yet.{' '}
+                  <a href="/store" style={{ color: '#B8975A', textDecoration: 'none' }}>Start shopping →</a>
+                </>
+              )}
             </p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: '#E5DDD0' }}>

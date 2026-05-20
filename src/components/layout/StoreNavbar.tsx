@@ -6,9 +6,11 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 
+type CustomerInfo = { initial: string } | null;
+
 export function StoreNavbar() {
   const [open, setOpen] = useState(false);
-  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
+  const [customer, setCustomer] = useState<CustomerInfo>(undefined as unknown as CustomerInfo);
   const locale = useLocale();
   const t = useTranslations('nav');
   const pathname = usePathname();
@@ -16,9 +18,29 @@ export function StoreNavbar() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setIsCustomerLoggedIn(!!data.user));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setIsCustomerLoggedIn(!!session?.user);
+
+    async function checkCustomer() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setCustomer(null); return; }
+
+      const { data: profile } = await supabase
+        .from('customer_profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        const name = profile.full_name ?? user.email ?? '?';
+        setCustomer({ initial: name.charAt(0).toUpperCase() });
+      } else {
+        setCustomer(null);
+      }
+    }
+
+    checkCustomer();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      checkCustomer();
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -38,7 +60,7 @@ export function StoreNavbar() {
     >
       <nav className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
 
-        {/* Brand — first child (right in RTL) */}
+        {/* Brand */}
         <Link href="/store" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
           <Image src="/logo.png" alt="Merchant Club SA" width={32} height={32} priority />
           <span
@@ -49,7 +71,7 @@ export function StoreNavbar() {
           </span>
         </Link>
 
-        {/* Desktop nav — center */}
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           {links.map(link => (
             <Link
@@ -76,16 +98,58 @@ export function StoreNavbar() {
           </Link>
         </div>
 
-        {/* Auth link — desktop */}
-        <Link
-          href={isCustomerLoggedIn ? '/store/account' : '/store/login'}
-          className="hidden md:block text-xs tracking-[0.12em] uppercase transition-opacity hover:opacity-70"
-          style={{ color: '#B8975A' }}
-        >
-          {isCustomerLoggedIn ? 'حسابي' : 'دخول'}
-        </Link>
+        {/* Auth — desktop */}
+        <div className="hidden md:flex items-center gap-3">
+          {customer ? (
+            <Link
+              href="/store/account"
+              className="flex items-center gap-2 hover:opacity-70 transition-opacity"
+              style={{ textDecoration: 'none' }}
+            >
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '50%',
+                  background: '#B8975A',
+                  color: '#FFFFFF',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  flexShrink: 0,
+                }}
+              >
+                {customer.initial}
+              </span>
+              <span className="text-xs tracking-[0.12em] uppercase" style={{ color: '#B8975A' }}>
+                حسابي
+              </span>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/store/login"
+                className="text-xs tracking-[0.12em] uppercase transition-opacity hover:opacity-70"
+                style={{ color: '#B8975A' }}
+              >
+                دخول
+              </Link>
+              <span style={{ color: '#E5DDD0', fontSize: '12px' }}>|</span>
+              <Link
+                href="/store/register"
+                className="text-xs tracking-[0.12em] uppercase transition-opacity hover:opacity-70"
+                style={{ color: '#B8975A' }}
+              >
+                تسجيل
+              </Link>
+            </div>
+          )}
+        </div>
 
-        {/* Cart + mobile hamburger — last child (left in RTL) */}
+        {/* Cart + mobile hamburger */}
         <div className="flex items-center gap-4">
           {/* Cart icon */}
           <div className="flex items-center gap-1.5" style={{ color: '#6B5B4E' }}>
@@ -125,22 +189,16 @@ export function StoreNavbar() {
             style={{ color: '#1A1208' }}
             aria-label="Toggle menu"
           >
-            <span
-              className={`block h-px bg-current transition-all duration-200 ${open ? 'w-5 translate-y-[7px] rotate-45' : 'w-5'}`}
-            />
-            <span
-              className={`block h-px w-5 bg-current transition-all duration-200 ${open ? 'opacity-0' : ''}`}
-            />
-            <span
-              className={`block h-px bg-current transition-all duration-200 ${open ? 'w-5 -translate-y-[7px] -rotate-45' : 'w-3'}`}
-            />
+            <span className={`block h-px bg-current transition-all duration-200 ${open ? 'w-5 translate-y-[7px] rotate-45' : 'w-5'}`} />
+            <span className={`block h-px w-5 bg-current transition-all duration-200 ${open ? 'opacity-0' : ''}`} />
+            <span className={`block h-px bg-current transition-all duration-200 ${open ? 'w-5 -translate-y-[7px] -rotate-45' : 'w-3'}`} />
           </button>
         </div>
       </nav>
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ${open ? 'max-h-80' : 'max-h-0'}`}
+        className={`md:hidden overflow-hidden transition-all duration-300 ${open ? 'max-h-96' : 'max-h-0'}`}
         style={{
           background: '#FFFFFF',
           borderTop: open ? '1px solid #E5DDD0' : 'none',
@@ -161,14 +219,58 @@ export function StoreNavbar() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href={isCustomerLoggedIn ? '/store/account' : '/store/login'}
-            onClick={() => setOpen(false)}
-            className="text-xs tracking-[0.15em] uppercase transition-colors"
-            style={{ color: '#B8975A' }}
-          >
-            {isCustomerLoggedIn ? 'حسابي' : 'دخول'}
-          </Link>
+
+          {/* Mobile auth */}
+          {customer ? (
+            <Link
+              href="/store/account"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2"
+              style={{ textDecoration: 'none' }}
+            >
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: '#B8975A',
+                  color: '#FFFFFF',
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  flexShrink: 0,
+                }}
+              >
+                {customer.initial}
+              </span>
+              <span className="text-xs tracking-[0.15em] uppercase" style={{ color: '#B8975A' }}>
+                حسابي
+              </span>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                href="/store/login"
+                onClick={() => setOpen(false)}
+                className="text-xs tracking-[0.15em] uppercase"
+                style={{ color: '#B8975A' }}
+              >
+                دخول
+              </Link>
+              <span style={{ color: '#E5DDD0' }}>|</span>
+              <Link
+                href="/store/register"
+                onClick={() => setOpen(false)}
+                className="text-xs tracking-[0.15em] uppercase"
+                style={{ color: '#B8975A' }}
+              >
+                تسجيل
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>
