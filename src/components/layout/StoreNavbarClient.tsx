@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
+import { useCart } from '@/lib/cart/CartContext';
+import { CartDrawer } from '@/components/cart/CartDrawer';
 
 type CustomerInfo = { initial: string } | null;
 
@@ -11,6 +13,7 @@ type Props = { customer: CustomerInfo };
 
 export function StoreNavbarClient({ customer }: Props) {
   const [open, setOpen] = useState(false);
+  const { count, openCart } = useCart();
   const locale = useLocale();
   const t = useTranslations('nav');
   const pathname = usePathname();
@@ -25,6 +28,7 @@ export function StoreNavbarClient({ customer }: Props) {
   ];
 
   return (
+    <>
     <header
       className="sticky top-0 z-50"
       style={{ background: '#FFFFFF', borderBottom: '1px solid #E5DDD0' }}
@@ -122,25 +126,51 @@ export function StoreNavbarClient({ customer }: Props) {
 
         {/* Cart + mobile hamburger */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5" style={{ color: '#6B5B4E' }}>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="9" cy="21" r="1" />
-              <circle cx="20" cy="21" r="1" />
-              <path d="M1 1h4l2.68 13.39a2 2 0 001.96 1.61h9.72a2 2 0 001.95-1.61L23 6H6" />
-            </svg>
-            <span className="text-xs hidden sm:block" style={{ fontFamily: 'var(--font-body)' }}>
-              {isRTL ? 'السلة · 0' : 'Cart · 0'}
+          <button
+            onClick={openCart}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', position: 'relative', display: 'flex', alignItems: 'center', gap: '6px', color: '#6B5B4E' }}
+            aria-label="Open cart"
+          >
+            <span style={{ position: 'relative', display: 'inline-flex' }}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.96 1.61h9.72a2 2 0 001.95-1.61L23 6H6" />
+              </svg>
+              {count > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  right: '-8px',
+                  background: '#B8975A',
+                  color: '#FFFFFF',
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: 'var(--font-body)',
+                }}>
+                  {count > 9 ? '9+' : count}
+                </span>
+              )}
             </span>
-          </div>
+            <span className="text-xs hidden sm:block" style={{ fontFamily: 'var(--font-body)' }}>
+              {isRTL ? `السلة · ${count}` : `Cart · ${count}`}
+            </span>
+          </button>
 
           {/* Language switcher — mobile only */}
           <Link
@@ -244,5 +274,7 @@ export function StoreNavbarClient({ customer }: Props) {
         </div>
       </div>
     </header>
+    <CartDrawer />
+    </>
   );
 }

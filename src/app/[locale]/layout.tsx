@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Analytics } from '@/components/layout/Analytics';
 import { CookieBanner } from '@/components/layout/CookieBanner';
+import { CartProvider } from '@/lib/cart/CartContext';
 import '../globals.css';
 
 const playfair = Playfair_Display({
@@ -90,8 +91,10 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body>
         <Analytics />
         <NextIntlClientProvider messages={messages}>
-          {children}
-          <CookieBanner />
+          <CartProvider>
+            {children}
+            <CookieBanner />
+          </CartProvider>
         </NextIntlClientProvider>
       </body>
     </html>

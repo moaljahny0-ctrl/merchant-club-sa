@@ -5,6 +5,7 @@ import { StoreNavbar } from '@/components/layout/StoreNavbar'
 import { Footer } from '@/components/layout/Footer'
 import { Link } from '@/i18n/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
+import { AddToCartButton } from '@/components/cart/AddToCartButton'
 
 type Props = {
   params: Promise<{ locale: string; slug: string; id: string }>
@@ -45,7 +46,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   if (!product) redirect(`/${locale}/brands/${slug}`)
 
-  const brand        = product.brands as { name_en: string; name_ar: string | null; slug: string } | null
+  const brand        = product.brands as { id?: string; name_en: string; name_ar: string | null; slug: string } | null
   const images       = (product.product_images as { url: string; is_primary: boolean }[]) ?? []
   const primaryImage = images.find(i => i.is_primary) ?? images[0]
 
@@ -159,17 +160,16 @@ export default async function ProductDetailPage({ params }: Props) {
 
               {/* CTA */}
               {inStock ? (
-                <Link
-                  href={`/brands/${slug}/products/${id}/order`}
-                  className="inline-flex items-center justify-center text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 transition-opacity hover:opacity-85 w-full mt-2"
-                  style={{
-                    background: '#3D2B1F',
-                    color: '#FFFFFF',
-                    fontFamily: 'var(--font-body)',
-                  }}
-                >
-                  {isAr ? 'اطلب الآن' : 'Order Now'}
-                </Link>
+                <AddToCartButton
+                  productId={id}
+                  brandId={product.brand_id}
+                  brandSlug={slug}
+                  productName={title}
+                  brandName={brandName}
+                  price={salePrice ?? price}
+                  image_url={primaryImage?.url ?? null}
+                  maxQty={product.stock_quantity ?? 10}
+                />
               ) : (
                 <button
                   disabled
