@@ -20,12 +20,15 @@ export function StoreNavbarClient({ customer }: Props) {
   const isRTL = locale === 'ar';
 
   const links = [
-    { href: '/about', label: t('about') },
-    { href: '/brands', label: t('brands') },
-    { href: '/members', label: t('members') },
-    { href: '/store', label: t('shop'), active: true },
+    { href: '/about',       label: t('about') },
+    { href: '/brands',      label: t('brands') },
+    { href: '/members',     label: t('members') },
+    { href: '/store',       label: t('shop') },
     { href: '/track-order', label: t('track_order') },
-  ];
+  ].map(link => ({
+    ...link,
+    active: pathname === link.href || pathname.startsWith(link.href + '/'),
+  }));
 
   return (
     <>

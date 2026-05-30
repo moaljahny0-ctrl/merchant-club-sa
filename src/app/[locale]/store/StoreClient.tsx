@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
+import { useCart } from '@/lib/cart/CartContext';
 import type { Partner } from '@/lib/brands';
 
 // ─── Store design tokens ──────────────────────────────────────────────────────
@@ -247,6 +248,13 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             })}
           </div>
 
+          {/* Result count */}
+          <p className="text-xs mb-5" style={{ color: C.text2 }}>
+            {isAr
+              ? `${filteredProducts.length} ${filteredProducts.length === 1 ? 'منتج' : 'منتجاً'}`
+              : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'}`}
+          </p>
+
           {/* Grid */}
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
@@ -415,6 +423,9 @@ function HeroCard({
 // ─── Product card (light theme) ───────────────────────────────────────────────
 
 function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean }) {
+  const { addItem, openCart } = useCart();
+  const [added, setAdded] = useState(false);
+
   const images     = product.product_images ?? [];
   const primaryImg = images.find(i => i.is_primary) ?? images[0];
   const title      = isAr && product.title_ar ? product.title_ar : product.title_en;
@@ -424,56 +435,91 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
   const salePrice  = product.sale_price ? Number(product.sale_price) : null;
   const href       = brand?.slug ? `/brands/${brand.slug}/products/${product.id}` : '#';
 
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!brand?.slug) return;
+    addItem({
+      productId:   product.id,
+      brandId:     product.brand_id,
+      brandSlug:   brand.slug,
+      productName: title,
+      brandName,
+      price:       salePrice ?? price,
+      image_url:   primaryImg?.url ?? null,
+    });
+    openCart();
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1800);
+  }
+
   return (
-    <Link href={href} className="group flex flex-col cursor-pointer">
-      <div
-        className="relative aspect-[3/4] overflow-hidden rounded-lg"
-        style={{ background: C.catBg }}
-      >
-        {primaryImg ? (
-          <Image
-            src={primaryImg.url}
-            alt={title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 50vw, 25vw"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="h-px w-8" style={{ background: C.border }} />
-          </div>
-        )}
-      </div>
-      <div className="pt-3 space-y-1">
-        {brandName && (
-          <p
-            className="text-[10px] uppercase tracking-wider"
-            style={{ color: C.gold, fontFamily: 'var(--font-body)' }}
-          >
-            {brandName}
-          </p>
-        )}
-        <p className="text-sm font-medium leading-snug" style={{ color: C.text }}>
-          {title}
-        </p>
-        <div className="flex items-baseline gap-2">
-          {salePrice ? (
-            <>
-              <span className="text-sm font-bold" style={{ color: C.gold }}>
-                {salePrice.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
-              </span>
-              <span className="text-xs line-through" style={{ color: C.text2 }}>
-                {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
-              </span>
-            </>
+    <div className="group flex flex-col">
+      <Link href={href} className="flex flex-col cursor-pointer">
+        <div
+          className="relative aspect-[3/4] overflow-hidden rounded-lg"
+          style={{ background: C.catBg }}
+        >
+          {primaryImg ? (
+            <Image
+              src={primaryImg.url}
+              alt={title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
           ) : (
-            <span className="text-sm font-bold" style={{ color: C.gold }}>
-              {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
-            </span>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-px w-8" style={{ background: C.border }} />
+            </div>
           )}
         </div>
-      </div>
-    </Link>
+        <div className="pt-3 space-y-1">
+          {brandName && (
+            <p
+              className="text-[10px] uppercase tracking-wider"
+              style={{ color: C.gold, fontFamily: 'var(--font-body)' }}
+            >
+              {brandName}
+            </p>
+          )}
+          <p className="text-sm font-medium leading-snug" style={{ color: C.text }}>
+            {title}
+          </p>
+          <div className="flex items-baseline gap-2">
+            {salePrice ? (
+              <>
+                <span className="text-sm font-bold" style={{ color: C.gold }}>
+                  {salePrice.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
+                </span>
+                <span className="text-xs line-through" style={{ color: C.text2 }}>
+                  {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
+                </span>
+              </>
+            ) : (
+              <span className="text-sm font-bold" style={{ color: C.gold }}>
+                {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+      <button
+        onClick={handleAddToCart}
+        className="mt-3 w-full py-2 text-[10px] tracking-[0.2em] uppercase transition-all duration-200"
+        style={{
+          border:     `1px solid ${added ? '#4A9E6B' : C.border}`,
+          background: added ? '#F0F7F3' : 'transparent',
+          color:      added ? '#4A9E6B' : C.text2,
+          cursor:     'pointer',
+          fontFamily: 'inherit',
+        }}
+      >
+        {added
+          ? (isAr ? '✓ أضيف للسلة' : '✓ Added')
+          : (isAr ? 'أضف للسلة' : 'Add to Cart')}
+      </button>
+    </div>
   );
 }
 

@@ -9,6 +9,14 @@ import { Link } from '@/i18n/navigation';
 
 const PROMO_CODE = 'MERCHANT2026';
 
+const SAUDI_CITIES_AR = ['الرياض', 'جدة', 'مكة المكرمة', 'المدينة المنورة', 'الدمام', 'الخبر', 'الطائف', 'تبوك', 'بريدة', 'أبها', 'خميس مشيط', 'نجران', 'حائل', 'جازان', 'ينبع', 'القطيف', 'الأحساء', 'الجبيل', 'عرعر', 'سكاكا'];
+const SAUDI_CITIES_EN = ['Riyadh', 'Jeddah', 'Mecca', 'Medina', 'Dammam', 'Khobar', 'Taif', 'Tabuk', 'Buraidah', 'Abha', 'Khamis Mushait', 'Najran', 'Hail', 'Jazan', 'Yanbu', 'Qatif', 'Al-Ahsa', 'Jubail', 'Arar', 'Sakaka'];
+
+function isValidSaudiPhone(p: string): boolean {
+  const cleaned = p.replace(/[\s\-()]/g, '');
+  return /^(05\d{8}|\+9665\d{8}|009665\d{8})$/.test(cleaned);
+}
+
 const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: '9px',
@@ -50,6 +58,7 @@ export function CheckoutForm({ locale, customer }: Props) {
   const [promoInput, setPromoInput] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
   function handlePromo() {
     if (promoInput.trim().toUpperCase() === PROMO_CODE) {
@@ -64,6 +73,11 @@ export function CheckoutForm({ locale, customer }: Props) {
     e.preventDefault();
     if (items.length === 0) return;
     setError(null);
+
+    if (!isValidSaudiPhone(phone)) {
+      setPhoneError(ar ? 'أدخل رقم جوال سعودي صحيح (مثال: 0512345678)' : 'Enter a valid Saudi mobile number (e.g. 0512345678)');
+      return;
+    }
 
     startTransition(async () => {
       const result = await placeOrder({
@@ -112,6 +126,14 @@ export function CheckoutForm({ locale, customer }: Props) {
       >
         {/* Page title */}
         <div>
+          <Link
+            href="/store"
+            className="inline-flex items-center gap-2 transition-opacity hover:opacity-60 mb-5"
+            style={{ color: '#6B5B4E', textDecoration: 'none', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
+          >
+            <span>←</span>
+            <span>{ar ? 'العودة للمتجر' : 'Back to Store'}</span>
+          </Link>
           <p style={{ fontSize: '9px', letterSpacing: '0.32em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '6px' }}>
             {ar ? 'إتمام الطلب' : 'Checkout'}
           </p>
@@ -243,7 +265,22 @@ export function CheckoutForm({ locale, customer }: Props) {
 
               <div>
                 <label style={labelStyle}>{ar ? 'رقم الجوال' : 'Phone'} *</label>
-                <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} dir="ltr" autoComplete="tel" />
+                <input
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={e => { setPhone(e.target.value); setPhoneError(''); }}
+                  onBlur={() => {
+                    if (phone && !isValidSaudiPhone(phone)) {
+                      setPhoneError(ar ? 'أدخل رقم جوال سعودي صحيح (مثال: 0512345678)' : 'Enter a valid Saudi mobile number (e.g. 0512345678)');
+                    }
+                  }}
+                  placeholder="05XXXXXXXX"
+                  style={{ ...inputStyle, borderColor: phoneError ? '#CC5555' : '#E5DDD0' }}
+                  dir="ltr"
+                  autoComplete="tel"
+                />
+                {phoneError && <p style={{ fontSize: '11px', color: '#CC5555', marginTop: '6px' }}>{phoneError}</p>}
               </div>
 
               {!customer && (
@@ -260,7 +297,18 @@ export function CheckoutForm({ locale, customer }: Props) {
 
               <div>
                 <label style={labelStyle}>{ar ? 'المدينة' : 'City'} *</label>
-                <input type="text" required value={city} onChange={e => setCity(e.target.value)} style={inputStyle} autoComplete="address-level2" />
+                <select
+                  required
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  dir={ar ? 'rtl' : 'ltr'}
+                >
+                  <option value="">{ar ? 'اختر مدينتك' : 'Select your city'}</option>
+                  {(ar ? SAUDI_CITIES_AR : SAUDI_CITIES_EN).map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
 
               <div>
