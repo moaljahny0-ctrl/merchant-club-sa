@@ -16,12 +16,15 @@ export default async function BrandOrdersPage() {
 
   if (!member) redirect('/dashboard/brand')
 
-  const { data: orders } = await supabase
+  const { data: ordersRaw } = await supabase
     .from('orders')
-    .select('id, order_number, customer_name, customer_email, customer_phone, delivery_address, items, subtotal, status, created_at, tracking_number, brand_notes')
+    .select('id, order_number, customer_name, customer_email, customer_phone, delivery_address, items, subtotal, status, created_at, tracking_number, brand_notes, creator_link_id, creator_links(link_code, commission_rate)')
     .eq('brand_id', member.brand_id)
     .order('created_at', { ascending: false })
     .limit(200)
 
-  return <BrandOrdersClient orders={orders ?? []} />
+  const orders = ordersRaw ?? []
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return <BrandOrdersClient orders={orders as any} />
 }

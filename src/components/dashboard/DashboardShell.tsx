@@ -1,11 +1,12 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { setDashboardLocale } from '@/lib/actions/locale'
 import { AdminDashboardShell } from './AdminDashboardShell'
 
 type Brand = {
@@ -21,6 +22,7 @@ type Props = {
   brand: Brand
   userEmail: string
   adminBadges?: { brands: number; pendingApps: number }
+  locale?: 'en' | 'ar'
 }
 
 const brandNav = [
@@ -28,6 +30,7 @@ const brandNav = [
   { label: 'Products', href: '/dashboard/brand/products' },
   { label: 'Orders', href: '/dashboard/brand/orders' },
   { label: 'Storefront', href: '/dashboard/brand/storefront' },
+  { label: 'Analytics', href: '/dashboard/brand/analytics' },
   { label: 'Profile', href: '/dashboard/brand/profile' },
 ]
 
@@ -39,11 +42,19 @@ const adminNav = [
   { label: 'Orders', href: '/dashboard/admin/orders' },
 ]
 
-export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadges }: Props) {
+export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadges, locale = 'en' }: Props) {
   // Hooks must be called unconditionally (Rules of Hooks)
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [localePending, startLocaleTransition] = useTransition()
+
+  function toggleLocale() {
+    const next = locale === 'en' ? 'ar' : 'en'
+    startLocaleTransition(async () => {
+      await setDashboardLocale(next)
+    })
+  }
 
   if (isAdmin) {
     return (
@@ -119,7 +130,7 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
                 <Link
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 text-[11px] tracking-[0.1em] uppercase transition-all duration-150 border-l-2 rounded-r-sm ${
+                  className={`flex items-center gap-3 px-3 py-2.5 text-[11px] tracking-[0.1em] uppercase transition-all duration-150 ${locale === 'ar' ? 'border-r-2 rounded-l-sm' : 'border-l-2 rounded-r-sm'} ${
                     active
                       ? 'border-gold text-gold bg-gold/5 font-medium'
                       : 'border-transparent text-muted/80 hover:text-parchment hover:bg-surface-2/60 hover:border-border'
@@ -136,6 +147,16 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
       {/* Footer */}
       <div className="px-6 pt-4 pb-6 border-t border-border">
         <p className="text-[9px] text-muted/40 truncate mb-3 leading-none tracking-wide">{userEmail}</p>
+        <div className="flex items-center gap-3 mb-3">
+          <button
+            onClick={toggleLocale}
+            disabled={localePending}
+            className="text-[9px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
+            title={locale === 'en' ? 'Switch to Arabic' : 'Switch to English'}
+          >
+            {locale === 'en' ? 'عربي' : 'EN'}
+          </button>
+        </div>
         <button
           onClick={handleSignOut}
           className="text-[9px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors"
@@ -177,7 +198,10 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-40">
           <div className="absolute inset-0 bg-ink/80" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-surface border-r border-border">
+          <aside
+            className="absolute top-0 bottom-0 w-64 bg-surface"
+            style={{ [locale === 'ar' ? 'right' : 'left']: 0, borderRight: locale === 'ar' ? 'none' : '1px solid var(--border)', borderLeft: locale === 'ar' ? '1px solid var(--border)' : 'none' }}
+          >
             <Sidebar />
           </aside>
         </div>

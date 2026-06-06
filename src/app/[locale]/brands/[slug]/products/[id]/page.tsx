@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { StoreNavbar } from '@/components/layout/StoreNavbar'
@@ -6,6 +7,8 @@ import { Footer } from '@/components/layout/Footer'
 import { Link } from '@/i18n/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
 import { AddToCartButton } from '@/components/cart/AddToCartButton'
+import { RefTracker } from '@/components/storefront/RefTracker'
+import { TrackView } from '@/components/storefront/TrackView'
 
 type Props = {
   params: Promise<{ locale: string; slug: string; id: string }>
@@ -59,6 +62,8 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
+      <Suspense fallback={null}><RefTracker /></Suspense>
+      <Suspense fallback={null}><TrackView event_type="product_view" brand_id={product.brand_id} product_id={product.id} /></Suspense>
       <StoreNavbar />
       <main className="flex-1">
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-10 md:py-16">

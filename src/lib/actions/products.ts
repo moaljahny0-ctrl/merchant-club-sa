@@ -374,6 +374,61 @@ export async function deleteProduct(id: string): Promise<{ error: string | null 
   redirect('/dashboard/brand/products')
 }
 
+// ── feature toggle ───────────────────────────────────────────────────────────
+
+export async function toggleProductFeatured(
+  productId: string
+): Promise<{ error: string | null; is_featured?: boolean }> {
+  try {
+    const brandId = await getActiveBrandId()
+    const supabase = await createClient()
+
+    const { data: product } = await supabase
+      .from('products')
+      .select('is_featured')
+      .eq('id', productId)
+      .eq('brand_id', brandId)
+      .single()
+
+    if (!product) return { error: 'Product not found.' }
+
+    const newFeatured = !product.is_featured
+
+    if (newFeatured) {
+      const { count } = await supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .eq('brand_id', brandId)
+        .eq('is_featured', true)
+
+      if ((count ?? 0) >= 6) {
+        return { error: 'Maximum 6 featured products allowed. Unfeature another product first.' }
+      }
+    }
+
+    const { error } = await supabase
+      .from('products')
+      .update({ is_featured: newFeatured })
+      .eq('id', productId)
+      .eq('brand_id', brandId)
+
+    if (error) return { error: error.message }
+
+    revalidatePath('/dashboard/brand/products')
+
+    const service = createServiceClient()
+    const { data: brand } = await service.from('brands').select('slug').eq('id', brandId).single()
+    if (brand?.slug) {
+      revalidatePath(`/en/brands/${brand.slug}`)
+      revalidatePath(`/ar/brands/${brand.slug}`)
+    }
+
+    return { error: null, is_featured: newFeatured }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unexpected error' }
+  }
+}
+
 // ── admin: review ─────────────────────────────────────────────────────────────
 
 export async function adminReviewProduct(

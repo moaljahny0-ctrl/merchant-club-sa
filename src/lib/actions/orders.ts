@@ -1,8 +1,10 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { trackEvent } from '@/lib/actions/analytics'
 import {
   sendOrderEmail,
   buildOrderPlacedCustomerHtml,
@@ -17,6 +19,25 @@ import type { CartItem } from '@/lib/cart/CartContext'
 export type OrderFormState = {
   error: string | null
   orderId: string | null
+}
+
+async function resolveCreatorLinkId(brandId: string): Promise<string | null> {
+  try {
+    const cookieStore = await cookies()
+    const ref = cookieStore.get('mc_ref')?.value
+    if (!ref) return null
+    const service = createServiceClient()
+    const { data } = await service
+      .from('creator_links')
+      .select('id')
+      .eq('link_code', decodeURIComponent(ref))
+      .eq('brand_id', brandId)
+      .eq('is_active', true)
+      .maybeSingle()
+    return data?.id ?? null
+  } catch {
+    return null
+  }
 }
 
 function generateOrderNumber(): string {
@@ -76,6 +97,8 @@ export async function createOrder(
   const unitPrice = product.sale_price ? Number(product.sale_price) : Number(product.price)
   const subtotal  = unitPrice * quantity
 
+  const creatorLinkId = await resolveCreatorLinkId(brandId)
+
   const { data: order, error: insertError } = await service
     .from('orders')
     .insert({
@@ -97,6 +120,7 @@ export async function createOrder(
       subtotal,
       status:      'pending',
       brand_notes: notes,
+      ...(creatorLinkId ? { creator_link_id: creatorLinkId } : {}),
     })
     .select('id, order_number')
     .single()
@@ -104,6 +128,8 @@ export async function createOrder(
   if (insertError || !order) {
     return { error: 'Failed to place order. Please try again.', orderId: null }
   }
+
+  trackEvent({ event_type: 'order_placed', brand_id: brandId, product_id: productId, creator_link_id: creatorLinkId }).catch(() => {})
 
   // Decrement stock — fire-and-forget, never blocks the order
   const newStock = Math.max(0, (product.stock_quantity ?? 0) - quantity)
@@ -270,6 +296,7 @@ export async function placeOrder(
     }
 
     const orderNumber = generateOrderNumber();
+    const creatorLinkId = await resolveCreatorLinkId(brandId);
 
     const { data: order, error: insertError } = await service
       .from('orders')
@@ -285,6 +312,7 @@ export async function placeOrder(
         subtotal,
         status: 'pending',
         brand_notes: input.notes,
+        ...(creatorLinkId ? { creator_link_id: creatorLinkId } : {}),
       })
       .select('id, order_number')
       .single();
@@ -294,6 +322,7 @@ export async function placeOrder(
     }
 
     orderNumbers.push(order.order_number);
+    trackEvent({ event_type: 'order_placed', brand_id: brandId, creator_link_id: creatorLinkId }).catch(() => {});
 
     // Decrement stock for each product (fire-and-forget)
     for (const cartItem of items) {

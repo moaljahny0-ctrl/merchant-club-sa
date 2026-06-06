@@ -1,13 +1,17 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { StoreNavbar } from '@/components/layout/StoreNavbar'
 import { Footer } from '@/components/layout/Footer'
 import { Link } from '@/i18n/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
+import { RefTracker } from '@/components/storefront/RefTracker'
+import { TrackView } from '@/components/storefront/TrackView'
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>
+  searchParams: Promise<{ preview?: string; ref?: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -30,8 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function BrandStorefrontPage({ params }: Props) {
+export default async function BrandStorefrontPage({ params, searchParams }: Props) {
   const { locale, slug } = await params
+  const sp = await searchParams
+  const isPreview = sp?.preview === 'true'
   const isAr = locale === 'ar'
   const supabase = createServiceClient()
 
@@ -41,13 +47,18 @@ export default async function BrandStorefrontPage({ params }: Props) {
     .eq('slug', slug)
     .single()
 
-  if (!brand || !['approved', 'active'].includes(brand.status)) notFound()
+  if (!brand) notFound()
+  if (brand.status === 'suspended') {
+    redirect(`/${locale}/store?unavailable=1`)
+  }
+  if (!['approved', 'active'].includes(brand.status)) notFound()
 
   const { data: products } = await supabase
     .from('products')
-    .select('id, title_en, title_ar, description_en, description_ar, price, sale_price, category, product_images(url, is_primary)')
+    .select('id, title_en, title_ar, description_en, description_ar, price, sale_price, category, is_featured, product_images(url, is_primary)')
     .eq('brand_id', brand.id)
     .eq('status', 'live')
+    .order('is_featured', { ascending: false })
     .order('published_at', { ascending: false })
 
   const liveProducts = products ?? []
@@ -58,6 +69,25 @@ export default async function BrandStorefrontPage({ params }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
+      <Suspense fallback={null}><RefTracker /></Suspense>
+      {!isPreview && (
+        <Suspense fallback={null}><TrackView event_type="storefront_view" brand_id={brand.id} /></Suspense>
+      )}
+      {isPreview && (
+        <div
+          style={{
+            background: '#1A1208',
+            color: '#B8975A',
+            textAlign: 'center',
+            padding: '10px 20px',
+            fontSize: '12px',
+            letterSpacing: '0.15em',
+            fontFamily: 'Georgia, serif',
+          }}
+        >
+          {isAr ? 'هذا معاينة متجرك — هذه الصفحة غير مرئية للعملاء' : 'This is your store preview — this page is not visible to customers'}
+        </div>
+      )}
       <StoreNavbar />
       <main className="flex-1">
 

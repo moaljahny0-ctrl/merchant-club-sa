@@ -7,8 +7,10 @@ import type { Order, OrderStatus } from '@/lib/types/database'
 type OrderRow = Pick<Order,
   | 'id' | 'order_number' | 'customer_name' | 'customer_email' | 'customer_phone'
   | 'delivery_address' | 'subtotal' | 'status' | 'created_at' | 'tracking_number'
-  | 'items' | 'brand_notes'
->
+  | 'items' | 'brand_notes' | 'creator_link_id'
+> & {
+  creator_links?: { link_code: string; commission_rate: number } | null
+}
 
 const STATUS_LABELS: Record<string, string> = {
   pending:    'Pending',
@@ -127,6 +129,23 @@ function OrderRow({ order, index }: { order: OrderRow; index: number }) {
                   </div>
                 </div>
               </div>
+
+              {/* Attribution */}
+              {order.creator_link_id && order.creator_links && (
+                <div className="md:col-span-3 border-t border-border pt-4 mt-2">
+                  <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-2">Creator Attribution</p>
+                  <div className="flex gap-6">
+                    <div>
+                      <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">Link code</p>
+                      <p className="text-parchment text-xs font-mono">{order.creator_links.link_code}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">Commission</p>
+                      <p className="text-parchment text-xs">{order.creator_links.commission_rate}%</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Actions */}
               <div>

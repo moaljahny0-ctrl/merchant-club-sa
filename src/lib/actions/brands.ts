@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { Resend } from 'resend'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 export type BrandProfileState = { error: string | null; success?: boolean }
@@ -118,6 +119,73 @@ export async function uploadBrandLogo(
   } catch (err) {
     return { url: null, error: err instanceof Error ? err.message : 'Upload failed.' }
   }
+}
+
+// ── Storefront submission ─────────────────────────────────────────────────────
+
+export async function submitStorefrontForReview(
+  brandId: string
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthenticated' }
+
+    const { data: member } = await supabase
+      .from('brand_members')
+      .select('brand_id')
+      .eq('user_id', user.id)
+      .eq('brand_id', brandId)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    if (!member) return { error: 'Forbidden' }
+
+    const service = createServiceClient()
+    const { data: brand } = await service
+      .from('brands')
+      .select('name_en, slug, onboarding_state')
+      .eq('id', brandId)
+      .single()
+
+    if (!brand) return { error: 'Brand not found' }
+    if (brand.onboarding_state === 'live') return { error: 'Storefront is already live.' }
+    if (brand.onboarding_state === 'submitted') return { error: 'Already submitted for review.' }
+
+    const { error } = await service
+      .from('brands')
+      .update({ onboarding_state: 'submitted' })
+      .eq('id', brandId)
+
+    if (error) return { error: error.message }
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
+    const apiKey = process.env.RESEND_API_KEY
+    if (apiKey) {
+      try {
+        const resend = new Resend(apiKey)
+        await resend.emails.send({
+          from: 'Merchant Club SA <applications@merchantclubsa.com>',
+          to: ['info@merchantclubsa.com'],
+          subject: `[Review] Brand submitted — ${brand.name_en}`,
+          html: `<!DOCTYPE html><html><body style="font-family:Georgia,serif;background:#0D0D0D;color:#fff;padding:40px;">
+            <h2 style="color:#D4AF37;">Brand Storefront Submitted for Review</h2>
+            <p><strong>Brand:</strong> ${brand.name_en}</p>
+            <p><strong>Slug:</strong> ${brand.slug}</p>
+            <p><a href="${siteUrl}/dashboard/admin/brands" style="color:#D4AF37;">Review in admin →</a></p>
+          </body></html>`,
+        })
+      } catch (emailErr) {
+        console.error('[brands] Storefront submission email failed:', emailErr)
+      }
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unexpected error' }
+  }
+
+  revalidatePath('/dashboard/brand/storefront')
+  revalidatePath('/dashboard/brand')
+  return { error: null }
 }
 
 export async function saveBrandLogoUrl(

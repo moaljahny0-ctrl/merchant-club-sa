@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import './admin-shell.css'
@@ -55,14 +56,21 @@ export default async function DashboardLayout({ children }: Props) {
     }
   }
 
+  const cookieStore = await cookies()
+  const dashLocale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as 'en' | 'ar'
+  const isRtl = dashLocale === 'ar'
+
   return (
-    <DashboardShell
-      isAdmin={isAdmin}
-      brand={brand as { id: string; name_en: string; status: string; onboarding_state: string } | null}
-      userEmail={user.email ?? ''}
-      adminBadges={adminBadges}
-    >
-      {children}
-    </DashboardShell>
+    <div lang={dashLocale} dir={isRtl ? 'rtl' : 'ltr'}>
+      <DashboardShell
+        isAdmin={isAdmin}
+        brand={brand as { id: string; name_en: string; status: string; onboarding_state: string } | null}
+        userEmail={user.email ?? ''}
+        adminBadges={adminBadges}
+        locale={dashLocale}
+      >
+        {children}
+      </DashboardShell>
+    </div>
   )
 }

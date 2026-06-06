@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { StorefrontActions } from './StorefrontActions'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
 
@@ -10,7 +11,7 @@ export default async function StorefrontPreviewPage() {
 
   const { data: member } = await supabase
     .from('brand_members')
-    .select('brand_id, brands(id, name_en, slug, status)')
+    .select('brand_id, brands(id, name_en, slug, status, onboarding_state)')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .maybeSingle()
@@ -18,10 +19,15 @@ export default async function StorefrontPreviewPage() {
   if (!member) redirect('/dashboard/brand')
 
   const rawBrand = member.brands
-  const brand = Array.isArray(rawBrand) ? rawBrand[0] : rawBrand
+  const brand = Array.isArray(rawBrand) ? rawBrand[0] : rawBrand as {
+    id: string; name_en: string; slug: string; status: string; onboarding_state: string
+  } | null
 
   const isLive = brand && ['approved', 'active'].includes(brand.status)
   const storefrontUrl = brand?.slug ? `${SITE_URL}/en/brands/${brand.slug}` : null
+  const onboardingState = brand?.onboarding_state ?? 'invited'
+  const canSubmit = brand && !['submitted', 'live'].includes(onboardingState) && ['approved', 'active'].includes(brand.status)
+  const isSubmitted = onboardingState === 'submitted'
 
   return (
     <div className="p-6 md:p-10 max-w-6xl">
@@ -29,6 +35,15 @@ export default async function StorefrontPreviewPage() {
         <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">Brand Dashboard</p>
         <h1 className="font-display text-4xl font-light text-parchment leading-none">Storefront</h1>
       </div>
+
+      {isSubmitted && (
+        <div className="mb-6 border border-gold/30 bg-gold/5 px-6 py-5">
+          <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-2">Under review</p>
+          <p className="text-parchment text-sm leading-relaxed">
+            Your storefront has been submitted for review. We&apos;ll notify you once it&apos;s approved and goes live.
+          </p>
+        </div>
+      )}
 
       {!isLive ? (
         <div className="border border-border px-8 py-12 text-center max-w-xl">
@@ -43,23 +58,35 @@ export default async function StorefrontPreviewPage() {
       ) : (
         <>
           {/* URL bar */}
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6 flex-wrap">
             <div className="flex-1 bg-surface border border-border px-4 py-2.5 flex items-center gap-3 min-w-0">
               <span className="text-[9px] text-muted/50 tracking-[0.2em] uppercase shrink-0">Live URL</span>
               <span className="text-muted text-xs truncate font-mono">{storefrontUrl}</span>
             </div>
+            <a
+              href={`${SITE_URL}/en/brands/${brand?.slug}?preview=true`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 border border-border text-parchment text-[10px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:border-gold hover:text-gold transition-colors"
+            >
+              Preview ↗
+            </a>
             <a
               href={storefrontUrl ?? '#'}
               target="_blank"
               rel="noopener noreferrer"
               className="shrink-0 bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors"
             >
-              Open ↗
+              Open Live ↗
             </a>
           </div>
 
+          {canSubmit && brand && (
+            <StorefrontActions brandId={brand.id} />
+          )}
+
           {/* Preview note */}
-          <p className="text-[9px] text-muted/50 tracking-[0.2em] uppercase mb-4">
+          <p className="text-[9px] text-muted/50 tracking-[0.2em] uppercase mb-4 mt-6">
             Live preview — what customers see
           </p>
 

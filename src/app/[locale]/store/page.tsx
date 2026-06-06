@@ -7,10 +7,13 @@ import type { Partner } from '@/lib/brands';
 
 type Props = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ unavailable?: string }>;
 };
 
-export default async function StorePage({ params }: Props) {
+export default async function StorePage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const sp = await searchParams;
+  const showUnavailable = sp?.unavailable === '1';
   const isAr = locale === 'ar';
   const supabase = createServiceClient();
 
@@ -62,6 +65,21 @@ export default async function StorePage({ params }: Props) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
       <StoreNavbar />
+      {showUnavailable && (
+        <div
+          style={{
+            background: '#FFF8F0',
+            borderBottom: '1px solid #E5DDD0',
+            padding: '12px 24px',
+            textAlign: 'center',
+            fontSize: '13px',
+            color: '#6B5B4E',
+            fontFamily: 'Georgia, serif',
+          }}
+        >
+          {isAr ? 'هذا المتجر غير متاح حالياً' : 'This store is currently unavailable'}
+        </div>
+      )}
       <StoreClient
         products={products}
         heroProducts={products.slice(0, 2)}

@@ -2,6 +2,61 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
+const ONBOARDING_STEPS: Record<string, { label: string; next: string; action?: string; href?: string }> = {
+  invited: {
+    label: 'Account setup',
+    next: 'Log in and complete your brand profile to continue.',
+    action: 'Complete profile',
+    href: '/dashboard/brand/profile',
+  },
+  account_setup: {
+    label: 'Profile setup',
+    next: 'Fill in your brand profile — name, description, logo.',
+    action: 'Complete profile',
+    href: '/dashboard/brand/profile',
+  },
+  profile_setup: {
+    label: 'Under review',
+    next: 'Our team is reviewing your brand profile. We\'ll notify you when it\'s approved.',
+  },
+  products_setup: {
+    label: 'Add products',
+    next: 'Add at least one product and submit it for review.',
+    action: 'Add product',
+    href: '/dashboard/brand/products/new',
+  },
+  submitted: {
+    label: 'Storefront under review',
+    next: 'Your storefront has been submitted. We\'ll notify you once it\'s approved.',
+  },
+}
+
+function OnboardingBanner({ state }: { state: string }) {
+  const step = ONBOARDING_STEPS[state]
+  if (!step) return null
+  return (
+    <div className="mb-8 border border-gold/20 bg-gold/5 px-6 py-5">
+      <div className="flex items-start gap-4">
+        <div className="shrink-0 mt-0.5">
+          <div className="w-2 h-2 rounded-full bg-gold/60" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-1">{step.label}</p>
+          <p className="text-parchment text-sm leading-relaxed mb-3">{step.next}</p>
+          {step.action && step.href && (
+            <Link
+              href={step.href}
+              className="inline-flex items-center bg-gold text-ink text-[9px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors"
+            >
+              {step.action}
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default async function BrandOverviewPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -49,6 +104,7 @@ export default async function BrandOverviewPage() {
   const rawBrand = member.brands
   const brand = Array.isArray(rawBrand) ? rawBrand[0] : rawBrand
   const brandId = member.brand_id
+  const onboardingState = (brand as { onboarding_state?: string } | null)?.onboarding_state ?? 'invited'
 
   const [productsRes, ordersRes] = await Promise.all([
     supabase.from('products').select('status').eq('brand_id', brandId),
@@ -76,6 +132,11 @@ export default async function BrandOverviewPage() {
           {brand?.name_en ?? 'Your Brand'}
         </h1>
       </div>
+
+      {/* ── ONBOARDING STATUS BANNER ── */}
+      {onboardingState !== 'live' && (
+        <OnboardingBanner state={onboardingState} />
+      )}
 
       {/* ── GETTING STARTED — shown when brand has no products ── */}
       {!hasProducts && (
