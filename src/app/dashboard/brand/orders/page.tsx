@@ -1,11 +1,16 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { BrandOrdersClient } from '@/components/dashboard/BrandOrdersClient'
+import type { DashLang } from '@/lib/dashboard-i18n'
 
 export default async function BrandOrdersPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  const cookieStore = await cookies()
+  const locale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as DashLang
 
   const { data: member } = await supabase
     .from('brand_members')
@@ -26,5 +31,5 @@ export default async function BrandOrdersPage() {
   const orders = ordersRaw ?? []
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return <BrandOrdersClient orders={orders as any} />
+  return <BrandOrdersClient orders={orders as any} locale={locale} />
 }

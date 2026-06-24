@@ -1,11 +1,17 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { BrandProfileForm } from '@/components/dashboard/BrandProfileForm'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 export default async function BrandProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  const cookieStore = await cookies()
+  const locale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as DashLang
+  const t = dt(locale)
 
   const { data: member } = await supabase
     .from('brand_members')
@@ -27,9 +33,9 @@ export default async function BrandProfilePage() {
   return (
     <div className="p-6 md:p-10 max-w-4xl">
       <div className="mb-8">
-        <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-1">Brand Dashboard</p>
-        <h1 className="font-display text-3xl font-light text-parchment">Brand profile</h1>
-        <p className="text-muted text-sm mt-1">Keep your brand information up to date.</p>
+        <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-1">{t.profile.eyebrow}</p>
+        <h1 className="font-display text-3xl font-light text-parchment">{t.profile.heading}</h1>
+        <p className="text-muted text-sm mt-1">{t.profile.subheading}</p>
       </div>
 
       <BrandProfileForm brand={brand} />

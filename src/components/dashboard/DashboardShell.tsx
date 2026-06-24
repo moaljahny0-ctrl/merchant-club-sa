@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { setDashboardLocale } from '@/lib/actions/locale'
 import { AdminDashboardShell } from './AdminDashboardShell'
+import { dt } from '@/lib/dashboard-i18n'
 
 type Brand = {
   id: string
@@ -25,24 +26,25 @@ type Props = {
   locale?: 'en' | 'ar'
 }
 
-const brandNav = [
-  { label: 'Overview', href: '/dashboard/brand' },
-  { label: 'Products', href: '/dashboard/brand/products' },
-  { label: 'Orders', href: '/dashboard/brand/orders' },
-  { label: 'Storefront', href: '/dashboard/brand/storefront' },
-  { label: 'Analytics', href: '/dashboard/brand/analytics' },
-  { label: 'Profile', href: '/dashboard/brand/profile' },
+const brandNavHrefs = [
+  { key: 'overview'   as const, href: '/dashboard/brand' },
+  { key: 'products'   as const, href: '/dashboard/brand/products' },
+  { key: 'orders'     as const, href: '/dashboard/brand/orders' },
+  { key: 'storefront' as const, href: '/dashboard/brand/storefront' },
+  { key: 'analytics'  as const, href: '/dashboard/brand/analytics' },
+  { key: 'profile'    as const, href: '/dashboard/brand/profile' },
 ]
 
 const adminNav = [
-  { label: 'Overview', href: '/dashboard/admin' },
-  { label: 'Brands', href: '/dashboard/admin/brands' },
-  { label: 'Applications', href: '/dashboard/admin/applications' },
-  { label: 'Products', href: '/dashboard/admin/products' },
-  { label: 'Orders', href: '/dashboard/admin/orders' },
+  { label: 'Overview',      href: '/dashboard/admin' },
+  { label: 'Brands',        href: '/dashboard/admin/brands' },
+  { label: 'Applications',  href: '/dashboard/admin/applications' },
+  { label: 'Products',      href: '/dashboard/admin/products' },
+  { label: 'Orders',        href: '/dashboard/admin/orders' },
 ]
 
 export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadges, locale = 'en' }: Props) {
+  const t = dt(locale)
   // Hooks must be called unconditionally (Rules of Hooks)
   const pathname = usePathname()
   const router = useRouter()
@@ -67,8 +69,9 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
     )
   }
 
+  const brandNav = brandNavHrefs.map(item => ({ label: t.nav[item.key], href: item.href }))
   const nav = isAdmin ? adminNav : brandNav
-  const sectionLabel = isAdmin ? 'Admin' : (brand?.name_en ?? 'Brand')
+  const sectionLabel = isAdmin ? t.shell.platform_admin : (brand?.name_en ?? 'Brand')
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -87,7 +90,7 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
             Merchant Club SA
           </p>
           <p className="text-[8px] text-muted/70 tracking-[0.2em] uppercase leading-none">
-            {isAdmin ? 'Platform Admin' : 'Partner Portal'}
+            {isAdmin ? t.shell.platform_admin : t.shell.partner_portal}
           </p>
         </div>
       </div>
@@ -96,7 +99,7 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
       {(brand || isAdmin) && (
         <div className="px-6 py-5 border-b border-border">
           <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-1.5">
-            {isAdmin ? 'Access level' : 'Active brand'}
+            {isAdmin ? t.shell.access_level : t.shell.active_brand}
           </p>
           <p className="text-parchment text-[13px] font-medium leading-snug truncate">
             {sectionLabel}
@@ -117,7 +120,7 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
 
       {/* Navigation */}
       <div className="flex-1 py-4 px-3">
-        <p className="text-[8px] text-muted/40 tracking-[0.2em] uppercase px-3 mb-2">Menu</p>
+        <p className="text-[8px] text-muted/40 tracking-[0.2em] uppercase px-3 mb-2">{t.shell.menu}</p>
         <ul className="space-y-0.5">
           {nav.map(item => {
             const active = pathname === item.href || (
@@ -154,14 +157,14 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
             className="text-[9px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
             title={locale === 'en' ? 'Switch to Arabic' : 'Switch to English'}
           >
-            {locale === 'en' ? 'عربي' : 'EN'}
+            {locale === 'en' ? t.shell.switch_to_ar : t.shell.switch_to_en}
           </button>
         </div>
         <button
           onClick={handleSignOut}
           className="text-[9px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors"
         >
-          Sign out
+          {t.shell.sign_out}
         </button>
       </div>
     </nav>

@@ -1,39 +1,18 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
-const ONBOARDING_STEPS: Record<string, { label: string; next: string; action?: string; href?: string }> = {
-  invited: {
-    label: 'Account setup',
-    next: 'Log in and complete your brand profile to continue.',
-    action: 'Complete profile',
-    href: '/dashboard/brand/profile',
-  },
-  account_setup: {
-    label: 'Profile setup',
-    next: 'Fill in your brand profile — name, description, logo.',
-    action: 'Complete profile',
-    href: '/dashboard/brand/profile',
-  },
-  profile_setup: {
-    label: 'Under review',
-    next: 'Our team is reviewing your brand profile. We\'ll notify you when it\'s approved.',
-  },
-  products_setup: {
-    label: 'Add products',
-    next: 'Add at least one product and submit it for review.',
-    action: 'Add product',
-    href: '/dashboard/brand/products/new',
-  },
-  submitted: {
-    label: 'Storefront under review',
-    next: 'Your storefront has been submitted. We\'ll notify you once it\'s approved.',
-  },
-}
-
-function OnboardingBanner({ state }: { state: string }) {
-  const step = ONBOARDING_STEPS[state]
+function OnboardingBanner({ state, locale }: { state: string; locale: DashLang }) {
+  const t = dt(locale)
+  const step = t.onboarding[state as keyof typeof t.onboarding]
   if (!step) return null
+  const href = state === 'invited' || state === 'account_setup'
+    ? '/dashboard/brand/profile'
+    : state === 'products_setup'
+    ? '/dashboard/brand/products/new'
+    : undefined
   return (
     <div className="mb-8 border border-gold/20 bg-gold/5 px-6 py-5">
       <div className="flex items-start gap-4">
@@ -43,9 +22,9 @@ function OnboardingBanner({ state }: { state: string }) {
         <div className="flex-1 min-w-0">
           <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-1">{step.label}</p>
           <p className="text-parchment text-sm leading-relaxed mb-3">{step.next}</p>
-          {step.action && step.href && (
+          {'action' in step && step.action && href && (
             <Link
-              href={step.href}
+              href={href}
               className="inline-flex items-center bg-gold text-ink text-[9px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors"
             >
               {step.action}
@@ -62,6 +41,10 @@ export default async function BrandOverviewPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
+  const cookieStore = await cookies()
+  const locale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as DashLang
+  const t = dt(locale)
+
   const { data: member } = await supabase
     .from('brand_members')
     .select('brand_id, role, brands(id, name_en, status, onboarding_state)')
@@ -77,23 +60,25 @@ export default async function BrandOverviewPage() {
             Merchant Club SA
           </p>
           <h1 className="font-display text-[1.85rem] font-light text-parchment leading-snug mb-5">
-            No brand linked<br />to this account.
+            {t.overview.no_brand_heading.split('\n').map((line, i) => (
+              <span key={i}>{line}{i === 0 && <br />}</span>
+            ))}
           </h1>
           <p className="text-muted text-sm leading-relaxed mb-10 max-w-xs mx-auto">
-            Your account isn't connected to an active brand. If you applied, we're still reviewing it.
+            {t.overview.no_brand_body}
           </p>
           <div className="flex flex-col gap-3">
             <a
               href="/apply/partner"
               className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
             >
-              Apply as a brand
+              {t.overview.no_brand_apply}
             </a>
             <a
               href="mailto:info@merchantclubsa.com"
               className="inline-flex items-center justify-center border border-border text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
             >
-              Contact support
+              {t.overview.no_brand_contact}
             </a>
           </div>
         </div>
@@ -127,55 +112,36 @@ export default async function BrandOverviewPage() {
 
       {/* Header */}
       <div className="mb-10">
-        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">Brand Dashboard</p>
+        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.overview.eyebrow}</p>
         <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">
           {brand?.name_en ?? 'Your Brand'}
         </h1>
       </div>
 
-      {/* ── ONBOARDING STATUS BANNER ── */}
+      {/* Onboarding status banner */}
       {onboardingState !== 'live' && (
-        <OnboardingBanner state={onboardingState} />
+        <OnboardingBanner state={onboardingState} locale={locale} />
       )}
 
-      {/* ── GETTING STARTED — shown when brand has no products ── */}
+      {/* Getting started — shown when brand has no products */}
       {!hasProducts && (
         <div className="mb-10">
           <div className="border border-gold/30 bg-gold/5 px-7 py-7 mb-6">
-            <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-3">Getting started</p>
+            <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-3">{t.overview.getting_started}</p>
             <p className="text-parchment text-base font-light leading-relaxed mb-6">
-              Your dashboard is ready. The first thing to do is add a product — give it a name, price, image, and a short description.
+              {t.overview.getting_started_body}
             </p>
             <Link
               href="/dashboard/brand/products/new"
               className="inline-flex items-center bg-gold text-ink text-[10px] font-medium tracking-[0.2em] uppercase px-7 py-3.5 hover:bg-gold-light transition-colors"
             >
-              Add your first product
+              {t.overview.add_first_product}
             </Link>
           </div>
 
           {/* Steps */}
           <div className="border border-border divide-y divide-border">
-            {[
-              {
-                n: '1',
-                title: 'Add a product',
-                body: 'Enter the name, price, a short description, and upload an image. Takes about 2 minutes.',
-                done: false,
-              },
-              {
-                n: '2',
-                title: 'Submit for review',
-                body: 'Once your product looks good, submit it. Our team reviews it before it goes live.',
-                done: false,
-              },
-              {
-                n: '3',
-                title: 'Go live',
-                body: 'Approved products appear on the platform where creators can start promoting them.',
-                done: false,
-              },
-            ].map(step => (
+            {t.overview.steps.map(step => (
               <div key={step.n} className="flex gap-5 px-6 py-5">
                 <div className="shrink-0 w-6 h-6 border border-border flex items-center justify-center mt-0.5">
                   <span className="text-[10px] text-muted">{step.n}</span>
@@ -188,18 +154,11 @@ export default async function BrandOverviewPage() {
             ))}
           </div>
 
-          {/* What you can do */}
+          {/* Capabilities */}
           <div className="mt-6 border border-border px-6 py-5">
-            <p className="text-[9px] text-muted/50 tracking-[0.25em] uppercase mb-4">As a brand owner you can</p>
+            <p className="text-[9px] text-muted/50 tracking-[0.25em] uppercase mb-4">{t.overview.capabilities_label}</p>
             <div className="grid grid-cols-2 gap-y-2">
-              {[
-                'Add and edit products',
-                'Upload product images',
-                'Set prices in SAR',
-                'Submit products for review',
-                'See your product statuses',
-                'View orders (when live)',
-              ].map(item => (
+              {t.overview.capabilities.map(item => (
                 <p key={item} className="text-xs text-muted/70 leading-relaxed">
                   <span className="text-gold mr-2">—</span>{item}
                 </p>
@@ -209,16 +168,16 @@ export default async function BrandOverviewPage() {
         </div>
       )}
 
-      {/* ── ACTIVE DASHBOARD — shown when brand has products ── */}
+      {/* Active dashboard — shown when brand has products */}
       {hasProducts && (
         <>
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
             {[
-              { label: 'Live', value: String(liveProducts), sub: 'Products live' },
-              { label: 'In review', value: String(pendingReview), sub: 'Awaiting approval' },
-              { label: 'Open orders', value: String(pendingOrders), sub: 'Need fulfillment' },
-              { label: 'Revenue', value: `${totalRevenue.toLocaleString('en-SA', { minimumFractionDigits: 0 })} SAR`, sub: 'Completed orders' },
+              { label: t.overview.stat_live,    value: String(liveProducts),    sub: t.overview.stat_live_sub },
+              { label: t.overview.stat_review,  value: String(pendingReview),   sub: t.overview.stat_review_sub },
+              { label: t.overview.stat_orders,  value: String(pendingOrders),   sub: t.overview.stat_orders_sub },
+              { label: t.overview.stat_revenue, value: `${totalRevenue.toLocaleString('en-SA', { minimumFractionDigits: 0 })} SAR`, sub: t.overview.stat_revenue_sub },
             ].map(stat => (
               <div key={stat.label} className="bg-surface border border-border px-5 py-6">
                 <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
@@ -234,19 +193,19 @@ export default async function BrandOverviewPage() {
               href="/dashboard/brand/products/new"
               className="inline-flex items-center bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-7 py-3.5 hover:bg-gold-light transition-colors"
             >
-              + Add product
+              {t.overview.add_product}
             </Link>
             <Link
               href="/dashboard/brand/products"
               className="inline-flex items-center border border-border text-parchment text-[10px] tracking-[0.18em] uppercase px-7 py-3.5 hover:border-gold hover:text-gold transition-colors"
             >
-              Products
+              {t.overview.products_btn}
             </Link>
             <Link
               href="/dashboard/brand/orders"
               className="inline-flex items-center border border-border text-parchment text-[10px] tracking-[0.18em] uppercase px-7 py-3.5 hover:border-gold hover:text-gold transition-colors"
             >
-              Orders
+              {t.overview.orders_btn}
             </Link>
           </div>
         </>

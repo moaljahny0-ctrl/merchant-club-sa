@@ -1,10 +1,16 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 export default async function BrandAnalyticsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  const cookieStore = await cookies()
+  const locale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as DashLang
+  const t = dt(locale)
 
   const { data: member } = await supabase
     .from('brand_members')
@@ -52,17 +58,20 @@ export default async function BrandAnalyticsPage() {
     .map(([id, count]) => ({ id, count }))
 
   // Fetch product titles for top products
-  type ProductTitle = { id: string; title_en: string }
+  type ProductTitle = { id: string; title_en: string; title_ar: string }
   let topProducts: Array<{ id: string; count: number; title: string }> = []
   if (topProductIds.length > 0) {
     const { data: productRows } = await service
       .from('products')
-      .select('id, title_en')
+      .select('id, title_en, title_ar')
       .in('id', topProductIds.map(p => p.id))
-    const titleMap = new Map((productRows as ProductTitle[] ?? []).map(p => [p.id, p.title_en]))
+    const titleMap = new Map((productRows as ProductTitle[] ?? []).map(p => [
+      p.id,
+      locale === 'ar' && p.title_ar ? p.title_ar : p.title_en,
+    ]))
     topProducts = topProductIds.map(p => ({
       ...p,
-      title: titleMap.get(p.id) ?? 'Unknown product',
+      title: titleMap.get(p.id) ?? t.analytics.unknown_product,
     }))
   }
 
@@ -84,17 +93,17 @@ export default async function BrandAnalyticsPage() {
   return (
     <div className="p-8 md:p-12 max-w-3xl">
       <div className="mb-10">
-        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">Brand Dashboard</p>
-        <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">Analytics</h1>
-        <p className="text-muted text-xs mt-3">Last 30 days</p>
+        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.analytics.eyebrow}</p>
+        <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">{t.analytics.heading}</h1>
+        <p className="text-muted text-xs mt-3">{t.analytics.last_30}</p>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-10">
         {[
-          { label: 'Storefront views', value: storefrontViews },
-          { label: 'Product views', value: productViews },
-          { label: 'Orders placed', value: orderCount },
+          { label: t.analytics.stat_storefront, value: storefrontViews },
+          { label: t.analytics.stat_products,   value: productViews },
+          { label: t.analytics.stat_orders,     value: orderCount },
         ].map(stat => (
           <div key={stat.label} className="bg-surface border border-border px-5 py-6">
             <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
@@ -111,9 +120,9 @@ export default async function BrandAnalyticsPage() {
 
       {/* Top products */}
       <div className="mb-8">
-        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">Top Products by Views</p>
+        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.top_products_label}</p>
         {topProducts.length === 0 ? (
-          <p className="text-muted text-sm">No product view data yet.</p>
+          <p className="text-muted text-sm">{t.analytics.no_product_views}</p>
         ) : (
           <div className="border border-border divide-y divide-border">
             {topProducts.map((p, i) => (
@@ -139,17 +148,17 @@ export default async function BrandAnalyticsPage() {
 
       {/* Top creator */}
       <div>
-        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">Top Creator by Orders</p>
+        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.top_creator_label}</p>
         {!topCreator ? (
-          <p className="text-muted text-sm">No creator-attributed orders yet.</p>
+          <p className="text-muted text-sm">{t.analytics.no_creator_orders}</p>
         ) : (
           <div className="border border-border px-5 py-4 flex items-center justify-between">
             <div>
-              <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">Link code</p>
+              <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">{t.analytics.col_link_code}</p>
               <p className="text-parchment text-sm font-mono">{topCreator.code}</p>
             </div>
             <div className="text-right">
-              <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">Orders</p>
+              <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">{t.analytics.col_orders}</p>
               <p className="text-parchment text-2xl font-light">{topCreator.count}</p>
             </div>
           </div>

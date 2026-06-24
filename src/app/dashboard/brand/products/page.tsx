@@ -1,12 +1,18 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { ProductsClient } from '@/components/dashboard/ProductsClient'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 export default async function ProductsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  const cookieStore = await cookies()
+  const locale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as DashLang
+  const t = dt(locale)
 
   const { data: member } = await supabase
     .from('brand_members')
@@ -29,21 +35,20 @@ export default async function ProductsPage() {
       {/* Header */}
       <div className="flex items-end justify-between mb-10">
         <div>
-          <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">Brand Dashboard</p>
+          <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.products.eyebrow}</p>
           <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">
-            Products
+            {t.products.heading}
           </h1>
         </div>
         <Link
           href="/dashboard/brand/products/new"
           className="bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-6 py-3 hover:bg-gold-light transition-colors"
         >
-          + Add product
+          {t.products.add_product}
         </Link>
       </div>
 
       {(!products || products.length === 0) ? (
-        /* Empty state */
         <div className="flex items-center justify-center py-24">
           <div className="max-w-[360px] w-full text-center">
             <div className="flex items-center justify-center gap-3 mb-10">
@@ -51,24 +56,22 @@ export default async function ProductsPage() {
               <div className="w-1.5 h-1.5 border border-border rotate-45" />
               <div className="h-px w-8 bg-border" />
             </div>
-
             <h2 className="font-display text-2xl font-light text-parchment mb-4">
-              No products yet.
+              {t.products.no_products_heading}
             </h2>
             <p className="text-muted text-sm leading-relaxed mb-10">
-              Add your first product to start building your catalog. Each submission is reviewed before going live.
+              {t.products.no_products_body}
             </p>
-
             <Link
               href="/dashboard/brand/products/new"
               className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
             >
-              Add first product
+              {t.products.add_first}
             </Link>
           </div>
         </div>
       ) : (
-        <ProductsClient initialProducts={products} />
+        <ProductsClient initialProducts={products} locale={locale} />
       )}
     </div>
   )

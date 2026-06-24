@@ -188,6 +188,44 @@ export async function submitStorefrontForReview(
   return { error: null }
 }
 
+export async function saveFeaturedProducts(
+  brandId: string,
+  productIds: string[]
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthenticated' }
+
+    const { data: member } = await supabase
+      .from('brand_members')
+      .select('brand_id')
+      .eq('user_id', user.id)
+      .eq('brand_id', brandId)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    if (!member) return { error: 'Forbidden' }
+
+    const ids = productIds.slice(0, 6)
+
+    const service = createServiceClient()
+    const { error } = await service
+      .from('storefronts')
+      .upsert(
+        { brand_id: brandId, featured_product_ids: ids },
+        { onConflict: 'brand_id' }
+      )
+
+    if (error) return { error: error.message }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unexpected error' }
+  }
+
+  revalidatePath('/dashboard/brand/storefront')
+  return { error: null }
+}
+
 export async function saveBrandLogoUrl(
   brandId: string,
   url: string

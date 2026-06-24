@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { StorefrontActions } from './StorefrontActions'
+import { FeaturedProductSelector } from './FeaturedProductSelector'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
 
@@ -8,6 +11,10 @@ export default async function StorefrontPreviewPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  const cookieStore = await cookies()
+  const locale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as DashLang
+  const t = dt(locale)
 
   const { data: member } = await supabase
     .from('brand_members')
@@ -29,30 +36,51 @@ export default async function StorefrontPreviewPage() {
   const canSubmit = brand && !['submitted', 'live'].includes(onboardingState) && ['approved', 'active'].includes(brand.status)
   const isSubmitted = onboardingState === 'submitted'
 
+  let liveProducts: { id: string; title_en: string; title_ar: string | null; price: number }[] = []
+  let currentFeaturedIds: string[] = []
+
+  if (brand) {
+    const [liveProductsRes, storefrontRes] = await Promise.all([
+      supabase
+        .from('products')
+        .select('id, title_en, title_ar, price')
+        .eq('brand_id', brand.id)
+        .eq('status', 'live')
+        .order('title_en'),
+      supabase
+        .from('storefronts')
+        .select('featured_product_ids')
+        .eq('brand_id', brand.id)
+        .maybeSingle(),
+    ])
+    liveProducts = (liveProductsRes.data ?? []) as typeof liveProducts
+    currentFeaturedIds = (storefrontRes.data?.featured_product_ids as string[] | null) ?? []
+  }
+
   return (
     <div className="p-6 md:p-10 max-w-6xl">
       <div className="mb-8">
-        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">Brand Dashboard</p>
-        <h1 className="font-display text-4xl font-light text-parchment leading-none">Storefront</h1>
+        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.storefront.eyebrow}</p>
+        <h1 className="font-display text-4xl font-light text-parchment leading-none">{t.storefront.heading}</h1>
       </div>
 
       {isSubmitted && (
         <div className="mb-6 border border-gold/30 bg-gold/5 px-6 py-5">
-          <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-2">Under review</p>
+          <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-2">{t.storefront.under_review_label}</p>
           <p className="text-parchment text-sm leading-relaxed">
-            Your storefront has been submitted for review. We&apos;ll notify you once it&apos;s approved and goes live.
+            {t.storefront.under_review_body}
           </p>
         </div>
       )}
 
       {!isLive ? (
         <div className="border border-border px-8 py-12 text-center max-w-xl">
-          <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">Not live yet</p>
+          <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.storefront.not_live_label}</p>
           <p className="text-parchment text-base font-light leading-relaxed mb-3">
-            Your storefront isn&apos;t visible to customers yet.
+            {t.storefront.not_live_body}
           </p>
           <p className="text-muted text-sm leading-relaxed">
-            Your brand needs at least one approved product and an active account before your storefront goes live.
+            {t.storefront.not_live_note}
           </p>
         </div>
       ) : (
@@ -60,7 +88,7 @@ export default async function StorefrontPreviewPage() {
           {/* URL bar */}
           <div className="flex items-center gap-3 mb-6 flex-wrap">
             <div className="flex-1 bg-surface border border-border px-4 py-2.5 flex items-center gap-3 min-w-0">
-              <span className="text-[9px] text-muted/50 tracking-[0.2em] uppercase shrink-0">Live URL</span>
+              <span className="text-[9px] text-muted/50 tracking-[0.2em] uppercase shrink-0">{t.storefront.live_url_label}</span>
               <span className="text-muted text-xs truncate font-mono">{storefrontUrl}</span>
             </div>
             <a
@@ -69,7 +97,7 @@ export default async function StorefrontPreviewPage() {
               rel="noopener noreferrer"
               className="shrink-0 border border-border text-parchment text-[10px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:border-gold hover:text-gold transition-colors"
             >
-              Preview ↗
+              {t.storefront.preview_btn}
             </a>
             <a
               href={storefrontUrl ?? '#'}
@@ -77,9 +105,16 @@ export default async function StorefrontPreviewPage() {
               rel="noopener noreferrer"
               className="shrink-0 bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors"
             >
-              Open Live ↗
+              {t.storefront.open_live_btn}
             </a>
           </div>
+
+          <FeaturedProductSelector
+            brandId={brand!.id}
+            products={liveProducts}
+            initialIds={currentFeaturedIds}
+            locale={locale}
+          />
 
           {canSubmit && brand && (
             <StorefrontActions brandId={brand.id} />
@@ -87,7 +122,7 @@ export default async function StorefrontPreviewPage() {
 
           {/* Preview note */}
           <p className="text-[9px] text-muted/50 tracking-[0.2em] uppercase mb-4 mt-6">
-            Live preview — what customers see
+            {t.storefront.live_preview_label}
           </p>
 
           {/* iframe preview */}
@@ -100,8 +135,7 @@ export default async function StorefrontPreviewPage() {
           </div>
 
           <p className="text-[9px] text-muted/40 mt-3 leading-relaxed">
-            This is your live public storefront. Customers browse and discover your products here.
-            Approve products from the Products section to have them appear.
+            {t.storefront.live_note}
           </p>
         </>
       )}
