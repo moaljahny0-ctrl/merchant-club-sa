@@ -428,38 +428,3 @@ export async function toggleProductFeatured(
     return { error: err instanceof Error ? err.message : 'Unexpected error' }
   }
 }
-
-// ── admin: review ─────────────────────────────────────────────────────────────
-
-export async function adminReviewProduct(
-  id: string,
-  action: 'approve' | 'reject',
-  rejectionReason?: string
-): Promise<{ error: string | null }> {
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthenticated' }
-
-    const serviceClient = createServiceClient()
-    const now = new Date().toISOString()
-
-    const { error } = await serviceClient
-      .from('products')
-      .update({
-        status: action === 'approve' ? 'live' : 'rejected',
-        reviewed_by: user.id,
-        reviewed_at: now,
-        ...(action === 'approve' ? { published_at: now } : {}),
-        ...(action === 'reject' ? { rejection_reason: rejectionReason ?? 'Did not meet requirements.' } : {}),
-      })
-      .eq('id', id)
-
-    if (error) return { error: error.message }
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Unexpected error' }
-  }
-
-  revalidatePath('/dashboard/admin/products')
-  return { error: null }
-}

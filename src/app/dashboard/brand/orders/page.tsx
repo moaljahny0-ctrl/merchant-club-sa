@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
-import { BrandOrdersClient } from '@/components/dashboard/BrandOrdersClient'
+import { BrandOrdersClient, type OrderRow } from '@/components/dashboard/BrandOrdersClient'
 import type { DashLang } from '@/lib/dashboard-i18n'
 
 export default async function BrandOrdersPage() {
@@ -28,8 +28,7 @@ export default async function BrandOrdersPage() {
     .order('created_at', { ascending: false })
     .limit(200)
 
-  const orders = ordersRaw ?? []
+  const orders = (ordersRaw ?? []) as unknown as OrderRow[]
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return <BrandOrdersClient orders={orders as any} locale={locale} />
+  return <BrandOrdersClient orders={orders} locale={locale} />
 }

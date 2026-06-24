@@ -3,7 +3,10 @@ import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
 
 const COOKIE_NAME = 'mc_customer_session'
-const secret = () => new TextEncoder().encode(process.env.JWT_SECRET!)
+const secret = () => {
+  if (!process.env.JWT_SECRET) throw new Error('[auth] JWT_SECRET is not configured')
+  return new TextEncoder().encode(process.env.JWT_SECRET)
+}
 
 export type CustomerSession = {
   id: string

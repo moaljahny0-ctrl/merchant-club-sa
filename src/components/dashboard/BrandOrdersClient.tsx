@@ -5,7 +5,7 @@ import { brandUpdateOrderStatus } from '@/lib/actions/orders'
 import type { Order, OrderStatus } from '@/lib/types/database'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
-type OrderRow = Pick<Order,
+export type OrderRow = Pick<Order,
   | 'id' | 'order_number' | 'customer_name' | 'customer_email' | 'customer_phone'
   | 'delivery_address' | 'subtotal' | 'status' | 'created_at' | 'tracking_number'
   | 'items' | 'brand_notes' | 'creator_link_id'

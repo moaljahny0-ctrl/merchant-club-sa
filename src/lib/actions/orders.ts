@@ -131,17 +131,22 @@ export async function createOrder(
 
   trackEvent({ event_type: 'order_placed', brand_id: brandId, product_id: productId, creator_link_id: creatorLinkId }).catch(() => {})
 
-  // Decrement stock — fire-and-forget, never blocks the order
+  // Atomic stock decrement — conditional on stock still being available
   const newStock = Math.max(0, (product.stock_quantity ?? 0) - quantity)
-  const stockUpdate: Record<string, unknown> = { stock_quantity: newStock }
-  if (newStock === 0) stockUpdate.status = 'out_of_stock'
-  service
+  const { data: decremented } = await service
     .from('products')
-    .update(stockUpdate)
-    .eq('id', productId)
-    .then(({ error }) => {
-      if (error) console.error('[stock] decrement failed:', error)
+    .update({
+      stock_quantity: newStock,
+      ...(newStock === 0 ? { status: 'out_of_stock' } : {}),
     })
+    .eq('id', productId)
+    .gte('stock_quantity', quantity)
+    .select('id')
+
+  if (!decremented || decremented.length === 0) {
+    await service.from('orders').delete().eq('id', order.id)
+    return { error: 'This product just sold out. Please try again.', orderId: null }
+  }
 
   const brand = (product.brands as unknown) as { name_en: string; contact_email: string | null } | null
 
@@ -324,14 +329,28 @@ export async function placeOrder(
     orderNumbers.push(order.order_number);
     trackEvent({ event_type: 'order_placed', brand_id: brandId, creator_link_id: creatorLinkId }).catch(() => {});
 
-    // Decrement stock for each product (fire-and-forget)
+    // Atomic stock decrement — conditional on stock still being available for each item
+    let stockFailed = false;
     for (const cartItem of items) {
       const product = products.find(p => p.id === cartItem.productId)!;
       const newStock = Math.max(0, (product.stock_quantity ?? 0) - cartItem.quantity);
-      const stockUpdate: Record<string, unknown> = { stock_quantity: newStock };
-      if (newStock === 0) stockUpdate.status = 'out_of_stock';
-      service.from('products').update(stockUpdate).eq('id', cartItem.productId)
-        .then(({ error }) => { if (error) console.error('[stock] decrement failed:', error); });
+      const { data: decremented } = await service
+        .from('products')
+        .update({
+          stock_quantity: newStock,
+          ...(newStock === 0 ? { status: 'out_of_stock' } : {}),
+        })
+        .eq('id', cartItem.productId)
+        .gte('stock_quantity', cartItem.quantity)
+        .select('id');
+      if (!decremented || decremented.length === 0) {
+        stockFailed = true;
+        console.error(`[stock] OVERSELL on product ${cartItem.productId} order ${order.order_number} — stock taken concurrently`);
+      }
+    }
+    if (stockFailed) {
+      await service.from('orders').delete().eq('id', order.id);
+      return { error: 'One or more items sold out while your order was being placed. Please review your cart and try again.', orderNumbers: [] };
     }
 
     const brand = (products[0].brands as unknown) as { name_en: string; contact_email: string | null } | null;
