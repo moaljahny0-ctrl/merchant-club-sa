@@ -14,6 +14,7 @@ import {
   buildGuestInvitationHtml,
 } from '@/lib/email'
 import { getCustomerSession } from '@/lib/customer-auth'
+import { randomInt } from 'crypto'
 import type { CartItem } from '@/lib/cart/CartContext'
 
 export type OrderFormState = {
@@ -46,7 +47,7 @@ function generateOrderNumber(): string {
     d.getFullYear().toString() +
     String(d.getMonth() + 1).padStart(2, '0') +
     String(d.getDate()).padStart(2, '0')
-  const rand = String(Math.floor(Math.random() * 9000) + 1000)
+  const rand = String(randomInt(100000, 999999))
   return `MCO-${ymd}-${rand}`
 }
 
