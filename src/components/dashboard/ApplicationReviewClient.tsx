@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { reviewApplication } from '@/lib/actions/admin'
+import { reviewApplication } from '@/lib/actions/admin-applications'
 import type { BrandApplication } from '@/lib/types/database'
 
 const TABS = ['all', 'pending', 'approved', 'rejected'] as const

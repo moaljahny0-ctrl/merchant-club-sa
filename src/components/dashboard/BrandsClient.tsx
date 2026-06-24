@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { adminUpdateBrandStatus, adminUpdateBrandOnboardingState } from '@/lib/actions/admin'
+import { adminUpdateBrandStatus, adminUpdateBrandOnboardingState } from '@/lib/actions/admin-brands'
 
 type Brand = {
   id: string

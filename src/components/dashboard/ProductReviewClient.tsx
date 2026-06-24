@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { adminReviewProduct, adminUnpublishProduct, adminDeleteProduct } from '@/lib/actions/admin'
+import { adminReviewProduct, adminUnpublishProduct, adminDeleteProduct } from '@/lib/actions/admin-products'
 import type { Product } from '@/lib/types/database'
 
 type ProductImage = { url: string; is_primary: boolean; sort_order: number }

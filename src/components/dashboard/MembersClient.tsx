@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { updateMemberStatus } from '@/lib/actions/admin'
+import { updateMemberStatus } from '@/lib/actions/admin-members'
 
 type MemberRow = {
   id: string
