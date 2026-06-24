@@ -51,6 +51,46 @@ export async function updateBrandProfile(
       .eq('id', brandId)
 
     if (error) return { error: error.message }
+
+    // Auto-advance onboarding state invited/account_setup → profile_setup
+    const service = createServiceClient()
+    const { data: brandState } = await service
+      .from('brands')
+      .select('onboarding_state, name_en')
+      .eq('id', brandId)
+      .single()
+
+    if (brandState && ['invited', 'account_setup'].includes(brandState.onboarding_state ?? '')) {
+      await service
+        .from('brands')
+        .update({ onboarding_state: 'profile_setup' })
+        .eq('id', brandId)
+
+      const apiKey = process.env.RESEND_API_KEY
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
+      if (apiKey) {
+        try {
+          const resend = new Resend(apiKey)
+          await resend.emails.send({
+            from: 'Merchant Club SA <applications@merchantclubsa.com>',
+            to: ['info@merchantclubsa.com'],
+            subject: `[Review] Brand profile ready — ${brandState.name_en}`,
+            html: `<!DOCTYPE html><html><body style="font-family:Georgia,serif;background:#0D0D0D;color:#fff;padding:40px 24px;max-width:560px;margin:0 auto;">
+              <p style="font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:#D4AF37;margin-bottom:20px;">Merchant Club SA — Admin Alert</p>
+              <h2 style="font-size:22px;font-weight:400;color:#fff;margin:0 0 12px;">Brand profile ready for review.</h2>
+              <p style="font-size:14px;color:#aaa;line-height:1.6;margin-bottom:28px;">
+                <strong style="color:#fff;">${brandState.name_en}</strong> has completed their brand profile and is waiting for your review before they can add products.
+              </p>
+              <a href="${siteUrl}/dashboard/admin/brands" style="display:inline-block;background:#D4AF37;color:#0D0D0D;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;padding:14px 28px;text-decoration:none;font-family:Georgia,serif;">
+                Review brand →
+              </a>
+            </body></html>`,
+          })
+        } catch {
+          // Non-critical — don't fail the profile save if email fails
+        }
+      }
+    }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Unexpected error' }
   }
