@@ -39,17 +39,17 @@ export type OrderStatus =
 
 // ─── Row Types ────────────────────────────────────────────────────────────────
 
-export interface Role {
+export type Role = {
   id: string
   name: UserRole
 }
 
-export interface UserRoleRow {
+export type UserRoleRow = {
   user_id: string
   role_id: string
 }
 
-export interface Brand {
+export type Brand = {
   id: string
   slug: string
   name_en: string
@@ -78,7 +78,7 @@ export interface Brand {
   updated_at: string
 }
 
-export interface BrandMember {
+export type BrandMember = {
   id: string
   brand_id: string
   user_id: string
@@ -89,7 +89,7 @@ export interface BrandMember {
   status: 'invited' | 'active' | 'suspended'
 }
 
-export interface BrandApplication {
+export type BrandApplication = {
   id: string
   brand_name_en: string
   brand_name_ar: string | null
@@ -109,7 +109,7 @@ export interface BrandApplication {
   created_at: string
 }
 
-export interface Product {
+export type Product = {
   id: string
   brand_id: string
   sku: string | null
@@ -136,7 +136,7 @@ export interface Product {
   updated_at: string
 }
 
-export interface ProductImage {
+export type ProductImage = {
   id: string
   product_id: string
   url: string
@@ -148,7 +148,7 @@ export interface ProductImage {
   created_at: string
 }
 
-export interface Storefront {
+export type Storefront = {
   id: string
   brand_id: string
   status: StorefrontStatus
@@ -163,7 +163,7 @@ export interface Storefront {
   updated_at: string
 }
 
-export interface CreatorLink {
+export type CreatorLink = {
   id: string
   creator_id: string
   brand_id: string
@@ -173,7 +173,7 @@ export interface CreatorLink {
   created_at: string
 }
 
-export interface Customer {
+export type Customer = {
   id: string
   email: string
   password_hash: string
@@ -183,7 +183,7 @@ export interface Customer {
   updated_at: string
 }
 
-export interface CustomerResetToken {
+export type CustomerResetToken = {
   id: string
   customer_id: string
   token_hash: string
@@ -192,7 +192,7 @@ export interface CustomerResetToken {
   created_at: string
 }
 
-export interface Order {
+export type Order = {
   id: string
   brand_id: string
   order_number: string
@@ -215,7 +215,7 @@ export interface Order {
   updated_at: string
 }
 
-export interface AnalyticsEvent {
+export type AnalyticsEvent = {
   id: string
   event_type: 'storefront_view' | 'product_view' | 'creator_link_click' | 'order_placed'
   brand_id: string | null
@@ -237,9 +237,8 @@ type TableDef<R, I = Partial<R>, U = Partial<R>> = {
 
 // ─── Database type for Supabase client ───────────────────────────────────────
 
-export interface Database {
+export type Database = {
   public: {
-    PostgrestVersion: '12'
     Tables: {
       roles: TableDef<Role, Omit<Role, 'id'>>
       user_roles: TableDef<UserRoleRow>
@@ -255,9 +254,9 @@ export interface Database {
       orders: TableDef<Order, Omit<Order, 'id' | 'created_at' | 'updated_at'>>
       analytics_events: TableDef<AnalyticsEvent, Omit<AnalyticsEvent, 'id' | 'created_at'>>
     }
-    Views: Record<string, never>
-    Functions: Record<string, never>
-    Enums: Record<string, never>
+    Views: { [K in never]: never }
+    Functions: { [K in never]: never }
+    Enums: { [K in never]: never }
   }
 }
 
