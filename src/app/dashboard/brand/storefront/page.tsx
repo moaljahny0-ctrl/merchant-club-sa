@@ -117,7 +117,7 @@ export default async function StorefrontPreviewPage() {
           />
 
           {canSubmit && brand && (
-            <StorefrontActions brandId={brand.id} />
+            <StorefrontActions brandId={brand.id} locale={locale} />
           )}
 
           {/* Preview note */}

@@ -1,9 +1,23 @@
 import type { ReactNode } from 'react'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
+import localFont from 'next/font/local'
+import { Inter } from 'next/font/google'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import './admin-shell.css'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const hanazad = localFont({
+  src: '../fonts/TSHanazad-Display.woff2',
+  variable: '--font-hanazad',
+  display: 'swap',
+})
 
 type Props = {
   children: ReactNode
@@ -61,7 +75,7 @@ export default async function DashboardLayout({ children }: Props) {
   const isRtl = dashLocale === 'ar'
 
   return (
-    <div lang={dashLocale} dir={isRtl ? 'rtl' : 'ltr'}>
+    <div lang={dashLocale} dir={isRtl ? 'rtl' : 'ltr'} className={`${inter.variable} ${hanazad.variable}`}>
       <DashboardShell
         isAdmin={isAdmin}
         brand={brand as { id: string; name_en: string; status: string; onboarding_state: string } | null}

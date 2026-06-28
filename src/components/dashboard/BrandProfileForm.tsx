@@ -4,8 +4,10 @@ import { useActionState, useRef, useState, useTransition } from 'react'
 import { updateBrandProfile, uploadBrandLogo, saveBrandLogoUrl } from '@/lib/actions/brands'
 import { createClient } from '@/lib/supabase/client'
 import type { Brand } from '@/lib/types/database'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
-function ChangePasswordForm() {
+function ChangePasswordForm({ locale }: { locale: DashLang }) {
+  const t = dt(locale).profile_form
   const [newPassword, setNewPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -18,11 +20,11 @@ function ChangePasswordForm() {
     setSuccess(false)
 
     if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters.')
+      setError(t.error_pw_short)
       return
     }
     if (newPassword !== confirm) {
-      setError('Passwords do not match.')
+      setError(t.error_pw_mismatch)
       return
     }
 
@@ -41,7 +43,7 @@ function ChangePasswordForm() {
 
   return (
     <section>
-      <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Change password</h2>
+      <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_password}</h2>
 
       {error && (
         <div className="border border-red-500/30 bg-red-500/10 px-4 py-3 mb-4">
@@ -50,19 +52,20 @@ function ChangePasswordForm() {
       )}
       {success && (
         <div className="border border-green-500/30 bg-green-500/10 px-4 py-3 mb-4">
-          <p className="text-green-400 text-xs">Password updated successfully.</p>
+          <p className="text-green-400 text-xs">{t.pw_updated}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
         <div>
           <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
-            New password
+            {t.label_new_password}
           </label>
           <input
             type="password"
             required
             autoComplete="new-password"
+            dir="ltr"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
             className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
@@ -70,12 +73,13 @@ function ChangePasswordForm() {
         </div>
         <div>
           <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
-            Confirm password
+            {t.label_confirm}
           </label>
           <input
             type="password"
             required
             autoComplete="new-password"
+            dir="ltr"
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
             className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
@@ -86,22 +90,23 @@ function ChangePasswordForm() {
           disabled={isPending}
           className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
         >
-          {isPending ? 'Updating…' : 'Update password'}
+          {isPending ? t.updating : t.btn_update_pw}
         </button>
       </form>
     </section>
   )
 }
 
-export function BrandProfileForm({ brand }: { brand: Brand }) {
+export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; locale?: DashLang }) {
+  const t = dt(locale).profile_form
   const boundAction = updateBrandProfile.bind(null, brand.id)
   const [state, formAction, isPending] = useActionState(boundAction, { error: null })
 
   // ── Logo state ──────────────────────────────────────────────────────────────
-  const [logoUrl, setLogoUrl]       = useState<string>(brand.logo_url ?? '')
+  const [logoUrl, setLogoUrl]           = useState<string>(brand.logo_url ?? '')
   const [logoUploading, setLogoUploading] = useState(false)
-  const [logoError, setLogoError]   = useState<string | null>(null)
-  const [logoSuccess, setLogoSuccess] = useState(false)
+  const [logoError, setLogoError]       = useState<string | null>(null)
+  const [logoSuccess, setLogoSuccess]   = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -109,11 +114,11 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
     if (!file) return
 
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setLogoError('Only JPG, PNG, or WebP files are allowed.')
+      setLogoError(t.logo_error_type)
       return
     }
     if (file.size > 2 * 1024 * 1024) {
-      setLogoError('File must be under 2 MB.')
+      setLogoError(t.logo_error_size)
       return
     }
 
@@ -127,7 +132,7 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
     const { url, error: uploadErr } = await uploadBrandLogo(brand.id, fd)
 
     if (uploadErr || !url) {
-      setLogoError(uploadErr ?? 'Upload failed.')
+      setLogoError(uploadErr ?? t.logo_error_upload)
       setLogoUploading(false)
       return
     }
@@ -143,7 +148,6 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
     setLogoUrl(url)
     setLogoSuccess(true)
     setTimeout(() => setLogoSuccess(false), 3000)
-    // Reset file input so the same file can be re-selected if needed
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -162,13 +166,13 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
 
       {state.success && !state.error && (
         <div className="border border-green-500/30 bg-green-500/10 px-4 py-3">
-          <p className="text-green-400 text-xs">Profile saved successfully.</p>
+          <p className="text-green-400 text-xs">{t.profile_saved}</p>
         </div>
       )}
 
       {/* Logo */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Brand Logo</h2>
+        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_logo}</h2>
         <div className="flex items-center gap-6">
 
           {/* Preview */}
@@ -177,12 +181,12 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logoUrl} alt="Brand logo" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-[10px] text-muted/50 tracking-wider uppercase">No logo</span>
+              <span className="text-[10px] text-muted/50 tracking-wider uppercase">{t.no_logo}</span>
             )}
             {logoUploading && (
               <div className="absolute inset-0 bg-ink/60 flex items-center justify-center">
                 <span className="text-[10px] text-parchment/80 tracking-widest uppercase animate-pulse">
-                  Uploading…
+                  {t.uploading}
                 </span>
               </div>
             )}
@@ -193,7 +197,7 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
             <label
               className={`inline-flex items-center justify-center bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-5 py-2.5 transition-opacity cursor-pointer ${logoUploading ? 'opacity-40 pointer-events-none' : 'hover:bg-gold-light'}`}
             >
-              {logoUploading ? 'Uploading…' : logoUrl ? 'Change logo' : 'Upload logo'}
+              {logoUploading ? t.uploading : logoUrl ? t.change_logo : t.upload_logo}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -203,9 +207,9 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
                 disabled={logoUploading}
               />
             </label>
-            <p className="text-[10px] text-muted/60">JPG, PNG or WebP · max 2 MB</p>
+            <p className="text-[10px] text-muted/60">{t.logo_formats}</p>
             {logoError && <p className="text-xs text-red-400">{logoError}</p>}
-            {logoSuccess && <p className="text-xs text-green-400">Logo saved ✓</p>}
+            {logoSuccess && <p className="text-xs text-green-400">{t.logo_saved}</p>}
           </div>
 
         </div>
@@ -213,21 +217,22 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
 
       {/* Names */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Brand name</h2>
+        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_name}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
-              English <span className="text-gold">*</span>
+              {t.label_en} <span className="text-gold">*</span>
             </label>
             <input
               name="name_en"
               required
+              dir="ltr"
               defaultValue={brand.name_en}
               className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">Arabic</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
             <input
               name="name_ar"
               dir="rtl"
@@ -240,19 +245,20 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
 
       {/* Tagline */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Tagline</h2>
+        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_tagline}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">English</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_en}</label>
             <input
               name="tagline_en"
+              dir="ltr"
               defaultValue={brand.tagline_en ?? ''}
               className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
-              placeholder="A short brand tagline"
+              placeholder={t.placeholder_tagline}
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">Arabic</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
             <input
               name="tagline_ar"
               dir="rtl"
@@ -265,19 +271,20 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
 
       {/* Description */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Description</h2>
+        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_description}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">English</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_en}</label>
             <textarea
               name="description_en"
               rows={4}
+              dir="ltr"
               defaultValue={brand.description_en ?? ''}
               className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">Arabic</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
             <textarea
               name="description_ar"
               dir="rtl"
@@ -291,31 +298,34 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
 
       {/* Contact */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Contact</h2>
+        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_contact}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">Email</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_email}</label>
             <input
               name="contact_email"
               type="email"
+              dir="ltr"
               defaultValue={brand.contact_email ?? ''}
               className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">Phone</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_phone}</label>
             <input
               name="contact_phone"
+              dir="ltr"
               defaultValue={brand.contact_phone ?? ''}
               className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
               placeholder="+966 5x xxx xxxx"
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">Website</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_website}</label>
             <input
               name="website_url"
               type="url"
+              dir="ltr"
               defaultValue={brand.website_url ?? ''}
               className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
               placeholder="https://yourbrand.com"
@@ -326,26 +336,28 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
 
       {/* Policies */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">Policies</h2>
+        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_policies}</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">Shipping info</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_shipping}</label>
             <textarea
               name="shipping_info_en"
               rows={3}
+              dir="ltr"
               defaultValue={brand.shipping_info_en ?? ''}
               className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
-              placeholder="e.g. Free shipping on orders above SAR 200…"
+              placeholder={t.placeholder_shipping}
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">Return policy</label>
+            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_returns}</label>
             <textarea
               name="return_policy_en"
               rows={3}
+              dir="ltr"
               defaultValue={brand.return_policy_en ?? ''}
               className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
-              placeholder="e.g. Returns accepted within 14 days…"
+              placeholder={t.placeholder_returns}
             />
           </div>
         </div>
@@ -356,12 +368,12 @@ export function BrandProfileForm({ brand }: { brand: Brand }) {
         disabled={isPending}
         className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
       >
-        {isPending ? 'Saving…' : 'Save profile'}
+        {isPending ? t.saving : t.btn_save}
       </button>
     </form>
 
     <div className="mt-12 pt-10 border-t border-border max-w-2xl">
-      <ChangePasswordForm />
+      <ChangePasswordForm locale={locale} />
     </div>
     </div>
   )

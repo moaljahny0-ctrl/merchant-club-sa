@@ -3,17 +3,22 @@
 import { useActionState, useState } from 'react'
 import type { ProductFormState } from '@/lib/actions/products'
 import type { Product } from '@/lib/types/database'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 type Props = {
   action: (prev: ProductFormState, formData: FormData) => Promise<ProductFormState>
   defaultValues?: Partial<Product>
   submitLabel?: string
   currentImageUrl?: string
+  locale?: DashLang
 }
 
-export function ProductForm({ action, defaultValues, submitLabel = 'Save product', currentImageUrl }: Props) {
+export function ProductForm({ action, defaultValues, submitLabel, currentImageUrl, locale = 'en' }: Props) {
+  const t = dt(locale).product_form
   const [state, formAction, isPending] = useActionState(action, { error: null })
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl ?? null)
+
+  const resolvedSubmitLabel = submitLabel ?? t.save_product
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -32,14 +37,15 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
       {/* Product name */}
       <div>
         <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
-          Product name <span className="text-gold">*</span>
+          {t.label_name} <span className="text-gold">*</span>
         </label>
         <input
           name="title_en"
           required
+          dir="ltr"
           defaultValue={defaultValues?.title_en}
           className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
-          placeholder="Enter product name"
+          placeholder={t.placeholder_name}
         />
       </div>
 
@@ -47,7 +53,7 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
-            Price (SAR) <span className="text-gold">*</span>
+            {t.label_price} <span className="text-gold">*</span>
           </label>
           <input
             name="price"
@@ -55,6 +61,7 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
             required
             min={0}
             step={0.01}
+            dir="ltr"
             defaultValue={defaultValues?.price}
             className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
             placeholder="0.00"
@@ -62,7 +69,7 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
         </div>
         <div>
           <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
-            Stock quantity <span className="text-gold">*</span>
+            {t.label_stock} <span className="text-gold">*</span>
           </label>
           <input
             name="stock_quantity"
@@ -70,6 +77,7 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
             required
             min={0}
             step={1}
+            dir="ltr"
             defaultValue={defaultValues?.stock_quantity ?? 1}
             className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
             placeholder="1"
@@ -80,21 +88,22 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
       {/* Short description */}
       <div>
         <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
-          Short description
+          {t.label_description}
         </label>
         <textarea
           name="description_en"
           rows={3}
+          dir="ltr"
           defaultValue={defaultValues?.description_en}
           className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors resize-none leading-relaxed"
-          placeholder="Briefly describe this product…"
+          placeholder={t.placeholder_desc}
         />
       </div>
 
       {/* Image */}
       <div>
         <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
-          Product image
+          {t.label_image}
         </label>
 
         {previewUrl && (
@@ -110,9 +119,9 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
 
         <label className="flex items-center gap-3 border border-border border-dashed px-4 py-4 cursor-pointer hover:border-gold transition-colors group">
           <span className="text-[10px] text-muted tracking-[0.15em] uppercase group-hover:text-gold transition-colors">
-            {previewUrl ? 'Replace image' : 'Choose image'}
+            {previewUrl ? t.replace_image : t.choose_image}
           </span>
-          <span className="text-[10px] text-muted/40 ml-auto">JPEG · PNG · WebP · Max 5 MB</span>
+          <span className="text-[10px] text-muted/40 ms-auto">{t.image_formats}</span>
           <input
             name="image"
             type="file"
@@ -130,7 +139,7 @@ export function ProductForm({ action, defaultValues, submitLabel = 'Save product
           disabled={isPending}
           className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
         >
-          {isPending ? 'Saving…' : submitLabel}
+          {isPending ? t.saving : resolvedSubmitLabel}
         </button>
       </div>
 

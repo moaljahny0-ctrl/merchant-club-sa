@@ -5,15 +5,18 @@ import { useRouter } from 'next/navigation'
 import { ProductForm } from './ProductForm'
 import { submitProductForReview, deleteProduct, updateProduct } from '@/lib/actions/products'
 import type { Product } from '@/lib/types/database'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 type Props = {
   product: Product
   canEdit: boolean
   canSubmit: boolean
   currentImageUrl?: string
+  locale?: DashLang
 }
 
-export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl }: Props) {
+export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl, locale = 'en' }: Props) {
+  const t = dt(locale).product_edit
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -29,7 +32,7 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
   }
 
   function handleDelete() {
-    if (!confirm('Delete this product? This cannot be undone.')) return
+    if (!confirm(t.confirm_delete)) return
     startTransition(async () => {
       await deleteProduct(product.id)
     })
@@ -42,8 +45,9 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
       <ProductForm
         action={boundUpdateProduct}
         defaultValues={product}
-        submitLabel={product.status === 'live' ? 'Save & resubmit for review' : 'Save changes'}
+        submitLabel={product.status === 'live' ? t.submit_live : t.submit_default}
         currentImageUrl={currentImageUrl}
+        locale={locale}
       />
 
       {/* Actions */}
@@ -54,7 +58,7 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
             disabled={isPending}
             className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-6 py-3 hover:bg-gold-light transition-colors disabled:opacity-50"
           >
-            {isPending ? 'Submitting…' : 'Submit for review'}
+            {isPending ? t.btn_submitting : t.btn_submit}
           </button>
         )}
         <button
@@ -62,38 +66,9 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
           disabled={isPending}
           className="border border-red-500/40 text-red-400 text-xs tracking-[0.15em] uppercase px-6 py-3 hover:border-red-400 transition-colors disabled:opacity-50"
         >
-          Delete product
+          {isPending ? t.btn_deleting : t.btn_delete}
         </button>
       </div>
-    </div>
-  )
-}
-
-function ProductFormReadOnly({ product, currentImageUrl }: { product: Product; currentImageUrl?: string }) {
-  return (
-    <div className="space-y-6">
-      {currentImageUrl && (
-        <div className="border border-border inline-block">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={currentImageUrl} alt={product.title_en} className="w-32 h-32 object-cover block" />
-        </div>
-      )}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">Name</p>
-          <p className="text-parchment text-sm">{product.title_en}</p>
-        </div>
-        <div>
-          <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">Price</p>
-          <p className="text-parchment text-sm">SAR {Number(product.price).toFixed(2)}</p>
-        </div>
-      </div>
-      {product.description_en && (
-        <div>
-          <p className="text-[9px] text-muted tracking-[0.2em] uppercase mb-1">Description</p>
-          <p className="text-parchment text-sm whitespace-pre-wrap">{product.description_en}</p>
-        </div>
-      )}
     </div>
   )
 }

@@ -1,22 +1,14 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { ProductEditClient } from '@/components/dashboard/ProductEditClient'
+import { dt, type DashLang } from '@/lib/dashboard-i18n'
 import type { Product, ProductImage } from '@/lib/types/database'
 
 type Props = {
   params: Promise<{ id: string }>
   searchParams: Promise<{ imageError?: string }>
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Draft',
-  submitted: 'In review',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  live: 'Live',
-  archived: 'Archived',
-  out_of_stock: 'Out of stock',
 }
 
 export default async function ProductEditPage({ params, searchParams }: Props) {
@@ -25,6 +17,10 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  const cookieStore = await cookies()
+  const locale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as DashLang
+  const t = dt(locale).product_edit_page
 
   const { data: member } = await supabase
     .from('brand_members')
@@ -57,13 +53,13 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
           href="/dashboard/brand/products"
           className="text-[10px] text-muted hover:text-gold tracking-[0.2em] uppercase transition-colors"
         >
-          ← Products
+          {t.back}
         </Link>
         <div className="flex items-start justify-between mt-3">
           <div>
             <h1 className="font-display text-3xl font-light text-parchment">{product.title_en}</h1>
             <p className="text-muted text-xs mt-1">
-              Status: <span className="text-parchment">{STATUS_LABELS[product.status] ?? product.status}</span>
+              {t.label_status} <span className="text-parchment">{t.status[product.status as keyof typeof t.status] ?? product.status}</span>
             </p>
           </div>
         </div>
@@ -71,28 +67,28 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
 
       {imageError && (
         <div className="border border-yellow-500/30 bg-yellow-500/5 px-5 py-4 mb-8">
-          <p className="text-yellow-400 text-xs font-medium mb-1">Image upload failed</p>
-          <p className="text-muted text-xs">Your product was saved but the image could not be uploaded. Please upload an image below and save again.</p>
+          <p className="text-yellow-400 text-xs font-medium mb-1">{t.img_error_heading}</p>
+          <p className="text-muted text-xs">{t.img_error_body}</p>
         </div>
       )}
 
       {product.status === 'rejected' && product.rejection_reason && (
         <div className="border border-red-500/30 bg-red-500/10 px-5 py-4 mb-8">
-          <p className="text-red-400 text-xs font-medium mb-1">Rejected</p>
+          <p className="text-red-400 text-xs font-medium mb-1">{t.rejected_heading}</p>
           <p className="text-muted text-xs">{product.rejection_reason}</p>
-          <p className="text-muted text-xs mt-2">Edit your product and resubmit for review.</p>
+          <p className="text-muted text-xs mt-2">{t.rejected_note}</p>
         </div>
       )}
 
       {product.status === 'submitted' && (
         <div className="border border-yellow-500/30 bg-yellow-500/5 px-5 py-4 mb-8">
-          <p className="text-yellow-400 text-xs">This product is currently under review. You can&apos;t edit it until a decision is made.</p>
+          <p className="text-yellow-400 text-xs">{t.review_note}</p>
         </div>
       )}
 
       {product.status === 'live' && (
         <div className="border border-green-500/30 bg-green-500/5 px-5 py-4 mb-8">
-          <p className="text-green-400 text-xs">This product is live and visible on your brand page.</p>
+          <p className="text-green-400 text-xs">{t.live_note}</p>
         </div>
       )}
 
@@ -101,6 +97,7 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
         canEdit={canEdit}
         canSubmit={canSubmit}
         currentImageUrl={primaryImage?.url}
+        locale={locale}
       />
     </div>
   )

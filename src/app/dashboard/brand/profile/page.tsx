@@ -38,7 +38,7 @@ export default async function BrandProfilePage() {
         <p className="text-muted text-sm mt-1">{t.profile.subheading}</p>
       </div>
 
-      <BrandProfileForm brand={brand} />
+      <BrandProfileForm brand={brand} locale={locale} />
     </div>
   )
 }
