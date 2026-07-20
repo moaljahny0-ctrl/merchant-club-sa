@@ -6,18 +6,29 @@ export default async function DashboardRootPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // Check if user is admin
-  const { data } = await supabase
-    .from('user_roles')
-    .select('roles!inner(name)')
-    .eq('user_id', user.id)
+  const [rolesRes, memberRes] = await Promise.all([
+    supabase
+      .from('user_roles')
+      .select('roles!inner(name)')
+      .eq('user_id', user.id),
+    supabase
+      .from('brand_members')
+      .select('brand_id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle(),
+  ])
 
-  const isAdmin = (data ?? []).some(
-    (r: { roles: { name: string } | { name: string }[] }) => {
-      const roles = Array.isArray(r.roles) ? r.roles : [r.roles]
-      return roles.some(role => role.name === 'platform_admin')
-    }
+  const userRoles = (rolesRes.data ?? []).flatMap(
+    (r: { roles: { name: string } | { name: string }[] }) =>
+      Array.isArray(r.roles) ? r.roles.map(x => x.name) : [r.roles.name]
   )
+  const isAdmin = userRoles.includes('platform_admin')
+  const isCreator = userRoles.includes('creator')
+  const hasBrand = !!memberRes.data
 
-  redirect(isAdmin ? '/dashboard/admin' : '/dashboard/brand')
+  if (isAdmin) redirect('/dashboard/admin')
+  if (hasBrand) redirect('/dashboard/brand')
+  if (isCreator) redirect('/dashboard/creator')
+  redirect('/dashboard/brand')
 }

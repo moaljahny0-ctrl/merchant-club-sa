@@ -53,7 +53,9 @@ export async function proxy(request: NextRequest) {
   // ── Redirect logged-in users away from auth pages ─────────────────────────
   const isAuthOnly = AUTH_ONLY_PATHS.some(p => pathname.startsWith(p))
   if (isAuthOnly && user) {
-    return NextResponse.redirect(new URL('/dashboard/brand', request.url))
+    // Let /dashboard's own role check route admin/brand/creator correctly —
+    // proxy runs on the edge and shouldn't do the DB lookup itself.
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   // ── i18n for public routes ────────────────────────────────────────────────

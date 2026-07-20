@@ -50,6 +50,7 @@ export default async function DashboardLayout({ children }: Props) {
       Array.isArray(r.roles) ? r.roles.map(x => x.name) : [r.roles.name]
   )
   const isAdmin = userRoles.includes('platform_admin')
+  const isCreator = userRoles.includes('creator')
 
   // Brand member data — brands join may be an object or array depending on Supabase
   const rawBrand = memberRes.data?.brands
@@ -79,6 +80,7 @@ export default async function DashboardLayout({ children }: Props) {
       <DashboardShell
         isAdmin={isAdmin}
         brand={brand as { id: string; name_en: string; status: string; onboarding_state: string } | null}
+        isCreator={isCreator}
         userEmail={user.email ?? ''}
         adminBadges={adminBadges}
         locale={dashLocale}

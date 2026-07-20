@@ -21,6 +21,7 @@ type Props = {
   children: ReactNode
   isAdmin: boolean
   brand: Brand
+  isCreator?: boolean
   userEmail: string
   adminBadges?: { brands: number; pendingApps: number }
   locale?: 'en' | 'ar'
@@ -35,6 +36,10 @@ const brandNavHrefs = [
   { key: 'profile'    as const, href: '/dashboard/brand/profile' },
 ]
 
+const creatorNavHrefs = [
+  { key: 'overview' as const, href: '/dashboard/creator' },
+]
+
 const adminNav = [
   { label: 'Overview',      href: '/dashboard/admin' },
   { label: 'Brands',        href: '/dashboard/admin/brands' },
@@ -43,7 +48,7 @@ const adminNav = [
   { label: 'Orders',        href: '/dashboard/admin/orders' },
 ]
 
-export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadges, locale = 'en' }: Props) {
+export function DashboardShell({ children, isAdmin, brand, isCreator = false, userEmail, adminBadges, locale = 'en' }: Props) {
   const t = dt(locale)
   // Hooks must be called unconditionally (Rules of Hooks)
   const pathname = usePathname()
@@ -70,8 +75,15 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
   }
 
   const brandNav = brandNavHrefs.map(item => ({ label: t.nav[item.key], href: item.href }))
-  const nav = isAdmin ? adminNav : brandNav
-  const sectionLabel = isAdmin ? t.shell.platform_admin : (brand?.name_en ?? 'Brand')
+  const creatorNav = creatorNavHrefs.map(item => ({ label: t.nav[item.key], href: item.href }))
+  const showCreatorNav = !brand && isCreator
+  const nav = isAdmin ? adminNav : showCreatorNav ? creatorNav : brandNav
+  const sectionLabel = isAdmin
+    ? t.shell.platform_admin
+    : showCreatorNav
+    ? t.shell.creator_portal
+    : (brand?.name_en ?? 'Brand')
+  const portalLabel = isAdmin ? t.shell.platform_admin : showCreatorNav ? t.shell.creator_portal : t.shell.partner_portal
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -90,7 +102,7 @@ export function DashboardShell({ children, isAdmin, brand, userEmail, adminBadge
             Merchant Club SA
           </p>
           <p className="text-[8px] text-muted/70 tracking-[0.2em] uppercase leading-none">
-            {isAdmin ? t.shell.platform_admin : t.shell.partner_portal}
+            {portalLabel}
           </p>
         </div>
       </div>

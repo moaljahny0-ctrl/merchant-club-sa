@@ -1,7 +1,7 @@
 'use server';
 
 import { Resend } from 'resend';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 
 export type MemberEnquiryState = {
   success: boolean;
@@ -167,20 +167,33 @@ export async function submitMemberEnquiry(
     console.warn('[member] RESEND_API_KEY not set — enquiry not emailed:', { name, email });
   }
 
-  // Insert into members table if the user is logged in
+  // Persist the application — every submission gets a row, logged in or not.
+  // Previously this only wrote to the DB when the submitter had an active
+  // session, which meant the vast majority of public /apply/member
+  // submissions never reached the admin queue at all (email-only).
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase.from('members').upsert({
-        user_id:   user.id,
-        full_name: name,
-        email:     user.email ?? email,
-        status:    'pending',
-      }, { onConflict: 'user_id' });
-    }
+
+    const notes = [
+      `Type: ${type}`,
+      `Platform: ${platform}`,
+      audience ? `Audience: ${audience}` : null,
+      instagram ? `Instagram: ${instagram}` : null,
+      '',
+      idea,
+    ].filter((line): line is string => line !== null).join('\n');
+
+    const service = createServiceClient();
+    await service.from('members').insert({
+      user_id:   user?.id ?? null,
+      full_name: name,
+      email:     user?.email ?? email,
+      status:    'pending',
+      notes,
+    });
   } catch (_) {
-    // Non-critical — DB insert failure does not block the form
+    // Non-critical — DB insert failure does not block the form (email above already sent)
   }
 
   return { success: true, error: null };
