@@ -18,7 +18,10 @@
   --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
   /* Inter: all EN body, UI, buttons, nav                       */
   --font-body:    var(--font-inter), system-ui, -apple-system, sans-serif;
-  /* TSHanazad Display: all Arabic — headings + body            */
+  /* Default Arabic face: TSHanazad Display. This is the dashboard's
+     font (its own <div dir="rtl"> defines --font-hanazad locally — see
+     src/app/dashboard/layout.tsx). The public site overrides this back
+     to Cairo below, scoped to html[dir="rtl"], so the two never fight. */
   --font-arabic:  var(--font-hanazad), "Arabic Typesetting", sans-serif;
 }
 
@@ -43,7 +46,7 @@ body {
 /* ── Arabic RTL Typography System ── */
 /*
   Font stack always includes var(--font-body) as Latin fallback.
-  TSHanazad Display covers Arabic glyphs; Inter covers Latin (brand
+  --font-arabic covers Arabic glyphs; Inter covers Latin (brand
   names, codes, "EN" toggle, untranslated strings) so nothing renders
   as invisible blank boxes in RTL mode.
 
@@ -57,6 +60,13 @@ body {
 [dir="rtl"] {
   font-family: var(--font-arabic), var(--font-body);
   letter-spacing: 0;
+}
+
+/* Public site only: back to Cairo. Customers found TSHanazad Display
+   didn't read well; the dashboard (internal, staff-only) keeps it via
+   its own --font-hanazad scope and is unaffected by this override. */
+html[dir="rtl"] {
+  --font-arabic: var(--font-cairo), var(--font-body);
 }
 
 [dir="rtl"] a,
