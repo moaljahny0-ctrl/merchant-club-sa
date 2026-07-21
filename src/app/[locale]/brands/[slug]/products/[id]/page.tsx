@@ -62,7 +62,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
-      <Suspense fallback={null}><RefTracker /></Suspense>
+      <Suspense fallback={null}><RefTracker brandId={product.brand_id} /></Suspense>
       <Suspense fallback={null}><TrackView event_type="product_view" brand_id={product.brand_id} product_id={product.id} /></Suspense>
       <StoreNavbar />
       <main className="flex-1">
