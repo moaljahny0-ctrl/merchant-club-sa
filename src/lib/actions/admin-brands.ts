@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
-import { assertAdmin, esc } from './_admin-utils'
+import { assertAdmin, assertPermission, logAdminAction, esc } from './_admin-utils'
 
 function buildSuspensionEmailHtml(brandName: string, reason: string, siteUrl: string): string {
   void siteUrl
@@ -120,13 +120,13 @@ export async function adminUpdateBrandStatus(
   reason?: string
 ): Promise<{ error: string | null }> {
   try {
-    await assertAdmin()
+    const actor = await assertPermission('brands.approve_suspend')
     const service = createServiceClient()
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
 
     const { data: brand } = await service
       .from('brands')
-      .select('name_en, contact_email')
+      .select('name_en, contact_email, status')
       .eq('id', brandId)
       .single()
 
@@ -136,6 +136,15 @@ export async function adminUpdateBrandStatus(
       .eq('id', brandId)
 
     if (error) return { error: error.message }
+
+    await logAdminAction({
+      actorId: actor.id,
+      action: `brand.status_${status}`,
+      targetType: 'brand',
+      targetId: brandId,
+      before: { status: brand?.status },
+      after: { status },
+    })
 
     const apiKey = process.env.RESEND_API_KEY
     if (apiKey && brand?.contact_email && status === 'suspended') {

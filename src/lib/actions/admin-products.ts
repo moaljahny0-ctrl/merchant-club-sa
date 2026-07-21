@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
-import { assertAdmin, esc } from './_admin-utils'
+import { assertAdmin, assertPermission, logAdminAction, esc } from './_admin-utils'
 
 function buildProductApprovedHtml(productTitle: string, brandName: string, brandSlug: string, siteUrl: string): string {
   const storefrontUrl = `${siteUrl}/en/brands/${encodeURIComponent(brandSlug)}`
@@ -95,13 +95,13 @@ export async function adminReviewProduct(
   rejectionReason?: string
 ): Promise<{ error: string | null }> {
   try {
-    const user = await assertAdmin()
+    const user = await assertPermission('products.approve_reject')
     const service = createServiceClient()
     const now = new Date().toISOString()
 
     const { data: productWithBrand } = await service
       .from('products')
-      .select('title_en, price, brands(name_en, slug, contact_email)')
+      .select('title_en, price, status, brands(name_en, slug, contact_email)')
       .eq('id', id)
       .single()
 
@@ -117,6 +117,15 @@ export async function adminReviewProduct(
       .eq('id', id)
 
     if (error) return { error: error.message }
+
+    await logAdminAction({
+      actorId: user.id,
+      action: `product.${action}`,
+      targetType: 'product',
+      targetId: id,
+      before: { status: productWithBrand?.status },
+      after: { status: action === 'approve' ? 'live' : 'rejected', rejection_reason: rejectionReason },
+    })
 
     type BrandRef = { name_en: string; slug: string; contact_email: string | null }
     const brand = productWithBrand?.brands as unknown as BrandRef | null
