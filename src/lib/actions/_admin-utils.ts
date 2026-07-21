@@ -41,11 +41,17 @@ export async function assertPermission(capability: string) {
     .select('roles!inner(name, role_permissions(permissions(capability)))')
     .eq('user_id', user.id)
 
-  // Undefined table (migration not applied yet) — fall back to legacy admin check.
-  if (error && (error.code === '42P01' || /relation .* does not exist/i.test(error.message))) {
+  // Migration 004 not applied yet — PostgREST reports this as PGRST200
+  // ("could not find a relationship") rather than a plain undefined-table
+  // error, since role_permissions doesn't exist for it to even resolve a FK
+  // against. Verified against the live (pre-migration) DB directly. Any
+  // failure here falls back to the legacy platform_admin-only check rather
+  // than throwing — Super Admin access must never break because this table
+  // doesn't exist yet.
+  if (error) {
+    console.warn('[rbac] permission lookup failed, falling back to admin-only check:', error.code, error.message)
     return assertAdmin()
   }
-  if (error) throw new Error(error.message)
 
   type Row = {
     roles: {
