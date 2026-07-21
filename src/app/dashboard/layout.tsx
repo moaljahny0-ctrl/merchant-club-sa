@@ -72,7 +72,10 @@ export default async function DashboardLayout({ children }: Props) {
   }
 
   const cookieStore = await cookies()
-  const dashLocale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as 'en' | 'ar'
+  const cookieLocale = (cookieStore.get('dashboard_locale')?.value ?? 'en') as 'en' | 'ar'
+  // Admin has no Arabic UI at all (AdminDashboardShell is English/LTR-only) — it must
+  // never inherit the shared dashboard_locale cookie set by brand-side RTL testing.
+  const dashLocale = isAdmin ? 'en' : cookieLocale
   const isRtl = dashLocale === 'ar'
 
   return (
