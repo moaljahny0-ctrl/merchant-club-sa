@@ -33,13 +33,31 @@ export default async function BrandAnalyticsPage() {
       .gte('created_at', since),
     service
       .from('orders')
-      .select('id, creator_link_id, creator_links(link_code)')
+      .select('id, subtotal, creator_link_id, created_at, creator_links(link_code)')
       .eq('brand_id', brandId)
       .gte('created_at', since),
   ])
 
   const events = eventsRes.data ?? []
   const orders = ordersRes.data ?? []
+
+  const revenue = orders.reduce((sum, o) => sum + Number(o.subtotal ?? 0), 0)
+  const creatorOrders = orders.filter(o => o.creator_link_id).length
+  const directOrders = orders.length - creatorOrders
+
+  // Sales trend — last 7 days, order count + revenue per day
+  const days: { label: string; count: number; revenue: number }[] = []
+  for (let i = 6; i >= 0; i--) {
+    const day = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+    const dayKey = day.toISOString().slice(0, 10)
+    const dayOrders = orders.filter(o => (o.created_at as string).slice(0, 10) === dayKey)
+    days.push({
+      label: day.toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', { weekday: 'short' }),
+      count: dayOrders.length,
+      revenue: dayOrders.reduce((sum, o) => sum + Number(o.subtotal ?? 0), 0),
+    })
+  }
+  const maxDayCount = Math.max(...days.map(d => d.count), 1)
 
   const storefrontViews = events.filter(e => e.event_type === 'storefront_view').length
   const productViews = events.filter(e => e.event_type === 'product_view').length
@@ -104,6 +122,7 @@ export default async function BrandAnalyticsPage() {
           { label: t.analytics.stat_storefront, value: storefrontViews },
           { label: t.analytics.stat_products,   value: productViews },
           { label: t.analytics.stat_orders,     value: orderCount },
+          { label: t.analytics.stat_revenue,    value: Math.round(revenue) },
         ].map(stat => (
           <div key={stat.label} className="bg-surface border border-border px-5 py-6">
             <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
@@ -147,7 +166,7 @@ export default async function BrandAnalyticsPage() {
       </div>
 
       {/* Top creator */}
-      <div>
+      <div className="mb-8">
         <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.top_creator_label}</p>
         {!topCreator ? (
           <p className="text-muted text-sm">{t.analytics.no_creator_orders}</p>
@@ -161,6 +180,42 @@ export default async function BrandAnalyticsPage() {
               <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">{t.analytics.col_orders}</p>
               <p className="text-parchment text-2xl font-light">{topCreator.count}</p>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Creator-attributed vs direct */}
+      <div className="mb-8">
+        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.attribution_label}</p>
+        <div className="border border-border px-5 py-4 flex items-center gap-6">
+          <div className="flex-1">
+            <div className="h-2 bg-border rounded-full overflow-hidden flex">
+              <div className="h-full bg-gold/70" style={{ width: `${orderCount ? Math.round((creatorOrders / orderCount) * 100) : 0}%` }} />
+            </div>
+          </div>
+          <div className="flex gap-5 shrink-0 text-xs">
+            <span className="text-parchment">{t.analytics.attribution_creator}: <strong>{creatorOrders}</strong></span>
+            <span className="text-muted">{t.analytics.attribution_direct}: <strong>{directOrders}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      {/* Sales trend — last 7 days */}
+      <div>
+        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.sales_trend_label}</p>
+        {orderCount === 0 ? (
+          <p className="text-muted text-sm">{t.analytics.no_sales_trend}</p>
+        ) : (
+          <div className="border border-border divide-y divide-border">
+            {days.map(d => (
+              <div key={d.label} className="flex items-center justify-between px-5 py-2.5 gap-4">
+                <span className="text-muted text-xs w-10 shrink-0">{d.label}</span>
+                <div className="flex-1 h-1 bg-border rounded-full overflow-hidden">
+                  <div className="h-full bg-gold/60 rounded-full" style={{ width: `${Math.round((d.count / maxDayCount) * 100)}%` }} />
+                </div>
+                <span className="text-parchment text-xs w-16 text-right">{d.count} · SAR {Math.round(d.revenue)}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>

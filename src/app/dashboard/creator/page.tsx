@@ -74,17 +74,67 @@ export default async function CreatorOverviewPage() {
       .eq('onboarding_state', 'live'),
   ])
 
+  const linkIds = (linksRes.data ?? []).map(l => l.id as string)
+
+  // Clicks + conversions + estimated earnings per link. First-pass calculation
+  // using each link's own commission_rate against order subtotal — orders.
+  // creator_commission is never populated at write time (checked orders.ts),
+  // so this is computed at read time rather than trusting a stored column.
+  const [clicksRes, ordersRes] = linkIds.length > 0
+    ? await Promise.all([
+        service
+          .from('analytics_events')
+          .select('creator_link_id')
+          .eq('event_type', 'creator_link_click')
+          .in('creator_link_id', linkIds),
+        service
+          .from('orders')
+          .select('creator_link_id, subtotal, status')
+          .in('creator_link_id', linkIds),
+      ])
+    : [{ data: [] }, { data: [] }]
+
+  const clicksByLink: Record<string, number> = {}
+  for (const row of clicksRes.data ?? []) {
+    const id = row.creator_link_id as string
+    clicksByLink[id] = (clicksByLink[id] ?? 0) + 1
+  }
+
+  const conversionsByLink: Record<string, number> = {}
+  const earningsByLink: Record<string, number> = {}
+  const rateByLink: Record<string, number> = {}
+  for (const l of linksRes.data ?? []) {
+    rateByLink[l.id as string] = Number(l.commission_rate)
+  }
+  for (const o of ordersRes.data ?? []) {
+    const id = o.creator_link_id as string | null
+    if (!id) continue
+    if (o.status === 'cancelled') continue
+    conversionsByLink[id] = (conversionsByLink[id] ?? 0) + 1
+    const rate = rateByLink[id] ?? 0
+    earningsByLink[id] = (earningsByLink[id] ?? 0) + Number(o.subtotal ?? 0) * (rate / 100)
+  }
+
+  const totalClicks = Object.values(clicksByLink).reduce((a, b) => a + b, 0)
+  const totalConversions = Object.values(conversionsByLink).reduce((a, b) => a + b, 0)
+  const totalEarnings = Object.values(earningsByLink).reduce((a, b) => a + b, 0)
+  const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+
   const links = (linksRes.data ?? []).map(l => {
     const rawBrand = l.brands
     const brand = Array.isArray(rawBrand) ? rawBrand[0] : rawBrand
+    const id = l.id as string
     return {
-      id: l.id as string,
+      id,
       linkCode: l.link_code as string,
       commissionRate: Number(l.commission_rate),
       createdAt: l.created_at as string,
       brandId: l.brand_id as string,
       brandName: (brand as { name_en: string; name_ar: string | null } | null)?.name_en ?? 'Brand',
       brandSlug: (brand as { slug: string } | null)?.slug ?? '',
+      clicks: clicksByLink[id] ?? 0,
+      conversions: conversionsByLink[id] ?? 0,
+      earnings: earningsByLink[id] ?? 0,
     }
   })
 
@@ -103,6 +153,43 @@ export default async function CreatorOverviewPage() {
           {t.creator.heading}
         </h1>
       </div>
+
+      {/* Stat cards — clicks, conversions, estimated earnings */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+        {[
+          { label: t.creator.stats_clicks,      value: totalClicks.toLocaleString() },
+          { label: t.creator.stats_conversions, value: totalConversions.toLocaleString() },
+          { label: t.creator.stats_conv_rate,   value: `${conversionRate.toFixed(1)}%` },
+          { label: t.creator.stats_earnings,    value: `SAR ${totalEarnings.toFixed(2)}` },
+        ].map(stat => (
+          <div key={stat.label} className="bg-surface border border-border px-5 py-6">
+            <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
+            <p className="text-2xl font-light text-parchment leading-none">{stat.value}</p>
+          </div>
+        ))}
+      </div>
+      <p className="text-muted/60 text-[11px] mb-10">{t.creator.stats_note}</p>
+
+      {links.length > 0 && (
+        <div className="mb-10">
+          <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.creator.per_link_heading}</p>
+          <div className="border border-border divide-y divide-border">
+            {links.map(l => (
+              <div key={l.id} className="flex items-center justify-between px-5 py-3.5 gap-4 flex-wrap">
+                <div className="min-w-0">
+                  <p className="text-parchment text-xs truncate">{l.brandName}</p>
+                  <p className="text-muted/50 text-[11px] font-mono">{l.linkCode}</p>
+                </div>
+                <div className="flex gap-5 text-xs shrink-0">
+                  <span className="text-muted">{t.creator.stats_clicks}: <span className="text-parchment">{l.clicks}</span></span>
+                  <span className="text-muted">{t.creator.stats_conversions}: <span className="text-parchment">{l.conversions}</span></span>
+                  <span className="text-muted">{t.creator.stats_earnings}: <span className="text-parchment">SAR {l.earnings.toFixed(2)}</span></span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <CreatorLinksClient
         links={links}
