@@ -58,6 +58,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
+  // ── API routes bypass i18n entirely ───────────────────────────────────────
+  // next-intl's middleware only knows about the localized page tree; routing
+  // /api/* through it 404s every API route that isn't under /dashboard or /auth.
+  if (pathname.startsWith('/api')) {
+    return response
+  }
+
   // ── i18n for public routes ────────────────────────────────────────────────
   // Dashboard and auth routes are not locale-prefixed
   if (!isProtected && !pathname.startsWith('/auth')) {
