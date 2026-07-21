@@ -266,6 +266,147 @@ export async function saveFeaturedProducts(
   return { error: null }
 }
 
+// ── Storefront customization (R.2) ─────────────────────────────────────────────
+
+async function assertOwnBrand(brandId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return 'Unauthenticated'
+
+  const { data: member } = await supabase
+    .from('brand_members')
+    .select('brand_id')
+    .eq('user_id', user.id)
+    .eq('brand_id', brandId)
+    .eq('status', 'active')
+    .maybeSingle()
+
+  return member ? null : 'Forbidden'
+}
+
+export async function saveStorefrontCustomization(
+  brandId: string,
+  params: { templateId: 'classic' | 'editorial' | 'grid'; accentColorId: string; socialLinks: { instagram?: string; tiktok?: string; x?: string } }
+): Promise<{ error: string | null }> {
+  const authError = await assertOwnBrand(brandId)
+  if (authError) return { error: authError }
+
+  const service = createServiceClient()
+  const { error } = await service
+    .from('storefronts')
+    .upsert(
+      {
+        brand_id: brandId,
+        template_id: params.templateId,
+        accent_color_id: params.accentColorId,
+        social_links: params.socialLinks,
+      },
+      { onConflict: 'brand_id' }
+    )
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard/brand/storefront')
+  return { error: null }
+}
+
+export async function listThemePalette() {
+  const service = createServiceClient()
+  const { data } = await service
+    .from('theme_palette')
+    .select('id, name_en, name_ar, accent_hex, position')
+    .order('position')
+  return data ?? []
+}
+
+export async function listCollections(brandId: string) {
+  const authError = await assertOwnBrand(brandId)
+  if (authError) return { error: authError, collections: [] }
+
+  const service = createServiceClient()
+  const [{ data: collections }, { data: links }] = await Promise.all([
+    service.from('collections').select('*').eq('brand_id', brandId).order('position'),
+    service.from('collection_products').select('collection_id, product_id, position'),
+  ])
+
+  const withProducts = (collections ?? []).map(c => ({
+    ...c,
+    product_ids: (links ?? [])
+      .filter(l => l.collection_id === c.id)
+      .sort((a, b) => a.position - b.position)
+      .map(l => l.product_id),
+  }))
+
+  return { error: null, collections: withProducts }
+}
+
+export async function createCollection(
+  brandId: string,
+  params: { nameEn: string; nameAr: string | null }
+): Promise<{ error: string | null; id?: string }> {
+  const authError = await assertOwnBrand(brandId)
+  if (authError) return { error: authError }
+
+  const service = createServiceClient()
+  const { data, error } = await service
+    .from('collections')
+    .insert({ brand_id: brandId, name_en: params.nameEn, name_ar: params.nameAr })
+    .select('id')
+    .single()
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard/brand/storefront')
+  return { error: null, id: data.id }
+}
+
+export async function deleteCollection(brandId: string, collectionId: string): Promise<{ error: string | null }> {
+  const authError = await assertOwnBrand(brandId)
+  if (authError) return { error: authError }
+
+  const service = createServiceClient()
+  const { error } = await service
+    .from('collections')
+    .delete()
+    .eq('id', collectionId)
+    .eq('brand_id', brandId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard/brand/storefront')
+  return { error: null }
+}
+
+export async function setCollectionProducts(
+  brandId: string,
+  collectionId: string,
+  productIds: string[]
+): Promise<{ error: string | null }> {
+  const authError = await assertOwnBrand(brandId)
+  if (authError) return { error: authError }
+
+  const service = createServiceClient()
+
+  const { data: owned } = await service
+    .from('collections')
+    .select('id')
+    .eq('id', collectionId)
+    .eq('brand_id', brandId)
+    .maybeSingle()
+  if (!owned) return { error: 'Forbidden' }
+
+  await service.from('collection_products').delete().eq('collection_id', collectionId)
+
+  if (productIds.length > 0) {
+    const rows = productIds.map((product_id, position) => ({ collection_id: collectionId, product_id, position }))
+    const { error } = await service.from('collection_products').insert(rows)
+    if (error) return { error: error.message }
+  }
+
+  revalidatePath('/dashboard/brand/storefront')
+  return { error: null }
+}
+
 export async function saveBrandLogoUrl(
   brandId: string,
   url: string

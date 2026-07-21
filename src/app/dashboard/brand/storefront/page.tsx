@@ -3,7 +3,11 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { StorefrontActions } from './StorefrontActions'
 import { FeaturedProductSelector } from './FeaturedProductSelector'
+import { StorefrontDesignPicker } from './StorefrontDesignPicker'
+import { CollectionsManager } from './CollectionsManager'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
+import { listThemePalette, listCollections } from '@/lib/actions/brands'
+import type { StorefrontTemplate, SocialLinks } from '@/lib/types/database'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
 
@@ -38,9 +42,14 @@ export default async function StorefrontPreviewPage() {
 
   let liveProducts: { id: string; title_en: string; title_ar: string | null; price: number }[] = []
   let currentFeaturedIds: string[] = []
+  let templateId: StorefrontTemplate = 'classic'
+  let accentColorId = 'gold'
+  let socialLinks: SocialLinks = {}
+  let palette: Awaited<ReturnType<typeof listThemePalette>> = []
+  let collections: Awaited<ReturnType<typeof listCollections>>['collections'] = []
 
   if (brand) {
-    const [liveProductsRes, storefrontRes] = await Promise.all([
+    const [liveProductsRes, storefrontRes, paletteRes, collectionsRes] = await Promise.all([
       supabase
         .from('products')
         .select('id, title_en, title_ar, price')
@@ -49,12 +58,19 @@ export default async function StorefrontPreviewPage() {
         .order('title_en'),
       supabase
         .from('storefronts')
-        .select('featured_product_ids')
+        .select('featured_product_ids, template_id, accent_color_id, social_links')
         .eq('brand_id', brand.id)
         .maybeSingle(),
+      listThemePalette(),
+      listCollections(brand.id),
     ])
     liveProducts = (liveProductsRes.data ?? []) as typeof liveProducts
     currentFeaturedIds = (storefrontRes.data?.featured_product_ids as string[] | null) ?? []
+    templateId = (storefrontRes.data?.template_id as StorefrontTemplate | undefined) ?? 'classic'
+    accentColorId = storefrontRes.data?.accent_color_id ?? 'gold'
+    socialLinks = (storefrontRes.data?.social_links as SocialLinks | undefined) ?? {}
+    palette = paletteRes
+    collections = collectionsRes.collections
   }
 
   return (
@@ -108,6 +124,22 @@ export default async function StorefrontPreviewPage() {
               {t.storefront.open_live_btn}
             </a>
           </div>
+
+          <StorefrontDesignPicker
+            brandId={brand!.id}
+            palette={palette}
+            initialTemplateId={templateId}
+            initialAccentColorId={accentColorId}
+            initialSocialLinks={socialLinks}
+            locale={locale}
+          />
+
+          <CollectionsManager
+            brandId={brand!.id}
+            products={liveProducts}
+            initialCollections={collections}
+            locale={locale}
+          />
 
           <FeaturedProductSelector
             brandId={brand!.id}

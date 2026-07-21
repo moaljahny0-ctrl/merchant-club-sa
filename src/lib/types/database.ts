@@ -27,6 +27,8 @@ export type ProductStatus =
 
 export type StorefrontStatus = 'draft' | 'submitted' | 'approved' | 'live' | 'suspended'
 
+export type StorefrontTemplate = 'classic' | 'editorial' | 'grid'
+
 export type OrderStatus =
   | 'pending'
   | 'confirmed'
@@ -148,6 +150,12 @@ export type ProductImage = {
   created_at: string
 }
 
+export type SocialLinks = {
+  instagram?: string
+  tiktok?: string
+  x?: string
+}
+
 export type Storefront = {
   id: string
   brand_id: string
@@ -155,6 +163,9 @@ export type Storefront = {
   is_published: boolean
   featured_product_ids: string[] | null
   visibility: 'public' | 'hidden'
+  template_id: StorefrontTemplate
+  accent_color_id: string
+  social_links: SocialLinks
   submitted_at: string | null
   approved_at: string | null
   approved_by: string | null
@@ -162,6 +173,32 @@ export type Storefront = {
   created_at: string
   updated_at: string
 }
+
+export type ThemePalette = {
+  id: string
+  name_en: string
+  name_ar: string
+  accent_hex: string
+  position: number
+}
+
+export type Collection = {
+  id: string
+  brand_id: string
+  name_en: string
+  name_ar: string | null
+  position: number
+  created_at: string
+  updated_at: string
+}
+
+export type CollectionProduct = {
+  collection_id: string
+  product_id: string
+  position: number
+}
+
+export type CollectionWithProducts = Collection & { product_ids: string[] }
 
 export type CreatorLink = {
   id: string
@@ -248,6 +285,9 @@ export type Database = {
       products: TableDef<Product, Omit<Product, 'id' | 'created_at' | 'updated_at'>>
       product_images: TableDef<ProductImage, Omit<ProductImage, 'id' | 'created_at'>>
       storefronts: TableDef<Storefront, Omit<Storefront, 'id' | 'created_at' | 'updated_at'>>
+      theme_palette: TableDef<ThemePalette, ThemePalette>
+      collections: TableDef<Collection, Omit<Collection, 'id' | 'created_at' | 'updated_at'>>
+      collection_products: TableDef<CollectionProduct, CollectionProduct>
       creator_links: TableDef<CreatorLink, Omit<CreatorLink, 'id' | 'created_at'>>
       customers: TableDef<Customer, Omit<Customer, 'id' | 'created_at' | 'updated_at'>>
       customer_reset_tokens: TableDef<CustomerResetToken, Omit<CustomerResetToken, 'id' | 'created_at'>>
