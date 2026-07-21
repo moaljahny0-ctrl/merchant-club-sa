@@ -164,10 +164,14 @@ export async function createProduct(
     const priceRaw = formData.get('price') as string
     const price = parseFloat(priceRaw)
     const stock_quantity = parseInt(formData.get('stock_quantity') as string, 10)
+    const category = (formData.get('category') as string)?.trim() ?? ''
     const imageFile = formData.get('image') as File | null
 
     if (!title_en || isNaN(price) || price < 0) {
       return { error: 'Product name and a valid price are required.' }
+    }
+    if (!category) {
+      return { error: 'Please select a category.' }
     }
 
     const supabase = await createClient()
@@ -181,7 +185,7 @@ export async function createProduct(
         description_ar: '',
         price,
         stock_quantity: isNaN(stock_quantity) ? 1 : Math.max(0, stock_quantity),
-        category: '',
+        category,
         status: 'draft',
       })
       .select('id')
@@ -221,10 +225,14 @@ export async function updateProduct(
     const description_en = (formData.get('description_en') as string)?.trim() ?? ''
     const price = parseFloat(formData.get('price') as string)
     const stock_quantity = parseInt(formData.get('stock_quantity') as string, 10)
+    const category = (formData.get('category') as string)?.trim() ?? ''
     const imageFile = formData.get('image') as File | null
 
     if (!title_en || isNaN(price) || price < 0) {
       return { error: 'Product name and a valid price are required.' }
+    }
+    if (!category) {
+      return { error: 'Please select a category.' }
     }
 
     const supabase = await createClient()
@@ -246,6 +254,7 @@ export async function updateProduct(
         description_en,
         price,
         stock_quantity: isNaN(stock_quantity) ? 1 : Math.max(0, stock_quantity),
+        category,
         ...(wasLive ? { status: 'submitted' } : {}),
       })
       .eq('id', id)

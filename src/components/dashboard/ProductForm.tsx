@@ -13,6 +13,8 @@ type Props = {
   locale?: DashLang
 }
 
+const CATEGORIES = ['apparel', 'fragrance', 'home', 'beauty', 'jewelry', 'food', 'art', 'other'] as const
+
 export function ProductForm({ action, defaultValues, submitLabel, currentImageUrl, locale = 'en' }: Props) {
   const t = dt(locale).product_form
   const [state, formAction, isPending] = useActionState(action, { error: null })
@@ -83,6 +85,25 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
             placeholder="1"
           />
         </div>
+      </div>
+
+      {/* Category */}
+      <div>
+        <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+          {t.label_category} <span className="text-gold">*</span>
+        </label>
+        <select
+          name="category"
+          required
+          defaultValue={defaultValues?.category || ''}
+          dir="ltr"
+          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold transition-colors"
+        >
+          <option value="" disabled>{t.placeholder_category}</option>
+          {CATEGORIES.map(cat => (
+            <option key={cat} value={cat}>{t[`cat_${cat}` as keyof typeof t]}</option>
+          ))}
+        </select>
       </div>
 
       {/* Short description */}
