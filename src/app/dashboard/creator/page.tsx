@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
 import { CreatorLinksClient } from '@/components/dashboard/CreatorLinksClient'
 
@@ -57,16 +57,21 @@ export default async function CreatorOverviewPage() {
     )
   }
 
+  const service = createServiceClient()
+
   const [linksRes, brandsRes] = await Promise.all([
     supabase
       .from('creator_links')
       .select('id, link_code, commission_rate, created_at, brand_id, brands(id, name_en, name_ar, slug)')
       .eq('creator_id', user.id)
       .order('created_at', { ascending: false }),
-    supabase
+    // Public brand listing — RLS on `brands` doesn't grant creators SELECT,
+    // so this must go through the service client like the storefront does.
+    service
       .from('brands')
       .select('id, name_en, name_ar, slug')
-      .in('status', ['approved', 'active']),
+      .eq('status', 'approved')
+      .eq('onboarding_state', 'live'),
   ])
 
   const links = (linksRes.data ?? []).map(l => {
