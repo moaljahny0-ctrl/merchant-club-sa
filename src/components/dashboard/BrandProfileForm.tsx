@@ -365,10 +365,10 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || logoUploading}
         className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
       >
-        {isPending ? t.saving : t.btn_save}
+        {logoUploading ? t.uploading : isPending ? t.saving : t.btn_save}
       </button>
     </form>
 
