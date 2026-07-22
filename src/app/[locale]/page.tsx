@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Navbar } from '@/components/layout/Navbar';
@@ -7,6 +8,8 @@ import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
 import { placeholderSlots } from '@/lib/brands';
 import { createServiceClient } from '@/lib/supabase/server';
+
+export const revalidate = 60;
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -19,7 +22,9 @@ export default async function HomePage({ params }: Props) {
       <Navbar />
       <main className="flex-1">
         <Hero />
-        <PartnerShowcase locale={locale} />
+        <Suspense fallback={<PartnerShowcaseSkeleton />}>
+          <PartnerShowcase locale={locale} />
+        </Suspense>
         <ApplyCTA />
       </main>
       <Footer />
@@ -40,13 +45,13 @@ async function Hero() {
         style={{ filter: 'contrast(1.05) brightness(0.95) saturate(1.1)' }}
       >
         <Image
-          src="/hero.png"
+          src="/hero.jpg"
           alt="Merchant Club SA"
           fill
           priority
           className="object-cover object-center"
           sizes="100vw"
-          quality={92}
+          quality={80}
         />
       </div>
 
@@ -133,12 +138,12 @@ async function PartnerShowcase({ locale }: { locale: string }) {
     .select('id, name_en, name_ar, slug, tagline_en, tagline_ar, products(status, product_images(url, is_primary))')
     .in('status', ['approved', 'active'])
     .order('created_at', { ascending: false })
-    .limit(8);
+    .limit(4);
 
   const brands = (brandsRaw ?? []) as BrandRow[];
 
   const display = brands.length > 0
-    ? brands.slice(0, 4).map(brand => {
+    ? brands.map(brand => {
         const liveProducts = (brand.products ?? []).filter(p => p.status === 'live');
         const firstProduct = liveProducts[0];
         const primaryImage =
@@ -194,6 +199,26 @@ async function PartnerShowcase({ locale }: { locale: string }) {
           </Link>
         </div>
 
+      </div>
+    </section>
+  );
+}
+
+function PartnerShowcaseSkeleton() {
+  return (
+    <section className="px-6 md:px-10 py-20 md:py-28 border-t border-border">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-end justify-between mb-10 md:mb-12">
+          <div className="h-8 md:h-10 w-40 md:w-56 bg-surface animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex flex-col">
+              <div className="aspect-[3/4] bg-surface animate-pulse" />
+              <div className="mt-3 h-4 w-2/3 bg-surface animate-pulse" />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
