@@ -71,7 +71,7 @@ export default async function AccountPage({ params }: Props) {
 
         {/* Welcome */}
         <div style={{ marginBottom: '48px' }}>
-          <p style={{ color: '#B8975A', fontSize: '9px', letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: '8px' }}>
+          <p style={{ color: '#B8975A', fontSize: '12px', letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: '8px' }}>
             My Account
           </p>
           <h1 style={{ color: '#1A1208', fontSize: '28px', fontWeight: 400, lineHeight: 1.2 }}>
@@ -81,12 +81,12 @@ export default async function AccountPage({ params }: Props) {
 
         {/* My Orders */}
         <section style={{ marginBottom: '48px' }}>
-          <h2 style={{ color: '#1A1208', fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 500 }}>
+          <h2 style={{ color: '#1A1208', fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 500 }}>
             My Orders
           </h2>
 
           {orders.length === 0 ? (
-            <p style={{ color: '#6B5B4E', fontSize: '14px', lineHeight: 1.65 }}>
+            <p style={{ color: '#6B5B4E', fontSize: '17px', lineHeight: 1.65 }}>
               {locale === 'ar' ? (
                 <>لا يوجد طلبات بعد.{' '}
                   <a href="/store" style={{ color: '#B8975A', textDecoration: 'none' }}>ابدأ التسوق →</a>
@@ -119,19 +119,19 @@ export default async function AccountPage({ params }: Props) {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                       <div>
-                        <p style={{ color: '#1A1208', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>
+                        <p style={{ color: '#1A1208', fontSize: '16px', fontWeight: 500, marginBottom: '4px' }}>
                           {productTitle}{qty > 1 ? ` × ${qty}` : ''}
                         </p>
-                        <p style={{ color: '#6B5B4E', fontSize: '11px' }}>
+                        <p style={{ color: '#6B5B4E', fontSize: '14px' }}>
                           #{order.order_number} · {formatDate(order.created_at)}
                         </p>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <p style={{ color: '#1A1208', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>
+                        <p style={{ color: '#1A1208', fontSize: '16px', fontWeight: 500, marginBottom: '4px' }}>
                           SAR {order.subtotal.toFixed(2)}
                         </p>
                         <span style={{
-                          fontSize: '9px',
+                          fontSize: '12px',
                           letterSpacing: '0.15em',
                           textTransform: 'uppercase',
                           color: statusColors[order.status] ?? '#6B5B4E',
@@ -150,7 +150,7 @@ export default async function AccountPage({ params }: Props) {
 
         {/* My Info */}
         <section style={{ marginBottom: '48px' }}>
-          <h2 style={{ color: '#1A1208', fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 500 }}>
+          <h2 style={{ color: '#1A1208', fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 500 }}>
             My Info
           </h2>
           <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0' }}>
@@ -168,8 +168,8 @@ export default async function AccountPage({ params }: Props) {
                   borderBottom: i < arr.length - 1 ? '1px solid #F0EAE0' : 'none',
                 }}
               >
-                <span style={{ color: '#6B5B4E', fontSize: '12px' }}>{label}</span>
-                <span style={{ color: '#1A1208', fontSize: '12px' }}>{value}</span>
+                <span style={{ color: '#6B5B4E', fontSize: '15px' }}>{label}</span>
+                <span style={{ color: '#1A1208', fontSize: '15px' }}>{value}</span>
               </div>
             ))}
           </div>

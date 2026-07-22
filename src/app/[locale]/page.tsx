@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { PartnerCard } from '@/components/partners/PartnerCard';
 import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/Button';
 import { placeholderSlots } from '@/lib/brands';
 import { createServiceClient } from '@/lib/supabase/server';
 
@@ -80,7 +81,7 @@ async function Hero() {
       <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 rtl:md:px-12 rtl:lg:px-24 rtl:xl:px-32 flex items-center min-h-[80vh] md:min-h-screen">
         <div className="hero-content max-w-xl lg:max-w-2xl rtl:max-w-3xl">
 
-          <p className="text-[9px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
+          <p className="text-[12px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
             {t('hero_eyebrow')}
           </p>
 
@@ -88,23 +89,17 @@ async function Hero() {
             {t('hero_headline')}
           </h1>
 
-          <p className="mt-5 md:mt-7 text-sm md:text-base text-muted font-light max-w-xs md:max-w-sm leading-relaxed">
+          <p className="mt-5 md:mt-7 text-base md:text-base text-muted font-light max-w-xs md:max-w-sm leading-relaxed">
             {t('hero_subline')}
           </p>
 
           <div className="mt-10 md:mt-12 flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/apply"
-              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-            >
+            <Button href="/apply" variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               {t('hero_cta')}
-            </Link>
-            <Link
-              href="/brands"
-              className="inline-flex items-center justify-center border border-parchment/30 text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
-            >
+            </Button>
+            <Button href="/brands" variant="secondary" className="border-parchment/30 text-parchment hover:border-gold hover:text-gold">
               {t('hero_secondary_cta')}
-            </Link>
+            </Button>
           </div>
 
         </div>
@@ -171,7 +166,7 @@ async function PartnerShowcase({ locale }: { locale: string }) {
           </h2>
           <Link
             href="/brands"
-            className="hidden sm:inline-flex items-center gap-2 text-xs text-muted hover:text-gold transition-colors tracking-[0.15em] uppercase"
+            className="hidden sm:inline-flex items-center gap-2 text-sm text-muted hover:text-gold transition-colors tracking-[0.15em] uppercase"
           >
             {t('showcase_cta')}
             <span aria-hidden>→</span>
@@ -187,13 +182,13 @@ async function PartnerShowcase({ locale }: { locale: string }) {
         <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="h-px w-6 bg-border" />
-            <p className="text-[10px] text-muted tracking-[0.25em] uppercase">
+            <p className="text-[13px] text-muted tracking-[0.25em] uppercase">
               {t('coming_soon')}
             </p>
           </div>
           <Link
             href="/brands"
-            className="sm:hidden text-xs text-muted hover:text-gold transition-colors tracking-[0.15em] uppercase"
+            className="sm:hidden text-sm text-muted hover:text-gold transition-colors tracking-[0.15em] uppercase"
           >
             {t('showcase_cta')} →
           </Link>
@@ -215,15 +210,12 @@ async function ApplyCTA() {
           <h2 className="font-display text-3xl md:text-4xl lg:text-6xl font-light text-parchment leading-tight mb-6">
             {t('cta_headline')}
           </h2>
-          <p className="text-muted text-sm mb-10 leading-relaxed max-w-sm">
+          <p className="text-muted text-base mb-10 leading-relaxed max-w-sm">
             {t('cta_sub')}
           </p>
-          <Link
-            href="/apply"
-            className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-10 py-4 hover:bg-gold-light transition-colors"
-          >
+          <Button href="/apply" variant="primary" className="bg-gold text-ink hover:bg-gold-light">
             {t('hero_cta')}
-          </Link>
+          </Button>
         </div>
       </div>
     </section>

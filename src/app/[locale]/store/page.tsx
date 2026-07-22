@@ -72,7 +72,7 @@ export default async function StorePage({ params, searchParams }: Props) {
             borderBottom: '1px solid #E5DDD0',
             padding: '12px 24px',
             textAlign: 'center',
-            fontSize: '13px',
+            fontSize: '16px',
             color: '#6B5B4E',
             fontFamily: 'Georgia, serif',
           }}

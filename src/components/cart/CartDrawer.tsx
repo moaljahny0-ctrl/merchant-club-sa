@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { Link } from '@/i18n/navigation';
 import { useLocale } from 'next-intl';
 import { useCart, type CartItem } from '@/lib/cart/CartContext';
+import { Button } from '@/components/ui/Button';
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, subtotal, count } = useCart();
@@ -51,10 +51,10 @@ export function CartDrawer() {
           flexShrink: 0,
         }}>
           <div>
-            <p style={{ fontSize: '9px', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '2px' }}>
+            <p style={{ fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '2px' }}>
               {isAr ? 'سلة المشتريات' : 'Your Cart'}
             </p>
-            <p style={{ fontSize: '11px', color: '#6B5B4E' }}>
+            <p style={{ fontSize: '14px', color: '#6B5B4E' }}>
               {count} {isAr ? (count === 1 ? 'منتج' : 'منتجات') : (count === 1 ? 'item' : 'items')}
             </p>
           </div>
@@ -71,16 +71,12 @@ export function CartDrawer() {
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
           {items.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '64px 0' }}>
-              <p style={{ color: '#6B5B4E', fontSize: '14px', marginBottom: '20px' }}>
+              <p style={{ color: '#6B5B4E', fontSize: '17px', marginBottom: '20px' }}>
                 {isAr ? 'السلة فارغة' : 'Your cart is empty'}
               </p>
-              <Link
-                href="/store"
-                onClick={closeCart}
-                style={{ color: '#B8975A', fontSize: '11px', textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase' }}
-              >
+              <Button href="/store" onClick={closeCart} variant="back" style={{ color: '#B8975A' }}>
                 {isAr ? 'ابدأ التسوق ←' : 'Start Shopping →'}
-              </Link>
+              </Button>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -101,48 +97,32 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div style={{ padding: '20px 24px', borderTop: '1px solid #E5DDD0', flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '11px', color: '#6B5B4E', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
+              <span style={{ fontSize: '14px', color: '#6B5B4E', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
                 {isAr ? 'المجموع' : 'Subtotal'}
               </span>
               <span style={{ fontSize: '16px', fontWeight: 500, color: '#1A1208' }}>
                 {subtotal.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
               </span>
             </div>
-            <Link
+            <Button
               href="/store/checkout"
               onClick={closeCart}
-              style={{
-                display: 'block',
-                textAlign: 'center',
-                background: '#1A1208',
-                color: '#F5F0E8',
-                fontSize: '10px',
-                letterSpacing: '0.25em',
-                textTransform: 'uppercase',
-                padding: '16px',
-                textDecoration: 'none',
-                marginBottom: '10px',
-              }}
+              variant="primary"
+              fullWidth
+              className="mb-2.5"
+              style={{ background: '#1A1208', color: '#F5F0E8' }}
             >
               {isAr ? 'متابعة الطلب' : 'Proceed to Checkout'}
-            </Link>
-            <button
+            </Button>
+            <Button
               onClick={closeCart}
-              style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'center',
-                background: 'none',
-                border: 'none',
-                color: '#6B5B4E',
-                fontSize: '11px',
-                letterSpacing: '0.1em',
-                cursor: 'pointer',
-                padding: '8px',
-              }}
+              variant="back"
+              fullWidth
+              className="border-0"
+              style={{ color: '#6B5B4E' }}
             >
               {isAr ? 'مواصلة التسوق' : 'Continue Shopping'}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -166,6 +146,7 @@ function CartItemRow({
         height: '86px',
         flexShrink: 0,
         background: '#F0EBE1',
+        borderRadius: '6px',
         position: 'relative',
         overflow: 'hidden',
       }}>
@@ -180,13 +161,13 @@ function CartItemRow({
 
       {/* Details */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '9px', color: '#B8975A', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: '3px' }}>
+        <p style={{ fontSize: '12px', color: '#B8975A', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: '3px' }}>
           {item.brandName}
         </p>
-        <p style={{ fontSize: '13px', color: '#1A1208', marginBottom: '4px', lineHeight: 1.3 }}>
+        <p style={{ fontSize: '16px', color: '#1A1208', marginBottom: '4px', lineHeight: 1.3 }}>
           {item.productName}
         </p>
-        <p style={{ fontSize: '13px', color: '#B8975A', fontWeight: 500, marginBottom: '10px' }}>
+        <p style={{ fontSize: '16px', color: '#B8975A', fontWeight: 500, marginBottom: '10px' }}>
           {(item.price * item.quantity).toFixed(2)} {isAr ? 'ريال' : 'SAR'}
         </p>
 
@@ -194,22 +175,22 @@ function CartItemRow({
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={() => onQty(item.productId, item.quantity - 1)}
-            style={{ width: '26px', height: '26px', border: '1px solid #E5DDD0', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
+            style={{ width: '26px', height: '26px', border: '1px solid #E5DDD0', borderRadius: '6px', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
           >
             −
           </button>
-          <span style={{ fontSize: '13px', minWidth: '18px', textAlign: 'center', color: '#1A1208' }}>
+          <span style={{ fontSize: '16px', minWidth: '18px', textAlign: 'center', color: '#1A1208' }}>
             {item.quantity}
           </span>
           <button
             onClick={() => onQty(item.productId, item.quantity + 1)}
-            style={{ width: '26px', height: '26px', border: '1px solid #E5DDD0', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
+            style={{ width: '26px', height: '26px', border: '1px solid #E5DDD0', borderRadius: '6px', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
           >
             +
           </button>
           <button
             onClick={() => onRemove(item.productId)}
-            style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', color: '#CC5555', padding: '4px', letterSpacing: '0.05em' }}
+            style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#CC5555', padding: '4px', letterSpacing: '0.05em' }}
           >
             {isAr ? 'حذف' : 'Remove'}
           </button>

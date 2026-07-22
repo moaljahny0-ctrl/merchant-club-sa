@@ -97,11 +97,11 @@ export function CreatorLinksClient({
       {allLinks.length === 0 ? (
         <div className="border border-border px-7 py-7 mb-10">
           <p className="text-parchment text-base font-light leading-relaxed mb-1">{t.no_links_heading}</p>
-          <p className="text-muted text-sm leading-relaxed">{t.no_links_body}</p>
+          <p className="text-muted text-base leading-relaxed">{t.no_links_body}</p>
         </div>
       ) : (
         <div className="mb-10 border border-border divide-y divide-border">
-          <div className="grid grid-cols-[1.4fr_1.8fr_0.7fr_0.9fr] gap-3 px-5 py-3 text-[9px] text-muted/50 tracking-[0.15em] uppercase">
+          <div className="grid grid-cols-[1.4fr_1.8fr_0.7fr_0.9fr] gap-3 px-5 py-3 text-[12px] text-muted/50 tracking-[0.15em] uppercase">
             <span>{t.links_col_brand}</span>
             <span>{t.links_col_link}</span>
             <span>{t.links_col_rate}</span>
@@ -109,16 +109,16 @@ export function CreatorLinksClient({
           </div>
           {allLinks.map(link => (
             <div key={link.id} className="grid grid-cols-[1.4fr_1.8fr_0.7fr_0.9fr] gap-3 px-5 py-4 items-center">
-              <span className="text-parchment text-sm truncate">{link.brandName}</span>
+              <span className="text-parchment text-base truncate">{link.brandName}</span>
               <button
                 onClick={() => handleCopy(link)}
                 title={shareUrl(link)}
-                className="text-left text-xs text-gold hover:text-gold-light truncate"
+                className="text-left text-sm text-gold hover:text-gold-light truncate"
               >
                 {copiedId === link.id ? t.copied : shareUrl(link)}
               </button>
-              <span className="text-muted text-xs">{link.commissionRate}%</span>
-              <span className="text-muted/60 text-xs">
+              <span className="text-muted text-sm">{link.commissionRate}%</span>
+              <span className="text-muted/60 text-sm">
                 {new Date(link.createdAt).toLocaleDateString('en-SA', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
             </div>
@@ -128,25 +128,25 @@ export function CreatorLinksClient({
 
       {/* Available brands to generate a link for */}
       <div className="mb-4">
-        <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-2">{t.available_heading}</p>
-        <p className="text-muted text-xs leading-relaxed mb-5 max-w-md">{t.available_body}</p>
+        <p className="text-[12px] text-gold tracking-[0.3em] uppercase mb-2">{t.available_heading}</p>
+        <p className="text-muted text-sm leading-relaxed mb-5 max-w-md">{t.available_body}</p>
       </div>
 
       {availableBrands.length === 0 ? (
-        <p className="text-muted text-sm">{t.no_brands_live}</p>
+        <p className="text-muted text-base">{t.no_brands_live}</p>
       ) : remainingBrands.length === 0 ? (
-        <p className="text-muted text-sm">{t.all_linked}</p>
+        <p className="text-muted text-base">{t.all_linked}</p>
       ) : (
         <div className="border border-border divide-y divide-border">
           {remainingBrands.map(brand => (
             <div key={brand.id} className="flex items-center justify-between gap-4 px-5 py-4">
-              <span className="text-parchment text-sm">{brand.name}</span>
+              <span className="text-parchment text-base">{brand.name}</span>
               <div className="flex items-center gap-3">
-                {errors[brand.id] && <span className="text-xs text-red-400">{errors[brand.id]}</span>}
+                {errors[brand.id] && <span className="text-sm text-red-400">{errors[brand.id]}</span>}
                 <button
                   onClick={() => handleGenerate(brand)}
                   disabled={isPending && pendingBrandId === brand.id}
-                  className="bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors disabled:opacity-50"
+                  className="bg-gold text-ink text-[13px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors disabled:opacity-50"
                 >
                   {isPending && pendingBrandId === brand.id ? t.generating : t.generate}
                 </button>

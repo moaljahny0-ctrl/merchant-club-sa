@@ -36,7 +36,7 @@ export function LoginForm() {
 
       {linkExpired && (
         <div className="border border-gold/30 bg-gold/5 px-4 py-3">
-          <p className="text-gold text-xs leading-relaxed">
+          <p className="text-gold text-sm leading-relaxed">
             That login link has expired. Enter your email and password to sign in.
           </p>
         </div>
@@ -45,7 +45,7 @@ export function LoginForm() {
       <form onSubmit={handleSubmit} className="space-y-5">
 
         <div>
-          <label className="block text-[9px] text-muted tracking-[0.25em] uppercase mb-2.5">
+          <label className="block text-[12px] text-muted tracking-[0.25em] uppercase mb-2.5">
             Email
           </label>
           <input
@@ -55,18 +55,18 @@ export function LoginForm() {
             autoFocus
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/30 transition-colors"
+            className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/30 transition-colors"
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-2.5">
-            <label className="text-[9px] text-muted tracking-[0.25em] uppercase">
+            <label className="text-[12px] text-muted tracking-[0.25em] uppercase">
               Password
             </label>
             <a
               href="/auth/reset-password"
-              className="text-[9px] text-muted/60 hover:text-gold tracking-[0.1em] transition-colors"
+              className="text-[12px] text-muted/60 hover:text-gold tracking-[0.1em] transition-colors"
             >
               Forgot password?
             </a>
@@ -77,18 +77,18 @@ export function LoginForm() {
             autoComplete="current-password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/30 transition-colors"
+            className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/30 transition-colors"
           />
         </div>
 
         {error && (
-          <p className="text-[11px] text-amber-400/90 tracking-wide">{error}</p>
+          <p className="text-[14px] text-amber-400/90 tracking-wide">{error}</p>
         )}
 
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-gold text-ink text-[10px] font-medium tracking-[0.25em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
+          className="w-full bg-gold text-ink text-[13px] font-medium tracking-[0.25em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
         >
           {isPending ? 'Signing in…' : 'Sign in'}
         </button>

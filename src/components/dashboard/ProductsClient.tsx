@@ -46,12 +46,12 @@ export function ProductsClient({ initialProducts, locale = 'en' }: { initialProd
     <>
       {/* Column headers */}
       <div className="hidden md:grid grid-cols-[1fr_100px_90px_80px_60px_80px] gap-4 px-5 pb-3 border-b border-border">
-        <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase">{t.products.col_product}</p>
-        <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-right">{t.products.col_price}</p>
-        <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-right">{t.products.col_stock}</p>
-        <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-right">{t.products.col_status}</p>
-        <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-center">{t.products.col_feature}</p>
-        <p className="text-[8px] text-muted/50 tracking-[0.2em] uppercase text-right">{t.products.col_actions}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.2em] uppercase">{t.products.col_product}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.2em] uppercase text-right">{t.products.col_price}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.2em] uppercase text-right">{t.products.col_stock}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.2em] uppercase text-right">{t.products.col_status}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.2em] uppercase text-center">{t.products.col_feature}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.2em] uppercase text-right">{t.products.col_actions}</p>
       </div>
 
       <div className="divide-y divide-border border-b border-border">
@@ -67,7 +67,7 @@ export function ProductsClient({ initialProducts, locale = 'en' }: { initialProd
         ))}
       </div>
 
-      <p className="text-[9px] text-muted/40 tracking-wide mt-5">
+      <p className="text-[12px] text-muted/40 tracking-wide mt-5">
         {t.products.product_count(products.length)}
         {products.filter(p => p.is_featured).length > 0 && (
           <span className="ml-3 text-gold/70">
@@ -112,31 +112,31 @@ function ProductRow({
       <div className="flex md:grid md:grid-cols-[1fr_100px_90px_80px_60px_80px] gap-4 items-center px-5 py-4 hover:bg-surface/50 transition-colors group">
         {/* Title + category */}
         <div className="min-w-0 flex-1">
-          <p className="text-parchment text-sm group-hover:text-gold transition-colors truncate leading-snug">
+          <p className="text-parchment text-base group-hover:text-gold transition-colors truncate leading-snug">
             {title}
             {product.is_featured && (
-              <span className="ml-2 text-[8px] text-gold/80 tracking-[0.1em] uppercase border border-gold/30 px-1.5 py-0.5 rounded-sm">
+              <span className="ml-2 text-[12px] text-gold/80 tracking-[0.1em] uppercase border border-gold/30 px-1.5 py-0.5 rounded-sm">
                 {t.products.featured_badge}
               </span>
             )}
           </p>
-          <p className="text-muted/60 text-xs mt-0.5 truncate">{product.category || '—'}</p>
+          <p className="text-muted/60 text-sm mt-0.5 truncate">{product.category || '—'}</p>
         </div>
 
         {/* Price */}
-        <p className="text-parchment text-sm text-right hidden md:block">
+        <p className="text-parchment text-base text-right hidden md:block">
           {Number(product.price).toLocaleString('en-SA', { minimumFractionDigits: 2 })}
         </p>
 
         {/* Stock */}
-        <p className="text-muted text-xs text-right hidden md:block">
+        <p className="text-muted text-sm text-right hidden md:block">
           {product.stock_quantity} {t.products.units}
         </p>
 
         {/* Status */}
         <div className="hidden md:flex items-center justify-end gap-1.5">
           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[status] ?? 'bg-muted/40'}`} />
-          <span className={`text-[10px] tracking-wide ${STATUS_COLORS[status] ?? 'text-muted'}`}>
+          <span className={`text-[13px] tracking-wide ${STATUS_COLORS[status] ?? 'text-muted'}`}>
             {t.products.status[status] ?? status}
           </span>
         </div>
@@ -160,14 +160,14 @@ function ProductRow({
         <div className="flex items-center justify-end gap-3 ml-auto md:ml-0">
           <Link
             href={`/dashboard/brand/products/${product.id}`}
-            className="text-[9px] text-muted hover:text-gold tracking-[0.15em] uppercase transition-colors"
+            className="text-[12px] text-muted hover:text-gold tracking-[0.15em] uppercase transition-colors"
           >
             {t.products.edit}
           </Link>
         </div>
       </div>
       {featureError && (
-        <div className="px-5 pb-2 text-[10px] text-red-400">{featureError}</div>
+        <div className="px-5 pb-2 text-[13px] text-red-400">{featureError}</div>
       )}
     </>
   )

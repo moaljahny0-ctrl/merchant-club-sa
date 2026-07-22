@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
 import { CreatorLinksClient } from '@/components/dashboard/CreatorLinksClient'
+import { Button } from '@/components/ui/Button'
 
 export default async function CreatorOverviewPage() {
   const supabase = await createClient()
@@ -29,28 +30,22 @@ export default async function CreatorOverviewPage() {
     return (
       <div className="flex items-center justify-center min-h-[70vh] px-6">
         <div className="max-w-[380px] w-full text-center">
-          <p className="text-[9px] text-gold tracking-[0.4em] uppercase mb-5">
+          <p className="text-[12px] text-gold tracking-[0.4em] uppercase mb-5">
             Merchant Club SA
           </p>
           <h1 className="font-display text-[1.85rem] font-light text-parchment leading-snug mb-5">
             No creator access on this account.
           </h1>
-          <p className="text-muted text-sm leading-relaxed mb-10 max-w-xs mx-auto">
+          <p className="text-muted text-base leading-relaxed mb-10 max-w-xs mx-auto">
             If you applied to become a creator, we&apos;re still reviewing it.
           </p>
           <div className="flex flex-col gap-3">
-            <a
-              href="/apply/member"
-              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-            >
+            <Button href="/apply/member" native variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               Apply as a creator
-            </a>
-            <a
-              href="mailto:info@merchantclubsa.com"
-              className="inline-flex items-center justify-center border border-border text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
-            >
+            </Button>
+            <Button href="mailto:info@merchantclubsa.com" variant="secondary" className="border-border text-parchment hover:border-gold hover:text-gold">
               Contact support
-            </a>
+            </Button>
           </div>
         </div>
       </div>
@@ -148,7 +143,7 @@ export default async function CreatorOverviewPage() {
   return (
     <div className="p-8 md:p-12 max-w-3xl">
       <div className="mb-10">
-        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.creator.eyebrow}</p>
+        <p className="text-[12px] text-gold tracking-[0.35em] uppercase mb-3">{t.creator.eyebrow}</p>
         <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">
           {t.creator.heading}
         </h1>
@@ -162,25 +157,25 @@ export default async function CreatorOverviewPage() {
           { label: t.creator.stats_conv_rate,   value: `${conversionRate.toFixed(1)}%` },
           { label: t.creator.stats_earnings,    value: `SAR ${totalEarnings.toFixed(2)}` },
         ].map(stat => (
-          <div key={stat.label} className="bg-surface border border-border px-5 py-6">
-            <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
+          <div key={stat.label} className="bg-surface border border-border rounded-lg px-5 py-6">
+            <p className="text-[12px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
             <p className="text-2xl font-light text-parchment leading-none">{stat.value}</p>
           </div>
         ))}
       </div>
-      <p className="text-muted/60 text-[11px] mb-10">{t.creator.stats_note}</p>
+      <p className="text-muted/60 text-[14px] mb-10">{t.creator.stats_note}</p>
 
       {links.length > 0 && (
         <div className="mb-10">
-          <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.creator.per_link_heading}</p>
+          <p className="text-[12px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.creator.per_link_heading}</p>
           <div className="border border-border divide-y divide-border">
             {links.map(l => (
               <div key={l.id} className="flex items-center justify-between px-5 py-3.5 gap-4 flex-wrap">
                 <div className="min-w-0">
-                  <p className="text-parchment text-xs truncate">{l.brandName}</p>
-                  <p className="text-muted/50 text-[11px] font-mono">{l.linkCode}</p>
+                  <p className="text-parchment text-sm truncate">{l.brandName}</p>
+                  <p className="text-muted/50 text-[14px] font-mono">{l.linkCode}</p>
                 </div>
-                <div className="flex gap-5 text-xs shrink-0">
+                <div className="flex gap-5 text-sm shrink-0">
                   <span className="text-muted">{t.creator.stats_clicks}: <span className="text-parchment">{l.clicks}</span></span>
                   <span className="text-muted">{t.creator.stats_conversions}: <span className="text-parchment">{l.conversions}</span></span>
                   <span className="text-muted">{t.creator.stats_earnings}: <span className="text-parchment">SAR {l.earnings.toFixed(2)}</span></span>

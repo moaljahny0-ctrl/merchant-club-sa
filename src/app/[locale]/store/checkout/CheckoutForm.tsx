@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { useCart } from '@/lib/cart/CartContext';
 import { placeOrder } from '@/lib/actions/orders';
-import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/Button';
 
 const PROMO_CODE = 'MERCHANT2026';
 
@@ -19,7 +19,7 @@ function isValidSaudiPhone(p: string): boolean {
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontSize: '9px',
+  fontSize: '12px',
   letterSpacing: '0.25em',
   textTransform: 'uppercase',
   color: '#6B5B4E',
@@ -29,9 +29,10 @@ const labelStyle: React.CSSProperties = {
 const inputStyle: React.CSSProperties = {
   width: '100%',
   border: '1px solid #E5DDD0',
+  borderRadius: '8px',
   background: '#FFFFFF',
   color: '#1A1208',
-  fontSize: '14px',
+  fontSize: '17px',
   padding: '12px 16px',
   outline: 'none',
   fontFamily: 'inherit',
@@ -105,12 +106,12 @@ export function CheckoutForm({ locale, customer }: Props) {
   if (items.length === 0) {
     return (
       <div style={{ maxWidth: '480px', margin: '80px auto', padding: '0 24px', textAlign: 'center' }}>
-        <p style={{ color: '#6B5B4E', fontSize: '14px', marginBottom: '24px' }}>
+        <p style={{ color: '#6B5B4E', fontSize: '17px', marginBottom: '24px' }}>
           {ar ? 'السلة فارغة.' : 'Your cart is empty.'}
         </p>
-        <Link href="/store" style={{ color: '#B8975A', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none' }}>
+        <Button href="/store" variant="back" style={{ color: '#B8975A' }}>
           {ar ? 'تصفح المنتجات →' : 'Browse products →'}
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -126,15 +127,11 @@ export function CheckoutForm({ locale, customer }: Props) {
       >
         {/* Page title */}
         <div>
-          <Link
-            href="/store"
-            className="inline-flex items-center gap-2 transition-opacity hover:opacity-60 mb-5"
-            style={{ color: '#6B5B4E', textDecoration: 'none', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-          >
+          <Button href="/store" variant="back" className="mb-5" style={{ color: '#6B5B4E' }}>
             <span>←</span>
             <span>{ar ? 'العودة للمتجر' : 'Back to Store'}</span>
-          </Link>
-          <p style={{ fontSize: '9px', letterSpacing: '0.32em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '6px' }}>
+          </Button>
+          <p style={{ fontSize: '12px', letterSpacing: '0.32em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '6px' }}>
             {ar ? 'إتمام الطلب' : 'Checkout'}
           </p>
           <h1 style={{ fontSize: '24px', fontWeight: 400, color: '#1A1208' }}>
@@ -146,11 +143,11 @@ export function CheckoutForm({ locale, customer }: Props) {
 
           {/* ── LEFT: Order Summary ── */}
           <div style={{ order: 2 }} className="md:order-1">
-            <h2 style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1A1208', marginBottom: '20px', fontWeight: 500 }}>
+            <h2 style={{ fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1A1208', marginBottom: '20px', fontWeight: 500 }}>
               {ar ? 'ملخص الطلب' : 'Order Summary'}
             </h2>
 
-            <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', marginBottom: '16px' }}>
+            <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
               {items.map((item, i) => (
                 <div
                   key={item.productId}
@@ -162,7 +159,7 @@ export function CheckoutForm({ locale, customer }: Props) {
                     alignItems: 'flex-start',
                   }}
                 >
-                  <div style={{ width: '56px', height: '70px', flexShrink: 0, background: '#F0EBE1', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ width: '56px', height: '70px', flexShrink: 0, background: '#F0EBE1', borderRadius: '6px', position: 'relative', overflow: 'hidden' }}>
                     {item.image_url ? (
                       <Image src={item.image_url} alt={item.productName} fill className="object-cover object-top" sizes="56px" />
                     ) : (
@@ -172,17 +169,17 @@ export function CheckoutForm({ locale, customer }: Props) {
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: '9px', color: '#B8975A', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '3px' }}>
+                    <p style={{ fontSize: '12px', color: '#B8975A', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '3px' }}>
                       {item.brandName}
                     </p>
-                    <p style={{ fontSize: '13px', color: '#1A1208', marginBottom: '4px' }}>
+                    <p style={{ fontSize: '16px', color: '#1A1208', marginBottom: '4px' }}>
                       {item.productName}
                     </p>
-                    <p style={{ fontSize: '11px', color: '#6B5B4E' }}>
+                    <p style={{ fontSize: '14px', color: '#6B5B4E' }}>
                       {ar ? 'الكمية' : 'Qty'}: {item.quantity}
                     </p>
                   </div>
-                  <p style={{ fontSize: '13px', color: '#1A1208', fontWeight: 500, flexShrink: 0 }}>
+                  <p style={{ fontSize: '16px', color: '#1A1208', fontWeight: 500, flexShrink: 0 }}>
                     {(item.price * item.quantity).toFixed(2)} {ar ? 'ريال' : 'SAR'}
                   </p>
                 </div>
@@ -190,18 +187,18 @@ export function CheckoutForm({ locale, customer }: Props) {
             </div>
 
             {/* Totals */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', padding: '16px 20px' }}>
+            <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '10px', padding: '16px 20px' }}>
               {[
                 { label: ar ? 'المجموع الفرعي' : 'Subtotal',  value: `${subtotal.toFixed(2)} ${ar ? 'ريال' : 'SAR'}` },
                 { label: ar ? 'الشحن' : 'Shipping',            value: promoApplied ? (ar ? 'مجانًا ✓' : 'Free ✓') : (ar ? 'مجانًا' : 'Free') },
               ].map(({ label, value }, i, arr) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid #F0EAE0' : 'none' }}>
-                  <span style={{ fontSize: '12px', color: '#6B5B4E' }}>{label}</span>
-                  <span style={{ fontSize: '12px', color: promoApplied && label.includes('Shipping') || promoApplied && label.includes('الشحن') ? '#4A9E6B' : '#1A1208' }}>{value}</span>
+                  <span style={{ fontSize: '15px', color: '#6B5B4E' }}>{label}</span>
+                  <span style={{ fontSize: '15px', color: promoApplied && label.includes('Shipping') || promoApplied && label.includes('الشحن') ? '#4A9E6B' : '#1A1208' }}>{value}</span>
                 </div>
               ))}
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '12px', marginTop: '4px', borderTop: '1px solid #E5DDD0' }}>
-                <span style={{ fontSize: '13px', fontWeight: 500, color: '#1A1208' }}>{ar ? 'الإجمالي' : 'Total'}</span>
+                <span style={{ fontSize: '16px', fontWeight: 500, color: '#1A1208' }}>{ar ? 'الإجمالي' : 'Total'}</span>
                 <span style={{ fontSize: '16px', fontWeight: 500, color: '#B8975A' }}>
                   {total.toFixed(2)} {ar ? 'ريال' : 'SAR'}
                 </span>
@@ -229,8 +226,9 @@ export function CheckoutForm({ locale, customer }: Props) {
                     background: promoApplied ? '#4A9E6B' : '#1A1208',
                     color: '#F5F0E8',
                     border: 'none',
+                    borderRadius: '8px',
                     cursor: promoApplied ? 'default' : 'pointer',
-                    fontSize: '10px',
+                    fontSize: '13px',
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     fontFamily: 'inherit',
@@ -241,19 +239,19 @@ export function CheckoutForm({ locale, customer }: Props) {
                 </button>
               </div>
               {promoApplied && (
-                <p style={{ fontSize: '11px', color: '#4A9E6B', marginTop: '6px' }}>
+                <p style={{ fontSize: '14px', color: '#4A9E6B', marginTop: '6px' }}>
                   {ar ? '✓ شحن مجاني مطبّق' : '✓ Free shipping applied'}
                 </p>
               )}
               {promoError && (
-                <p style={{ fontSize: '11px', color: '#CC5555', marginTop: '6px' }}>{promoError}</p>
+                <p style={{ fontSize: '14px', color: '#CC5555', marginTop: '6px' }}>{promoError}</p>
               )}
             </div>
           </div>
 
           {/* ── RIGHT: Customer Info ── */}
           <div style={{ order: 1 }} className="md:order-2">
-            <h2 style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1A1208', marginBottom: '20px', fontWeight: 500 }}>
+            <h2 style={{ fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1A1208', marginBottom: '20px', fontWeight: 500 }}>
               {ar ? 'بيانات التوصيل' : 'Delivery Details'}
             </h2>
 
@@ -280,7 +278,7 @@ export function CheckoutForm({ locale, customer }: Props) {
                   dir="ltr"
                   autoComplete="tel"
                 />
-                {phoneError && <p style={{ fontSize: '11px', color: '#CC5555', marginTop: '6px' }}>{phoneError}</p>}
+                {phoneError && <p style={{ fontSize: '14px', color: '#CC5555', marginTop: '6px' }}>{phoneError}</p>}
               </div>
 
               {!customer && (
@@ -322,33 +320,27 @@ export function CheckoutForm({ locale, customer }: Props) {
               </div>
 
               {error && (
-                <p style={{ fontSize: '12px', color: '#CC5555', lineHeight: 1.5 }}>{error}</p>
+                <p style={{ fontSize: '15px', color: '#CC5555', lineHeight: 1.5 }}>{error}</p>
               )}
 
-              <button
+              <Button
                 type="submit"
                 disabled={isPending}
+                variant="primary"
+                fullWidth
+                className="mt-2"
                 style={{
-                  width: '100%',
                   background: isPending ? '#9A8060' : '#B8975A',
                   color: '#FFFFFF',
-                  fontSize: '11px',
-                  letterSpacing: '0.25em',
-                  textTransform: 'uppercase',
-                  padding: '18px',
                   border: 'none',
-                  cursor: isPending ? 'not-allowed' : 'pointer',
-                  fontFamily: 'inherit',
-                  transition: 'background 0.2s',
-                  marginTop: '8px',
                 }}
               >
                 {isPending
                   ? (ar ? 'جارٍ المعالجة…' : 'Processing…')
                   : (ar ? 'تأكيد الطلب' : 'Place Order')}
-              </button>
+              </Button>
 
-              <p style={{ fontSize: '11px', color: '#6B5B4E', textAlign: 'center', lineHeight: 1.6 }}>
+              <p style={{ fontSize: '14px', color: '#6B5B4E', textAlign: 'center', lineHeight: 1.6 }}>
                 {ar ? '✓ الدفع عند الاستلام · لا يلزم بطاقة' : '✓ Cash on delivery · No card required'}
               </p>
             </div>

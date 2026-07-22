@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { Button } from '@/components/ui/Button'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 function OnboardingBanner({ state, locale }: { state: string; locale: DashLang }) {
@@ -20,15 +20,12 @@ function OnboardingBanner({ state, locale }: { state: string; locale: DashLang }
           <div className="w-2 h-2 rounded-full bg-gold/60" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-1">{step.label}</p>
-          <p className="text-parchment text-sm leading-relaxed mb-3">{step.next}</p>
+          <p className="text-[12px] text-gold tracking-[0.3em] uppercase mb-1">{step.label}</p>
+          <p className="text-parchment text-base leading-relaxed mb-3">{step.next}</p>
           {'action' in step && step.action && href && (
-            <Link
-              href={href}
-              className="inline-flex items-center bg-gold text-ink text-[9px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors"
-            >
+            <Button href={href} native variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               {step.action}
-            </Link>
+            </Button>
           )}
         </div>
       </div>
@@ -56,7 +53,7 @@ export default async function BrandOverviewPage() {
     return (
       <div className="flex items-center justify-center min-h-[70vh] px-6">
         <div className="max-w-[380px] w-full text-center">
-          <p className="text-[9px] text-gold tracking-[0.4em] uppercase mb-5">
+          <p className="text-[12px] text-gold tracking-[0.4em] uppercase mb-5">
             Merchant Club SA
           </p>
           <h1 className="font-display text-[1.85rem] font-light text-parchment leading-snug mb-5">
@@ -64,22 +61,16 @@ export default async function BrandOverviewPage() {
               <span key={i}>{line}{i === 0 && <br />}</span>
             ))}
           </h1>
-          <p className="text-muted text-sm leading-relaxed mb-10 max-w-xs mx-auto">
+          <p className="text-muted text-base leading-relaxed mb-10 max-w-xs mx-auto">
             {t.overview.no_brand_body}
           </p>
           <div className="flex flex-col gap-3">
-            <a
-              href="/apply/partner"
-              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-            >
+            <Button href="/apply/partner" native variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               {t.overview.no_brand_apply}
-            </a>
-            <a
-              href="mailto:info@merchantclubsa.com"
-              className="inline-flex items-center justify-center border border-border text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
-            >
+            </Button>
+            <Button href="mailto:info@merchantclubsa.com" variant="secondary" className="border-border text-parchment hover:border-gold hover:text-gold">
               {t.overview.no_brand_contact}
-            </a>
+            </Button>
           </div>
         </div>
       </div>
@@ -112,7 +103,7 @@ export default async function BrandOverviewPage() {
 
       {/* Header */}
       <div className="mb-10">
-        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.overview.eyebrow}</p>
+        <p className="text-[12px] text-gold tracking-[0.35em] uppercase mb-3">{t.overview.eyebrow}</p>
         <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">
           {brand?.name_en ?? 'Your Brand'}
         </h1>
@@ -127,39 +118,41 @@ export default async function BrandOverviewPage() {
       {!hasProducts && (
         <div className="mb-10">
           <div className="border border-gold/30 bg-gold/5 px-7 py-7 mb-6">
-            <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-3">{t.overview.getting_started}</p>
+            <p className="text-[12px] text-gold tracking-[0.3em] uppercase mb-3">{t.overview.getting_started}</p>
             <p className="text-parchment text-base font-light leading-relaxed mb-6">
               {t.overview.getting_started_body}
             </p>
-            <Link
+            <Button
               href="/dashboard/brand/products/new"
-              className="inline-flex items-center bg-gold text-ink text-[10px] font-medium tracking-[0.2em] uppercase px-7 py-3.5 hover:bg-gold-light transition-colors"
+              native
+              variant="primary"
+              className="bg-gold text-ink hover:bg-gold-light"
             >
               {t.overview.add_first_product}
-            </Link>
+            </Button>
           </div>
 
           {/* Steps */}
-          <div className="border border-border divide-y divide-border">
+          <div className="border border-border divide-y divide-border rounded-lg overflow-hidden">
             {t.overview.steps.map(step => (
               <div key={step.n} className="flex gap-5 px-6 py-5">
-                <div className="shrink-0 w-6 h-6 border border-border flex items-center justify-center mt-0.5">
-                  <span className="text-[10px] text-muted">{step.n}</span>
+                <div className="shrink-0 w-6 h-6 border border-border rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-[13px] text-muted">{step.n}</span>
                 </div>
                 <div>
-                  <p className="text-parchment text-sm font-medium mb-1">{step.title}</p>
-                  <p className="text-muted text-xs leading-relaxed">{step.body}</p>
+                  <p className="text-parchment text-base font-medium mb-1">{step.title}</p>
+                  <p className="text-muted text-sm leading-relaxed">{step.body}</p>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Capabilities */}
-          <div className="mt-6 border border-border px-6 py-5">
-            <p className="text-[9px] text-muted/50 tracking-[0.25em] uppercase mb-4">{t.overview.capabilities_label}</p>
+          <div className="mt-6 border border-border rounded-lg px-6 py-5">
+            <p className="text-[12px] text-muted/50 tracking-[0.25em] uppercase mb-4">{t.overview.capabilities_label}</p>
             <div className="grid grid-cols-2 gap-y-2">
               {t.overview.capabilities.map(item => (
-                <p key={item} className="text-xs text-muted/70 leading-relaxed">
+                <p key={item} className="text-sm text-muted/70 leading-relaxed">
                   <span className="text-gold mr-2">—</span>{item}
                 </p>
               ))}
@@ -179,34 +172,25 @@ export default async function BrandOverviewPage() {
               { label: t.overview.stat_orders,  value: String(pendingOrders),   sub: t.overview.stat_orders_sub },
               { label: t.overview.stat_revenue, value: `${totalRevenue.toLocaleString('en-SA', { minimumFractionDigits: 0 })} SAR`, sub: t.overview.stat_revenue_sub },
             ].map(stat => (
-              <div key={stat.label} className="bg-surface border border-border px-5 py-6">
-                <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
+              <div key={stat.label} className="bg-surface border border-border rounded-lg px-5 py-6">
+                <p className="text-[12px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
                 <p className="text-3xl font-light text-parchment leading-none mb-2">{stat.value}</p>
-                <p className="text-[9px] text-muted/40 tracking-wide">{stat.sub}</p>
+                <p className="text-[12px] text-muted/40 tracking-wide">{stat.sub}</p>
               </div>
             ))}
           </div>
 
           {/* Actions */}
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/dashboard/brand/products/new"
-              className="inline-flex items-center bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-7 py-3.5 hover:bg-gold-light transition-colors"
-            >
+            <Button href="/dashboard/brand/products/new" native variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               {t.overview.add_product}
-            </Link>
-            <Link
-              href="/dashboard/brand/products"
-              className="inline-flex items-center border border-border text-parchment text-[10px] tracking-[0.18em] uppercase px-7 py-3.5 hover:border-gold hover:text-gold transition-colors"
-            >
+            </Button>
+            <Button href="/dashboard/brand/products" native variant="secondary" className="border-border text-parchment hover:border-gold hover:text-gold">
               {t.overview.products_btn}
-            </Link>
-            <Link
-              href="/dashboard/brand/orders"
-              className="inline-flex items-center border border-border text-parchment text-[10px] tracking-[0.18em] uppercase px-7 py-3.5 hover:border-gold hover:text-gold transition-colors"
-            >
+            </Button>
+            <Button href="/dashboard/brand/orders" native variant="secondary" className="border-border text-parchment hover:border-gold hover:text-gold">
               {t.overview.orders_btn}
-            </Link>
+            </Button>
           </div>
         </>
       )}

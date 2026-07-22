@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { PartnerCard } from '@/components/partners/PartnerCard';
 import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/Button';
 import { placeholderSlots, type Partner } from '@/lib/brands';
 import { createServiceClient } from '@/lib/supabase/server';
 
@@ -123,7 +124,7 @@ async function PartnersHero({ t, isAr }: { t: TFn; isAr: boolean }) {
       <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 flex items-center min-h-[80vh] md:min-h-screen">
         <div className="max-w-xl lg:max-w-2xl">
 
-          <p className="text-[9px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
+          <p className="text-[12px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
             {t('eyebrow')}
           </p>
 
@@ -132,25 +133,19 @@ async function PartnersHero({ t, isAr }: { t: TFn; isAr: boolean }) {
           </h1>
 
           <p
-            className="mt-5 md:mt-7 text-sm md:text-base font-light max-w-xs md:max-w-sm leading-relaxed"
+            className="mt-5 md:mt-7 text-base md:text-base font-light max-w-xs md:max-w-sm leading-relaxed"
             style={{ color: 'rgba(255,255,255,0.65)' }}
           >
             {t('subheading')}
           </p>
 
           <div className="mt-10 md:mt-12 flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/apply/partner"
-              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-            >
+            <Button href="/apply/partner" variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               {t('apply_cta')}
-            </Link>
-            <Link
-              href="#categories"
-              className="inline-flex items-center justify-center border border-parchment/30 text-parchment text-[10px] tracking-[0.22em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
-            >
+            </Button>
+            <Button href="#categories" variant="secondary" className="border-parchment/30 text-parchment hover:border-gold hover:text-gold">
               {isAr ? 'استعرض التصنيفات' : 'See categories'}
-            </Link>
+            </Button>
           </div>
 
         </div>
@@ -213,7 +208,7 @@ function PartnerCategories({ locale }: { locale: string }) {
 
         <div className="flex items-end justify-between mb-12 md:mb-16">
           <div>
-            <p className="text-[9px] text-gold tracking-[0.4em] uppercase mb-4">
+            <p className="text-[12px] text-gold tracking-[0.4em] uppercase mb-4">
               {isAr ? 'ما نحمله' : 'What we carry'}
             </p>
             <h2 className="font-display text-3xl md:text-5xl font-light text-parchment leading-tight">
@@ -230,7 +225,7 @@ function PartnerCategories({ locale }: { locale: string }) {
               className="bg-ink p-8 md:p-10 flex flex-col gap-6 group hover:bg-surface transition-colors duration-300"
             >
               <div className="flex items-start justify-between">
-                <span className="text-[9px] text-gold/60 tracking-[0.3em] uppercase">{cat.index}</span>
+                <span className="text-[12px] text-gold/60 tracking-[0.3em] uppercase">{cat.index}</span>
                 <div className="h-px w-8 bg-gold/30 mt-2 group-hover:w-12 group-hover:bg-gold/60 transition-all duration-300" />
               </div>
 
@@ -238,12 +233,12 @@ function PartnerCategories({ locale }: { locale: string }) {
                 <h3 className="font-display text-2xl md:text-3xl font-light text-parchment mb-3 leading-tight">
                   {isAr ? cat.labelAr : cat.label}
                 </h3>
-                <p className="text-muted text-xs leading-relaxed">
+                <p className="text-muted text-sm leading-relaxed">
                   {isAr ? cat.descriptionAr : cat.description}
                 </p>
               </div>
 
-              <p className="text-[9px] text-gold/50 tracking-[0.2em] uppercase mt-auto">
+              <p className="text-[12px] text-gold/50 tracking-[0.2em] uppercase mt-auto">
                 {isAr ? cat.detailAr : cat.detail}
               </p>
             </div>
@@ -277,22 +272,19 @@ function ComingSoonSection({
           <div>
             <div className="flex items-center gap-4 mb-8">
               <div className="h-px w-6 bg-gold/40" />
-              <p className="text-[9px] text-gold/60 tracking-[0.35em] uppercase">
+              <p className="text-[12px] text-gold/60 tracking-[0.35em] uppercase">
                 {isAr ? 'الشركاء المؤسسون' : 'Founding partners'}
               </p>
             </div>
             <h2 className="font-display text-3xl md:text-5xl font-light text-parchment mb-6 leading-tight">
               {t('coming_soon_heading')}
             </h2>
-            <p className="text-muted text-sm leading-relaxed mb-10 max-w-sm">
+            <p className="text-muted text-base leading-relaxed mb-10 max-w-sm">
               {t('coming_soon_body')}
             </p>
-            <Link
-              href="/apply/partner"
-              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-            >
+            <Button href="/apply/partner" variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               {t('apply_cta')}
-            </Link>
+            </Button>
           </div>
 
           {/* Dimmed placeholder grid */}
@@ -328,7 +320,7 @@ function ActivePartnersSection({
           <h2 className="font-display text-3xl md:text-4xl font-light text-parchment">
             {t('heading')}
           </h2>
-          <p className="text-[9px] text-muted tracking-[0.2em] uppercase hidden md:block">
+          <p className="text-[12px] text-muted tracking-[0.2em] uppercase hidden md:block">
             {isAr
               ? `${partners.length} شريك`
               : `${partners.length} partner${partners.length !== 1 ? 's' : ''}`}
@@ -352,31 +344,25 @@ function ApplySection({ t, isAr }: { t: TFn; isAr: boolean }) {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-[1fr_auto] gap-10 items-center">
           <div className="max-w-2xl">
-            <p className="text-[9px] text-gold tracking-[0.4em] uppercase mb-5">
+            <p className="text-[12px] text-gold tracking-[0.4em] uppercase mb-5">
               {isAr ? 'انضم للمنصة' : 'Join the platform'}
             </p>
             <h2 className="font-display text-4xl md:text-6xl font-light text-parchment leading-tight mb-4">
               {isAr ? 'هل علامتك جاهزة؟' : 'Is your brand ready?'}
             </h2>
-            <p className="text-muted text-sm leading-relaxed max-w-sm">
+            <p className="text-muted text-base leading-relaxed max-w-sm">
               {isAr
                 ? 'نراجع كل طلب شخصياً. الأماكن التأسيسية محدودة وتُمنح للعلامات الجاهزة حقاً.'
                 : 'We review every application. Founding partner spots are limited and given to brands that are genuinely ready.'}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
-            <Link
-              href="/apply/partner"
-              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-10 py-4 hover:bg-gold-light transition-colors whitespace-nowrap"
-            >
+            <Button href="/apply/partner" variant="primary" className="bg-gold text-ink hover:bg-gold-light whitespace-nowrap">
               {t('apply_cta')}
-            </Link>
-            <Link
-              href="/apply"
-              className="inline-flex items-center justify-center border border-border text-parchment text-[10px] tracking-[0.22em] uppercase px-10 py-4 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
-            >
+            </Button>
+            <Button href="/apply" variant="secondary" className="border-border text-parchment hover:border-gold hover:text-gold whitespace-nowrap">
               {isAr ? 'جميع الخيارات' : 'See all options'}
-            </Link>
+            </Button>
           </div>
         </div>
       </div>

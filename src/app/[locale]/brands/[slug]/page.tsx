@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { StoreNavbar } from '@/components/layout/StoreNavbar'
 import { Footer } from '@/components/layout/Footer'
 import { Link } from '@/i18n/navigation'
+import { Button } from '@/components/ui/Button'
 import { createServiceClient } from '@/lib/supabase/server'
 import { RefTracker } from '@/components/storefront/RefTracker'
 import { TrackView } from '@/components/storefront/TrackView'
@@ -103,7 +104,7 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
             color: '#B8975A',
             textAlign: 'center',
             padding: '10px 20px',
-            fontSize: '12px',
+            fontSize: '15px',
             letterSpacing: '0.15em',
             fontFamily: 'Georgia, serif',
           }}
@@ -117,14 +118,10 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
         {/* Back to store */}
         <div className="px-6 md:px-10 pt-10">
           <div className="max-w-7xl mx-auto">
-            <Link
-              href="/store"
-              className="inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-60"
-              style={{ color: '#6B5B4E' }}
-            >
+            <Button href="/store" variant="back" style={{ color: '#6B5B4E' }}>
               <span aria-hidden>{isAr ? '→' : '←'}</span>
               <span>{isAr ? 'كل العلامات' : 'All Brands'}</span>
-            </Link>
+            </Button>
           </div>
         </div>
 
@@ -162,7 +159,7 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
             )}
             <div>
               <p
-                className="text-[10px] tracking-[0.35em] uppercase mb-4"
+                className="text-[13px] tracking-[0.35em] uppercase mb-4"
                 style={{ color: accentHex }}
               >
                 {isAr ? 'المتجر' : 'Brand'}
@@ -179,20 +176,20 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
                 </p>
               )}
               {brandDesc && templateId !== 'grid' && (
-                <p className="text-sm max-w-xl leading-relaxed" style={{ color: '#6B5B4E' }}>
+                <p className="text-base max-w-xl leading-relaxed" style={{ color: '#6B5B4E' }}>
                   {brandDesc}
                 </p>
               )}
               {(socialLinks.instagram || socialLinks.tiktok || socialLinks.x) && (
                 <div className="flex gap-4 mt-4">
                   {socialLinks.instagram && (
-                    <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-[11px] tracking-[0.15em] uppercase hover:opacity-70" style={{ color: accentHex }}>Instagram</a>
+                    <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-[14px] tracking-[0.15em] uppercase hover:opacity-70" style={{ color: accentHex }}>Instagram</a>
                   )}
                   {socialLinks.tiktok && (
-                    <a href={socialLinks.tiktok} target="_blank" rel="noopener noreferrer" className="text-[11px] tracking-[0.15em] uppercase hover:opacity-70" style={{ color: accentHex }}>TikTok</a>
+                    <a href={socialLinks.tiktok} target="_blank" rel="noopener noreferrer" className="text-[14px] tracking-[0.15em] uppercase hover:opacity-70" style={{ color: accentHex }}>TikTok</a>
                   )}
                   {socialLinks.x && (
-                    <a href={socialLinks.x} target="_blank" rel="noopener noreferrer" className="text-[11px] tracking-[0.15em] uppercase hover:opacity-70" style={{ color: accentHex }}>X</a>
+                    <a href={socialLinks.x} target="_blank" rel="noopener noreferrer" className="text-[14px] tracking-[0.15em] uppercase hover:opacity-70" style={{ color: accentHex }}>X</a>
                   )}
                 </div>
               )}
@@ -206,7 +203,7 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
           return (
             <section key={collection.id} className="px-6 md:px-10 py-10 md:py-14" style={{ borderBottom: '1px solid #E5DDD0' }}>
               <div className="max-w-7xl mx-auto">
-                <p className="text-[10px] tracking-[0.35em] uppercase mb-6" style={{ color: accentHex }}>
+                <p className="text-[13px] tracking-[0.35em] uppercase mb-6" style={{ color: accentHex }}>
                   {name}
                 </p>
                 <div className={`grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-6 ${templateId === 'grid' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
@@ -221,7 +218,7 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
                             <Image src={primaryImage.url} alt={title} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" sizes="(max-width: 768px) 50vw, 25vw" />
                           )}
                         </div>
-                        <p className="text-sm font-medium leading-snug pt-3" style={{ color: '#1A1208' }}>{title}</p>
+                        <p className="text-base font-medium leading-snug pt-3" style={{ color: '#1A1208' }}>{title}</p>
                       </Link>
                     )
                   })}
@@ -236,14 +233,14 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
           <div className="max-w-7xl mx-auto">
             {liveProducts.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-sm" style={{ color: '#6B5B4E' }}>
+                <p className="text-base" style={{ color: '#6B5B4E' }}>
                   {isAr ? 'لا توجد منتجات متاحة حالياً.' : 'No products available yet.'}
                 </p>
               </div>
             ) : (
               <>
                 <p
-                  className="text-[10px] tracking-[0.35em] uppercase mb-10"
+                  className="text-[13px] tracking-[0.35em] uppercase mb-10"
                   style={{ color: accentHex }}
                 >
                   {isAr ? 'كل المنتجات' : 'All Products'} ({liveProducts.length})
@@ -281,21 +278,21 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
                           )}
                         </div>
                         <div className="pt-3 space-y-1">
-                          <p className="text-sm font-medium leading-snug" style={{ color: '#1A1208' }}>
+                          <p className="text-base font-medium leading-snug" style={{ color: '#1A1208' }}>
                             {title}
                           </p>
                           <div className="flex items-baseline gap-2">
                             {salePrice ? (
                               <>
-                                <span className="text-sm font-bold" style={{ color: accentHex }}>
+                                <span className="text-base font-bold" style={{ color: accentHex }}>
                                   {salePrice.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
                                 </span>
-                                <span className="text-[10px] line-through" style={{ color: '#6B5B4E' }}>
+                                <span className="text-[13px] line-through" style={{ color: '#6B5B4E' }}>
                                   {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
                                 </span>
                               </>
                             ) : (
-                              <span className="text-sm font-bold" style={{ color: accentHex }}>
+                              <span className="text-base font-bold" style={{ color: accentHex }}>
                                 {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
                               </span>
                             )}

@@ -12,7 +12,7 @@ export default function NotFound() {
       className="min-h-screen flex flex-col items-center justify-center bg-ink px-6 text-center"
       dir={isAr ? 'rtl' : 'ltr'}
     >
-      <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-6">
+      <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-6">
         {isAr ? 'خطأ ٤٠٤' : 'Error 404'}
       </p>
 
@@ -20,7 +20,7 @@ export default function NotFound() {
         {isAr ? 'الصفحة غير موجودة' : 'Page Not Found'}
       </h1>
 
-      <p className="text-muted text-sm max-w-sm mb-10 leading-relaxed">
+      <p className="text-muted text-base max-w-sm mb-10 leading-relaxed">
         {isAr
           ? 'لم نتمكن من العثور على الصفحة التي تبحث عنها.'
           : "We couldn't find the page you're looking for."}
@@ -28,7 +28,7 @@ export default function NotFound() {
 
       <Link
         href={isAr ? '/ar' : '/'}
-        className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold/90 transition-colors"
+        className="inline-flex items-center justify-center bg-gold text-ink text-[13px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold/90 transition-colors"
       >
         {isAr ? 'العودة للرئيسية' : 'Back to Home'}
       </Link>

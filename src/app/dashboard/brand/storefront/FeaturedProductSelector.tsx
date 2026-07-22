@@ -59,8 +59,8 @@ export function FeaturedProductSelector({
   if (products.length === 0) {
     return (
       <div className="mb-8 border border-border px-6 py-5">
-        <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-2">{t.featured_heading}</p>
-        <p className="text-muted text-sm">{t.featured_none}</p>
+        <p className="text-[12px] text-gold tracking-[0.3em] uppercase mb-2">{t.featured_heading}</p>
+        <p className="text-muted text-base">{t.featured_none}</p>
       </div>
     )
   }
@@ -69,17 +69,17 @@ export function FeaturedProductSelector({
     <div className="mb-8">
       <div className="flex items-end justify-between mb-4">
         <div>
-          <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-1">{t.featured_heading}</p>
-          <p className="text-muted text-xs">{t.featured_body}</p>
+          <p className="text-[12px] text-gold tracking-[0.3em] uppercase mb-1">{t.featured_heading}</p>
+          <p className="text-muted text-sm">{t.featured_body}</p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className={`text-[9px] tracking-[0.15em] ${selected.size === MAX ? 'text-gold' : 'text-muted/50'}`}>
+          <span className={`text-[12px] tracking-[0.15em] ${selected.size === MAX ? 'text-gold' : 'text-muted/50'}`}>
             {t.featured_count(selected.size)}
           </span>
           <button
             onClick={handleSave}
             disabled={isPending}
-            className="text-[10px] tracking-[0.2em] uppercase px-5 py-2.5 bg-gold text-ink font-medium hover:bg-gold-light transition-colors disabled:opacity-50"
+            className="text-[13px] tracking-[0.2em] uppercase px-5 py-2.5 bg-gold text-ink font-medium hover:bg-gold-light transition-colors disabled:opacity-50"
           >
             {isPending ? t.featured_saving : saved ? t.featured_saved : t.featured_save}
           </button>
@@ -115,10 +115,10 @@ export function FeaturedProductSelector({
                   </svg>
                 )}
               </div>
-              <p className={`text-sm flex-1 truncate transition-colors ${isSelected ? 'text-parchment' : 'text-muted'}`}>
+              <p className={`text-base flex-1 truncate transition-colors ${isSelected ? 'text-parchment' : 'text-muted'}`}>
                 {title}
               </p>
-              <p className="text-xs text-muted/60 shrink-0">
+              <p className="text-sm text-muted/60 shrink-0">
                 SAR {Number(product.price).toLocaleString('en-SA', { minimumFractionDigits: 2 })}
               </p>
             </label>
@@ -126,7 +126,7 @@ export function FeaturedProductSelector({
         })}
       </div>
 
-      {error && <p className="text-red-400 text-xs mt-2">{error}</p>}
+      {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
     </div>
   )
 }

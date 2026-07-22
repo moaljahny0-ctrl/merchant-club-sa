@@ -31,19 +31,19 @@ export function ApplicationReviewClient({ applications }: { applications: BrandA
       <div style={{ display: 'flex', gap: '12px', marginBottom: '18px', flexWrap: 'wrap' }}>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--gold)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{applications.length}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Total</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Total</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--gold)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.pending ?? 0}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Pending</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Pending</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--green)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.approved ?? 0}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Approved</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Approved</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--red)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.rejected ?? 0}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Rejected</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Rejected</div>
         </div>
       </div>
 
@@ -59,7 +59,7 @@ export function ApplicationReviewClient({ applications }: { applications: BrandA
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
               {(counts[tab] ?? 0) > 0 && (
                 <span style={{
-                  marginLeft: '5px', fontSize: '9px', padding: '1px 5px', borderRadius: '8px',
+                  marginLeft: '5px', fontSize: '12px', padding: '1px 5px', borderRadius: '8px',
                   background: filter === tab ? 'rgba(184,151,90,0.3)' : 'var(--border2)',
                   color: filter === tab ? 'var(--gold)' : 'var(--text3)',
                 }}>
@@ -74,7 +74,7 @@ export function ApplicationReviewClient({ applications }: { applications: BrandA
       {/* Table */}
       <div className="a-chart-card" style={{ padding: 0, overflow: 'hidden' }}>
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '11px' }}>
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '14px' }}>
             No applications found
           </div>
         ) : (
@@ -98,7 +98,7 @@ export function ApplicationReviewClient({ applications }: { applications: BrandA
         )}
       </div>
 
-      <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '10px' }}>
+      <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '10px' }}>
         {filtered.length} application{filtered.length !== 1 ? 's' : ''}
       </div>
     </>
@@ -136,7 +136,7 @@ function AppRow({ app, index }: { app: BrandApplication; index: number }) {
         <td style={{ color: 'var(--text)', fontWeight: 500 }}>
           {app.brand_name_en}
           {app.contact_name && (
-            <div style={{ fontSize: '10px', color: 'var(--text3)', fontWeight: 400, marginTop: '2px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text3)', fontWeight: 400, marginTop: '2px' }}>
               {app.contact_name}
             </div>
           )}
@@ -164,14 +164,14 @@ function AppRow({ app, index }: { app: BrandApplication; index: number }) {
                   className="a-action-btn"
                   onClick={handleApprove}
                   disabled={isPending}
-                  style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
+                  style={{ padding: '4px 10px', fontSize: '13px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
                 >
                   {isPending ? '…' : 'Approve'}
                 </button>
                 <button
                   className="a-action-btn"
                   onClick={() => setExpanded(true)}
-                  style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--red-bg)', borderColor: 'var(--red)', color: 'var(--red)' }}
+                  style={{ padding: '4px 10px', fontSize: '13px', background: 'var(--red-bg)', borderColor: 'var(--red)', color: 'var(--red)' }}
                 >
                   Reject
                 </button>
@@ -180,7 +180,7 @@ function AppRow({ app, index }: { app: BrandApplication; index: number }) {
               <button
                 className="a-action-btn"
                 onClick={() => setExpanded(v => !v)}
-                style={{ padding: '4px 10px', fontSize: '10px' }}
+                style={{ padding: '4px 10px', fontSize: '13px' }}
               >
                 {expanded ? 'Close' : 'View'}
               </button>
@@ -200,32 +200,32 @@ function AppRow({ app, index }: { app: BrandApplication; index: number }) {
                 { label: 'Referral',  value: app.referral_source },
               ] as { label: string; value: string | null | undefined }[]).filter(f => f.value).map(f => (
                 <div key={f.label}>
-                  <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '3px' }}>
+                  <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '3px' }}>
                     {f.label}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text)', wordBreak: 'break-all' }}>{f.value}</div>
+                  <div style={{ fontSize: '14px', color: 'var(--text)', wordBreak: 'break-all' }}>{f.value}</div>
                 </div>
               ))}
             </div>
 
             {app.brand_description && (
               <div style={{ marginBottom: '14px' }}>
-                <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px' }}>Description</div>
-                <div style={{ fontSize: '11px', color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{app.brand_description}</div>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px' }}>Description</div>
+                <div style={{ fontSize: '14px', color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{app.brand_description}</div>
               </div>
             )}
 
             {app.rejection_reason && (
               <div style={{ background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: '6px', padding: '10px 12px', marginBottom: '14px' }}>
-                <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '4px' }}>Rejection reason</div>
-                <div style={{ fontSize: '11px', color: 'var(--red)' }}>{app.rejection_reason}</div>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '4px' }}>Rejection reason</div>
+                <div style={{ fontSize: '14px', color: 'var(--red)' }}>{app.rejection_reason}</div>
               </div>
             )}
 
             {/* Rejection form */}
             {app.status === 'pending' && (
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
-                <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '8px' }}>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '8px' }}>
                   Rejection reason (required)
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -235,7 +235,7 @@ function AppRow({ app, index }: { app: BrandApplication; index: number }) {
                     placeholder="Reason for rejection…"
                     style={{
                       flex: 1, background: 'var(--bg2)', border: '1px solid var(--border)',
-                      borderRadius: '6px', padding: '7px 12px', fontSize: '11px',
+                      borderRadius: '6px', padding: '7px 12px', fontSize: '14px',
                       color: 'var(--text)', outline: 'none', fontFamily: "'DM Sans',sans-serif",
                     }}
                   />
@@ -252,7 +252,7 @@ function AppRow({ app, index }: { app: BrandApplication; index: number }) {
             )}
 
             {actionError && (
-              <div style={{ fontSize: '11px', color: 'var(--red)', marginTop: '10px' }}>{actionError}</div>
+              <div style={{ fontSize: '14px', color: 'var(--red)', marginTop: '10px' }}>{actionError}</div>
             )}
           </td>
         </tr>

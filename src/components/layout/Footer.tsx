@@ -6,7 +6,7 @@ export async function Footer() {
 
   return (
     <footer className="border-t border-border mt-auto">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 py-10 flex flex-col gap-8 text-xs">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 py-10 flex flex-col gap-8 text-sm">
 
         {/* Main footer row */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -51,7 +51,7 @@ export async function Footer() {
         <div className="flex justify-center">
           <Link
             href="/auth/login"
-            className="text-muted/30 hover:text-muted/60 transition-colors tracking-[0.15em] uppercase text-[10px]"
+            className="text-muted/30 hover:text-muted/60 transition-colors tracking-[0.15em] uppercase text-[13px]"
           >
             {t('partner_login')}
           </Link>

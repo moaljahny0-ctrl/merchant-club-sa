@@ -60,11 +60,11 @@ export function CollectionsManager({
 
   return (
     <div className="mb-8 border border-border px-6 py-5">
-      <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-1">{t.collections_heading}</p>
-      <p className="text-muted text-xs mb-5">{t.collections_body}</p>
+      <p className="text-[12px] text-gold tracking-[0.3em] uppercase mb-1">{t.collections_heading}</p>
+      <p className="text-muted text-sm mb-5">{t.collections_body}</p>
 
       {collections.length === 0 && (
-        <p className="text-muted text-sm mb-5">{t.collections_none}</p>
+        <p className="text-muted text-base mb-5">{t.collections_none}</p>
       )}
 
       <div className="space-y-4 mb-5">
@@ -73,16 +73,16 @@ export function CollectionsManager({
           return (
             <div key={collection.id} className="border border-border/60 px-4 py-3">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-parchment">{name}</p>
+                <p className="text-base text-parchment">{name}</p>
                 <button
                   onClick={() => handleDelete(collection.id)}
                   disabled={isPending}
-                  className="text-[9px] tracking-[0.15em] uppercase text-muted/60 hover:text-red-400 transition-colors"
+                  className="text-[12px] tracking-[0.15em] uppercase text-muted/60 hover:text-red-400 transition-colors"
                 >
                   {t.collection_delete}
                 </button>
               </div>
-              <p className="text-[9px] text-muted/50 tracking-[0.15em] uppercase mb-2">{t.collection_products}</p>
+              <p className="text-[12px] text-muted/50 tracking-[0.15em] uppercase mb-2">{t.collection_products}</p>
               <div className="flex flex-wrap gap-2">
                 {products.map(product => {
                   const title = locale === 'ar' && product.title_ar ? product.title_ar : product.title_en
@@ -91,7 +91,7 @@ export function CollectionsManager({
                     <button
                       key={product.id}
                       onClick={() => toggleProduct(collection.id, product.id)}
-                      className={`text-[10px] px-3 py-1.5 border transition-colors ${
+                      className={`text-[13px] px-3 py-1.5 border transition-colors ${
                         inCollection ? 'border-gold text-gold bg-gold/10' : 'border-border text-muted hover:text-parchment'
                       }`}
                     >
@@ -111,19 +111,19 @@ export function CollectionsManager({
           placeholder={t.collection_name_en}
           value={nameEn}
           onChange={e => setNameEn(e.target.value)}
-          className="bg-surface border border-border px-3 py-2 text-sm text-parchment placeholder:text-muted/40 flex-1 min-w-[150px]"
+          className="bg-surface border border-border rounded-md px-3 py-2 text-base text-parchment placeholder:text-muted/40 flex-1 min-w-[150px]"
         />
         <input
           type="text"
           placeholder={t.collection_name_ar}
           value={nameAr}
           onChange={e => setNameAr(e.target.value)}
-          className="bg-surface border border-border px-3 py-2 text-sm text-parchment placeholder:text-muted/40 flex-1 min-w-[150px]"
+          className="bg-surface border border-border rounded-md px-3 py-2 text-base text-parchment placeholder:text-muted/40 flex-1 min-w-[150px]"
         />
         <button
           onClick={handleCreate}
           disabled={isPending || !nameEn.trim()}
-          className="text-[10px] tracking-[0.2em] uppercase px-5 py-2.5 border border-gold text-gold hover:bg-gold/10 transition-colors disabled:opacity-50"
+          className="text-[13px] tracking-[0.2em] uppercase px-5 py-2.5 border border-gold text-gold hover:bg-gold/10 transition-colors disabled:opacity-50"
         >
           {t.collection_create}
         </button>

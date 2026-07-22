@@ -22,7 +22,7 @@ export default async function ResetPasswordPage({ params, searchParams }: Props)
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-md">
           <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0' }} className="p-8 md:p-10">
-            <p style={{ color: '#B8975A', fontSize: '9px', letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: '6px' }}>
+            <p style={{ color: '#B8975A', fontSize: '12px', letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: '6px' }}>
               {ar ? 'كلمة مرور جديدة' : 'New Password'}
             </p>
             <h1 style={{ color: '#1A1208', fontSize: '22px', fontWeight: 400, marginBottom: '32px', lineHeight: 1.2 }}>

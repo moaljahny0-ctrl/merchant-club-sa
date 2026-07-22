@@ -25,7 +25,7 @@ export function StorefrontActions({ brandId, locale = 'en' }: { brandId: string;
   if (done) {
     return (
       <div className="mb-6 border border-gold/30 bg-gold/5 px-6 py-4">
-        <p className="text-sm text-parchment">{t.submitted_msg}</p>
+        <p className="text-base text-parchment">{t.submitted_msg}</p>
       </div>
     )
   }
@@ -35,14 +35,14 @@ export function StorefrontActions({ brandId, locale = 'en' }: { brandId: string;
       <button
         onClick={handleSubmit}
         disabled={isPending}
-        className="bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-6 py-3 hover:bg-gold-light transition-colors disabled:opacity-50"
+        className="bg-gold text-ink text-[13px] font-medium tracking-[0.18em] uppercase px-6 py-3 hover:bg-gold-light transition-colors disabled:opacity-50"
       >
         {isPending ? t.btn_submitting : t.btn_submit}
       </button>
-      <p className="text-[10px] text-muted/60 leading-relaxed">
+      <p className="text-[13px] text-muted/60 leading-relaxed">
         {t.description}
       </p>
-      {error && <p className="w-full text-xs text-red-400">{error}</p>}
+      {error && <p className="w-full text-sm text-red-400">{error}</p>}
     </div>
   )
 }

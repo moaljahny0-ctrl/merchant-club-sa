@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/Button';
 
 export default async function ApplyGatewayPage() {
   const t = await getTranslations('apply_gateway');
@@ -14,7 +14,7 @@ export default async function ApplyGatewayPage() {
         {/* Header */}
         <section className="px-6 md:px-10 py-20 md:py-28 border-b border-border">
           <div className="max-w-7xl mx-auto">
-            <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-8">
+            <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-8">
               {t('eyebrow')}
             </p>
             <h1 className="font-display text-4xl md:text-5xl lg:text-7xl font-light text-parchment leading-tight mb-4">
@@ -33,46 +33,40 @@ export default async function ApplyGatewayPage() {
             {/* Partner door */}
             <div className="bg-ink p-10 md:p-16 flex flex-col">
               <div className="flex-1">
-                <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-6">
+                <p className="text-[13px] text-gold tracking-[0.3em] uppercase mb-6">
                   01
                 </p>
                 <h2 className="font-display text-3xl md:text-4xl font-light text-parchment mb-5 leading-snug">
                   {t('partner_title')}
                 </h2>
-                <p className="text-muted text-sm leading-relaxed max-w-sm">
+                <p className="text-muted text-base leading-relaxed max-w-sm">
                   {t('partner_body')}
                 </p>
               </div>
               <div className="mt-12">
-                <Link
-                  href="/apply/partner"
-                  className="inline-flex items-center justify-center bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-                >
+                <Button href="/apply/partner" variant="primary" className="bg-gold text-ink hover:bg-gold-light">
                   {t('partner_cta')}
-                </Link>
+                </Button>
               </div>
             </div>
 
             {/* Member door */}
             <div className="bg-surface p-10 md:p-16 flex flex-col">
               <div className="flex-1">
-                <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-6">
+                <p className="text-[13px] text-gold tracking-[0.3em] uppercase mb-6">
                   02
                 </p>
                 <h2 className="font-display text-3xl md:text-4xl font-light text-parchment mb-5 leading-snug">
                   {t('member_title')}
                 </h2>
-                <p className="text-muted text-sm leading-relaxed max-w-sm">
+                <p className="text-muted text-base leading-relaxed max-w-sm">
                   {t('member_body')}
                 </p>
               </div>
               <div className="mt-12">
-                <Link
-                  href="/apply/member"
-                  className="inline-flex items-center justify-center border border-border text-parchment text-xs tracking-[0.2em] uppercase px-8 py-4 hover:border-gold hover:text-gold transition-colors"
-                >
+                <Button href="/apply/member" variant="secondary" className="border-border text-parchment hover:border-gold hover:text-gold">
                   {t('member_cta')}
-                </Link>
+                </Button>
               </div>
             </div>
 

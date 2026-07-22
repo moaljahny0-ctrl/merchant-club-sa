@@ -56,7 +56,7 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
           <button
             onClick={handleSubmitForReview}
             disabled={isPending}
-            className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-6 py-3 hover:bg-gold-light transition-colors disabled:opacity-50"
+            className="bg-gold text-ink text-sm font-medium tracking-[0.2em] uppercase px-6 py-3 hover:bg-gold-light transition-colors disabled:opacity-50"
           >
             {isPending ? t.btn_submitting : t.btn_submit}
           </button>
@@ -64,7 +64,7 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
         <button
           onClick={handleDelete}
           disabled={isPending}
-          className="border border-red-500/40 text-red-400 text-xs tracking-[0.15em] uppercase px-6 py-3 hover:border-red-400 transition-colors disabled:opacity-50"
+          className="border border-red-500/40 text-red-400 text-sm tracking-[0.15em] uppercase px-6 py-3 hover:border-red-400 transition-colors disabled:opacity-50"
         >
           {isPending ? t.btn_deleting : t.btn_delete}
         </button>

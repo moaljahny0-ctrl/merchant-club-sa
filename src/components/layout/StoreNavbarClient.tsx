@@ -42,7 +42,7 @@ export function StoreNavbarClient({ customer }: Props) {
         <Link href="/store" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
           <Image src="/logo.png" alt="Merchant Club SA" width={32} height={32} priority />
           <span
-            className="text-[11px] tracking-[0.2em] uppercase hidden sm:block"
+            className="text-[14px] tracking-[0.2em] uppercase hidden sm:block"
             style={{ color: '#1A1208', fontFamily: 'var(--font-body)' }}
           >
             Merchant Club SA
@@ -55,7 +55,7 @@ export function StoreNavbarClient({ customer }: Props) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-xs tracking-[0.12em] uppercase transition-colors"
+              className="text-sm tracking-[0.12em] uppercase transition-colors"
               style={{
                 color: link.active ? '#1A1208' : '#6B5B4E',
                 fontWeight: link.active ? 600 : 400,
@@ -69,7 +69,7 @@ export function StoreNavbarClient({ customer }: Props) {
           <Link
             href={pathname}
             locale={isRTL ? 'en' : 'ar'}
-            className="text-xs transition-colors"
+            className="text-sm transition-colors"
             style={{ color: '#6B5B4E' }}
           >
             {isRTL ? 'EN' : 'ع'}
@@ -94,7 +94,7 @@ export function StoreNavbarClient({ customer }: Props) {
                   borderRadius: '50%',
                   background: '#B8975A',
                   color: '#FFFFFF',
-                  fontSize: '11px',
+                  fontSize: '14px',
                   fontWeight: 600,
                   fontFamily: 'var(--font-body)',
                   flexShrink: 0,
@@ -102,7 +102,7 @@ export function StoreNavbarClient({ customer }: Props) {
               >
                 {customer.initial}
               </span>
-              <span className="text-xs tracking-[0.12em] uppercase" style={{ color: '#B8975A' }}>
+              <span className="text-sm tracking-[0.12em] uppercase" style={{ color: '#B8975A' }}>
                 حسابي
               </span>
             </Link>
@@ -110,15 +110,15 @@ export function StoreNavbarClient({ customer }: Props) {
             <div className="flex items-center gap-2">
               <Link
                 href="/store/login"
-                className="text-xs tracking-[0.12em] uppercase transition-opacity hover:opacity-70"
+                className="text-sm tracking-[0.12em] uppercase transition-opacity hover:opacity-70"
                 style={{ color: '#B8975A' }}
               >
                 دخول
               </Link>
-              <span style={{ color: '#E5DDD0', fontSize: '12px' }}>|</span>
+              <span style={{ color: '#E5DDD0', fontSize: '15px' }}>|</span>
               <Link
                 href="/store/register"
-                className="text-xs tracking-[0.12em] uppercase transition-opacity hover:opacity-70"
+                className="text-sm tracking-[0.12em] uppercase transition-opacity hover:opacity-70"
                 style={{ color: '#B8975A' }}
               >
                 تسجيل
@@ -156,7 +156,7 @@ export function StoreNavbarClient({ customer }: Props) {
                   right: '-8px',
                   background: '#B8975A',
                   color: '#FFFFFF',
-                  fontSize: '9px',
+                  fontSize: '12px',
                   fontWeight: 700,
                   width: '16px',
                   height: '16px',
@@ -170,7 +170,7 @@ export function StoreNavbarClient({ customer }: Props) {
                 </span>
               )}
             </span>
-            <span className="text-xs hidden sm:block" style={{ fontFamily: 'var(--font-body)' }}>
+            <span className="text-sm hidden sm:block" style={{ fontFamily: 'var(--font-body)' }}>
               {isRTL ? `السلة · ${count}` : `Cart · ${count}`}
             </span>
           </button>
@@ -179,7 +179,7 @@ export function StoreNavbarClient({ customer }: Props) {
           <Link
             href={pathname}
             locale={isRTL ? 'en' : 'ar'}
-            className="text-xs md:hidden transition-colors"
+            className="text-sm md:hidden transition-colors"
             style={{ color: '#6B5B4E' }}
           >
             {isRTL ? 'EN' : 'ع'}
@@ -213,7 +213,7 @@ export function StoreNavbarClient({ customer }: Props) {
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className="text-xs tracking-[0.15em] uppercase transition-colors"
+              className="text-sm tracking-[0.15em] uppercase transition-colors"
               style={{
                 color: link.active ? '#1A1208' : '#6B5B4E',
                 fontWeight: link.active ? 600 : 400,
@@ -241,7 +241,7 @@ export function StoreNavbarClient({ customer }: Props) {
                   borderRadius: '50%',
                   background: '#B8975A',
                   color: '#FFFFFF',
-                  fontSize: '10px',
+                  fontSize: '13px',
                   fontWeight: 600,
                   fontFamily: 'var(--font-body)',
                   flexShrink: 0,
@@ -249,7 +249,7 @@ export function StoreNavbarClient({ customer }: Props) {
               >
                 {customer.initial}
               </span>
-              <span className="text-xs tracking-[0.15em] uppercase" style={{ color: '#B8975A' }}>
+              <span className="text-sm tracking-[0.15em] uppercase" style={{ color: '#B8975A' }}>
                 حسابي
               </span>
             </Link>
@@ -258,7 +258,7 @@ export function StoreNavbarClient({ customer }: Props) {
               <Link
                 href="/store/login"
                 onClick={() => setOpen(false)}
-                className="text-xs tracking-[0.15em] uppercase"
+                className="text-sm tracking-[0.15em] uppercase"
                 style={{ color: '#B8975A' }}
               >
                 دخول
@@ -267,7 +267,7 @@ export function StoreNavbarClient({ customer }: Props) {
               <Link
                 href="/store/register"
                 onClick={() => setOpen(false)}
-                className="text-xs tracking-[0.15em] uppercase"
+                className="text-sm tracking-[0.15em] uppercase"
                 style={{ color: '#B8975A' }}
               >
                 تسجيل

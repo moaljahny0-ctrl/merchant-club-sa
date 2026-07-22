@@ -31,21 +31,21 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-sm">
 
         <div className="mb-10 text-center">
-          <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-2">Merchant Club SA</p>
+          <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-2">Merchant Club SA</p>
           <h1 className="font-display text-3xl font-light text-parchment">Reset password</h1>
         </div>
 
         {sent ? (
           <div className="text-center space-y-4">
-            <p className="text-muted text-sm">Check your email for a password reset link.</p>
-            <a href="/auth/login" className="text-gold text-xs tracking-[0.15em] uppercase hover:text-gold-light transition-colors">
+            <p className="text-muted text-base">Check your email for a password reset link.</p>
+            <a href="/auth/login" className="text-gold text-sm tracking-[0.15em] uppercase hover:text-gold-light transition-colors">
               Back to login
             </a>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
+              <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">
                 Email
               </label>
               <input
@@ -54,23 +54,23 @@ export default function ResetPasswordPage() {
                 autoComplete="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
+                className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
                 placeholder="you@example.com"
               />
             </div>
 
-            {error && <p className="text-red-400 text-xs">{error}</p>}
+            {error && <p className="text-red-400 text-sm">{error}</p>}
 
             <button
               type="submit"
               disabled={isPending}
-              className="w-full bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
+              className="w-full bg-gold text-ink text-sm font-medium tracking-[0.2em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
             >
               {isPending ? 'Sending…' : 'Send reset link'}
             </button>
 
             <div className="text-center mt-2">
-              <a href="/auth/login" className="text-xs text-muted hover:text-gold transition-colors">
+              <a href="/auth/login" className="text-sm text-muted hover:text-gold transition-colors">
                 Back to login
               </a>
             </div>

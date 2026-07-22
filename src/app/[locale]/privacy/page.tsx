@@ -23,18 +23,18 @@ export default async function PrivacyPage() {
 
           {/* Header */}
           <div className="mb-14">
-            <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-8">
+            <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-8">
               {t('eyebrow')}
             </p>
             <h1 className="font-display text-4xl md:text-5xl font-light text-parchment mb-4">
               {t('heading')}
             </h1>
-            <p className="text-xs text-muted tracking-wide">{t('last_updated')}</p>
+            <p className="text-sm text-muted tracking-wide">{t('last_updated')}</p>
             <div className="mt-8 h-px w-10 bg-border" />
           </div>
 
           {/* Intro */}
-          <p className="text-sm text-muted leading-relaxed mb-12">
+          <p className="text-base text-muted leading-relaxed mb-12">
             {t('intro')}
           </p>
 
@@ -42,10 +42,10 @@ export default async function PrivacyPage() {
           <div className="space-y-10">
             {sections.map((section) => (
               <div key={section.title} className="border-t border-border pt-10">
-                <h2 className="text-xs tracking-[0.2em] uppercase text-parchment mb-4">
+                <h2 className="text-sm tracking-[0.2em] uppercase text-parchment mb-4">
                   {section.title}
                 </h2>
-                <p className="text-sm text-muted leading-relaxed">
+                <p className="text-base text-muted leading-relaxed">
                   {section.body}
                 </p>
               </div>

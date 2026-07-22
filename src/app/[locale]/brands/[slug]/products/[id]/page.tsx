@@ -4,9 +4,9 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { StoreNavbar } from '@/components/layout/StoreNavbar'
 import { Footer } from '@/components/layout/Footer'
-import { Link } from '@/i18n/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
 import { AddToCartButton } from '@/components/cart/AddToCartButton'
+import { Button } from '@/components/ui/Button'
 import { RefTracker } from '@/components/storefront/RefTracker'
 import { TrackView } from '@/components/storefront/TrackView'
 
@@ -69,21 +69,22 @@ export default async function ProductDetailPage({ params }: Props) {
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-10 md:py-16">
 
           {/* Back link */}
-          <Link
+          <Button
             href={`/brands/${slug}`}
-            className="inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-60 mb-10 md:mb-14"
+            variant="back"
+            className="mb-10 md:mb-14"
             style={{ color: '#6B5B4E' }}
           >
             <span aria-hidden>{isAr ? '→' : '←'}</span>
             <span>{brandName}</span>
-          </Link>
+          </Button>
 
           {/* Product layout */}
           <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-8 md:gap-16 items-start">
 
             {/* ── Image ── */}
             <div
-              className="relative aspect-[4/5] overflow-hidden"
+              className="relative aspect-[4/5] overflow-hidden rounded-lg"
               style={{ background: '#F0EBE1' }}
             >
               {primaryImage ? (
@@ -108,7 +109,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
               {/* Brand eyebrow */}
               {brandName && (
-                <p className="text-[10px] tracking-[0.35em] uppercase" style={{ color: '#B8975A' }}>
+                <p className="text-[13px] tracking-[0.35em] uppercase" style={{ color: '#B8975A' }}>
                   {brandName}
                 </p>
               )}
@@ -144,7 +145,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
               {/* Description */}
               {description && (
-                <p className="text-sm leading-relaxed max-w-sm" style={{ color: '#6B5B4E' }}>
+                <p className="text-base leading-relaxed max-w-sm" style={{ color: '#6B5B4E' }}>
                   {description}
                 </p>
               )}
@@ -156,7 +157,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     inStock ? 'bg-emerald-500' : 'bg-red-400'
                   }`}
                 />
-                <p className={`text-xs ${inStock ? 'text-emerald-600' : 'text-red-500'}`}>
+                <p className={`text-sm ${inStock ? 'text-emerald-600' : 'text-red-500'}`}>
                   {inStock
                     ? (isAr ? 'متوفر — In Stock' : 'In Stock — متوفر')
                     : (isAr ? 'نفذت الكمية — Out of Stock' : 'Out of Stock — نفذت الكمية')}
@@ -176,9 +177,11 @@ export default async function ProductDetailPage({ params }: Props) {
                   maxQty={product.stock_quantity ?? 10}
                 />
               ) : (
-                <button
+                <Button
                   disabled
-                  className="inline-flex items-center justify-center text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 w-full mt-2 cursor-not-allowed"
+                  variant="secondary"
+                  fullWidth
+                  className="mt-2"
                   style={{
                     background: '#F0EBE1',
                     color: '#6B5B4E',
@@ -186,7 +189,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   }}
                 >
                   {isAr ? 'نفذت الكمية' : 'Out of Stock'}
-                </button>
+                </Button>
               )}
 
               {/* Trust strip */}
@@ -194,17 +197,17 @@ export default async function ProductDetailPage({ params }: Props) {
                 className="px-4 py-4 flex flex-col gap-2 rounded-lg"
                 style={{ border: '1px solid #E5DDD0', background: '#FFFFFF' }}
               >
-                <p className="text-[10px] leading-relaxed" style={{ color: '#6B5B4E' }}>
+                <p className="text-[13px] leading-relaxed" style={{ color: '#6B5B4E' }}>
                   {isAr
                     ? '✓ لا يلزم الدفع الإلكتروني — الدفع عند الاستلام'
                     : '✓ No online payment — Cash on delivery'}
                 </p>
-                <p className="text-[10px] leading-relaxed" style={{ color: '#6B5B4E' }}>
+                <p className="text-[13px] leading-relaxed" style={{ color: '#6B5B4E' }}>
                   {isAr
                     ? '✓ سيتواصل معك المتجر لتأكيد الطلب'
                     : '✓ The brand will contact you to confirm'}
                 </p>
-                <p className="text-[10px] leading-relaxed" style={{ color: '#6B5B4E' }}>
+                <p className="text-[13px] leading-relaxed" style={{ color: '#6B5B4E' }}>
                   {isAr
                     ? '✓ للاستفسار: info@merchantclubsa.com'
                     : '✓ Questions? info@merchantclubsa.com'}

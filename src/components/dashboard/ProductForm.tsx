@@ -32,13 +32,13 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
 
       {state.error && (
         <div className="border border-red-500/30 bg-red-500/10 px-4 py-3">
-          <p className="text-red-400 text-xs">{state.error}</p>
+          <p className="text-red-400 text-sm">{state.error}</p>
         </div>
       )}
 
       {/* Product name */}
       <div>
-        <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+        <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2.5">
           {t.label_name} <span className="text-gold">*</span>
         </label>
         <input
@@ -46,7 +46,7 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
           required
           dir="ltr"
           defaultValue={defaultValues?.title_en}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
           placeholder={t.placeholder_name}
         />
       </div>
@@ -54,7 +54,7 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
       {/* Price + Stock row */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+          <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2.5">
             {t.label_price} <span className="text-gold">*</span>
           </label>
           <input
@@ -65,12 +65,12 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
             step={0.01}
             dir="ltr"
             defaultValue={defaultValues?.price}
-            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
+            className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
             placeholder="0.00"
           />
         </div>
         <div>
-          <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+          <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2.5">
             {t.label_stock} <span className="text-gold">*</span>
           </label>
           <input
@@ -81,7 +81,7 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
             step={1}
             dir="ltr"
             defaultValue={defaultValues?.stock_quantity ?? 1}
-            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
+            className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors"
             placeholder="1"
           />
         </div>
@@ -89,7 +89,7 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
 
       {/* Category */}
       <div>
-        <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+        <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2.5">
           {t.label_category} <span className="text-gold">*</span>
         </label>
         <select
@@ -97,7 +97,7 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
           required
           defaultValue={defaultValues?.category || ''}
           dir="ltr"
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold transition-colors"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold transition-colors"
         >
           <option value="" disabled>{t.placeholder_category}</option>
           {CATEGORIES.map(cat => (
@@ -108,7 +108,7 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
 
       {/* Short description */}
       <div>
-        <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+        <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2.5">
           {t.label_description}
         </label>
         <textarea
@@ -116,14 +116,14 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
           rows={3}
           dir="ltr"
           defaultValue={defaultValues?.description_en}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors resize-none leading-relaxed"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/40 transition-colors resize-none leading-relaxed"
           placeholder={t.placeholder_desc}
         />
       </div>
 
       {/* Image */}
       <div>
-        <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2.5">
+        <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2.5">
           {t.label_image}
         </label>
 
@@ -139,10 +139,10 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
         )}
 
         <label className="flex items-center gap-3 border border-border border-dashed px-4 py-4 cursor-pointer hover:border-gold transition-colors group">
-          <span className="text-[10px] text-muted tracking-[0.15em] uppercase group-hover:text-gold transition-colors">
+          <span className="text-[13px] text-muted tracking-[0.15em] uppercase group-hover:text-gold transition-colors">
             {previewUrl ? t.replace_image : t.choose_image}
           </span>
-          <span className="text-[10px] text-muted/40 ms-auto">{t.image_formats}</span>
+          <span className="text-[13px] text-muted/40 ms-auto">{t.image_formats}</span>
           <input
             name="image"
             type="file"
@@ -158,7 +158,7 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
         <button
           type="submit"
           disabled={isPending}
-          className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
+          className="bg-gold text-ink text-sm font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
         >
           {isPending ? t.saving : resolvedSubmitLabel}
         </button>

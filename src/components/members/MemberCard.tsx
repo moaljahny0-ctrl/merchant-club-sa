@@ -29,7 +29,7 @@ export function MemberCard({ member, locale }: Props) {
         ) : (
           <div className="absolute inset-0 flex flex-col justify-between p-4 opacity-40">
             <div className="h-px w-5 bg-gold" />
-            <p className="text-[9px] tracking-[0.25em] uppercase text-muted">
+            <p className="text-[12px] tracking-[0.25em] uppercase text-muted">
               {isAr ? 'يُختار قريباً' : 'Coming soon'}
             </p>
           </div>
@@ -40,12 +40,12 @@ export function MemberCard({ member, locale }: Props) {
       {(hasName || type) && (
         <div className="pt-3 space-y-0.5">
           {hasName && (
-            <p className="text-xs text-parchment font-medium tracking-wide leading-snug">
+            <p className="text-sm text-parchment font-medium tracking-wide leading-snug">
               {name}
             </p>
           )}
           {type && (
-            <p className="text-[10px] text-muted tracking-[0.15em] uppercase">
+            <p className="text-[13px] text-muted tracking-[0.15em] uppercase">
               {type}
             </p>
           )}

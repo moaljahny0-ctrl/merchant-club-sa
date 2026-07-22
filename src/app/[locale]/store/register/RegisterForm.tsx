@@ -7,7 +7,7 @@ import { registerCustomer } from '@/lib/actions/customers';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontSize: '9px',
+  fontSize: '12px',
   letterSpacing: '0.25em',
   textTransform: 'uppercase',
   color: '#6B5B4E',
@@ -19,7 +19,7 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid #E5DDD0',
   background: '#FFFFFF',
   color: '#1A1208',
-  fontSize: '14px',
+  fontSize: '17px',
   padding: '12px 16px',
   outline: 'none',
   fontFamily: 'inherit',
@@ -130,7 +130,7 @@ export function RegisterForm() {
       </div>
 
       {error && (
-        <p style={{ fontSize: '12px', color: '#cc5555', lineHeight: 1.5 }}>{error}</p>
+        <p style={{ fontSize: '15px', color: '#cc5555', lineHeight: 1.5 }}>{error}</p>
       )}
 
       <button
@@ -140,7 +140,7 @@ export function RegisterForm() {
           width: '100%',
           background: isPending ? '#9A8060' : '#1A1208',
           color: '#F5F0E8',
-          fontSize: '10px',
+          fontSize: '13px',
           letterSpacing: '0.25em',
           textTransform: 'uppercase',
           padding: '16px',
@@ -155,7 +155,7 @@ export function RegisterForm() {
           : (ar ? 'إنشاء الحساب' : 'Create account')}
       </button>
 
-      <p style={{ fontSize: '12px', color: '#6B5B4E', textAlign: 'center' }}>
+      <p style={{ fontSize: '15px', color: '#6B5B4E', textAlign: 'center' }}>
         {ar ? (
           <>لديك حساب بالفعل؟{' '}
             <a href="/store/login" style={{ color: '#B8975A', textDecoration: 'none' }}>تسجيل الدخول ←</a>

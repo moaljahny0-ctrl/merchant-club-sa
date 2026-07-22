@@ -14,12 +14,12 @@ export default async function NewProductPage() {
       <div className="mb-8">
         <Link
           href="/dashboard/brand/products"
-          className="text-[10px] text-muted hover:text-gold tracking-[0.2em] uppercase transition-colors"
+          className="text-[13px] text-muted hover:text-gold tracking-[0.2em] uppercase transition-colors"
         >
           {t.back}
         </Link>
         <h1 className="font-display text-3xl font-light text-parchment mt-3">{t.heading}</h1>
-        <p className="text-muted text-sm mt-1">{t.subheading}</p>
+        <p className="text-muted text-base mt-1">{t.subheading}</p>
       </div>
 
       <ProductForm action={createProduct} submitLabel={t.create_label} locale={locale} />

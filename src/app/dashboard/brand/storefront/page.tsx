@@ -76,26 +76,26 @@ export default async function StorefrontPreviewPage() {
   return (
     <div className="p-6 md:p-10 max-w-6xl">
       <div className="mb-8">
-        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.storefront.eyebrow}</p>
+        <p className="text-[12px] text-gold tracking-[0.35em] uppercase mb-3">{t.storefront.eyebrow}</p>
         <h1 className="font-display text-4xl font-light text-parchment leading-none">{t.storefront.heading}</h1>
       </div>
 
       {isSubmitted && (
         <div className="mb-6 border border-gold/30 bg-gold/5 px-6 py-5">
-          <p className="text-[9px] text-gold tracking-[0.3em] uppercase mb-2">{t.storefront.under_review_label}</p>
-          <p className="text-parchment text-sm leading-relaxed">
+          <p className="text-[12px] text-gold tracking-[0.3em] uppercase mb-2">{t.storefront.under_review_label}</p>
+          <p className="text-parchment text-base leading-relaxed">
             {t.storefront.under_review_body}
           </p>
         </div>
       )}
 
       {!isLive ? (
-        <div className="border border-border px-8 py-12 text-center max-w-xl">
-          <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.storefront.not_live_label}</p>
+        <div className="border border-border rounded-lg px-8 py-12 text-center max-w-xl">
+          <p className="text-[12px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.storefront.not_live_label}</p>
           <p className="text-parchment text-base font-light leading-relaxed mb-3">
             {t.storefront.not_live_body}
           </p>
-          <p className="text-muted text-sm leading-relaxed">
+          <p className="text-muted text-base leading-relaxed">
             {t.storefront.not_live_note}
           </p>
         </div>
@@ -104,14 +104,14 @@ export default async function StorefrontPreviewPage() {
           {/* URL bar */}
           <div className="flex items-center gap-3 mb-6 flex-wrap">
             <div className="flex-1 bg-surface border border-border px-4 py-2.5 flex items-center gap-3 min-w-0">
-              <span className="text-[9px] text-muted/50 tracking-[0.2em] uppercase shrink-0">{t.storefront.live_url_label}</span>
-              <span className="text-muted text-xs truncate font-mono">{storefrontUrl}</span>
+              <span className="text-[12px] text-muted/50 tracking-[0.2em] uppercase shrink-0">{t.storefront.live_url_label}</span>
+              <span className="text-muted text-sm truncate font-mono">{storefrontUrl}</span>
             </div>
             <a
               href={`${SITE_URL}/en/brands/${brand?.slug}?preview=true`}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 border border-border text-parchment text-[10px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:border-gold hover:text-gold transition-colors"
+              className="shrink-0 border border-border text-parchment text-[13px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:border-gold hover:text-gold transition-colors"
             >
               {t.storefront.preview_btn}
             </a>
@@ -119,7 +119,7 @@ export default async function StorefrontPreviewPage() {
               href={storefrontUrl ?? '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors"
+              className="shrink-0 bg-gold text-ink text-[13px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-gold-light transition-colors"
             >
               {t.storefront.open_live_btn}
             </a>
@@ -153,7 +153,7 @@ export default async function StorefrontPreviewPage() {
           )}
 
           {/* Preview note */}
-          <p className="text-[9px] text-muted/50 tracking-[0.2em] uppercase mb-4 mt-6">
+          <p className="text-[12px] text-muted/50 tracking-[0.2em] uppercase mb-4 mt-6">
             {t.storefront.live_preview_label}
           </p>
 
@@ -166,7 +166,7 @@ export default async function StorefrontPreviewPage() {
             />
           </div>
 
-          <p className="text-[9px] text-muted/40 mt-3 leading-relaxed">
+          <p className="text-[12px] text-muted/40 mt-3 leading-relaxed">
             {t.storefront.live_note}
           </p>
         </>

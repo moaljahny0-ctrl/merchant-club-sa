@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/Button';
 
 export default async function AboutPage() {
   const t = await getTranslations('about');
@@ -19,7 +19,7 @@ export default async function AboutPage() {
         {/* Hero */}
         <section className="px-6 md:px-10 py-20 md:py-28 border-b border-border">
           <div className="max-w-3xl mx-auto">
-            <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-8">
+            <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-8">
               {t('eyebrow')}
             </p>
             <h1 className="font-display text-4xl md:text-6xl font-light text-parchment leading-tight">
@@ -47,7 +47,7 @@ export default async function AboutPage() {
         {/* Mission */}
         <section className="px-6 md:px-10 py-16 md:py-24 border-b border-border">
           <div className="max-w-3xl mx-auto">
-            <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-6">
+            <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-6">
               {t('mission_label')}
             </p>
             <p className="font-display text-2xl md:text-4xl font-light text-parchment leading-snug">
@@ -59,14 +59,14 @@ export default async function AboutPage() {
         {/* Values */}
         <section className="px-6 md:px-10 py-16 md:py-24 border-b border-border">
           <div className="max-w-3xl mx-auto">
-            <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-12">
+            <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-12">
               {t('values_label')}
             </p>
             <div className="space-y-10">
               {values.map((value) => (
                 <div key={value.title} className="grid md:grid-cols-3 gap-4 md:gap-10">
-                  <p className="text-sm text-parchment font-medium">{value.title}</p>
-                  <p className="md:col-span-2 text-sm text-muted leading-relaxed">{value.body}</p>
+                  <p className="text-base text-parchment font-medium">{value.title}</p>
+                  <p className="md:col-span-2 text-base text-muted leading-relaxed">{value.body}</p>
                 </div>
               ))}
             </div>
@@ -78,30 +78,27 @@ export default async function AboutPage() {
           <div className="max-w-3xl mx-auto grid md:grid-cols-2 gap-16">
 
             <div>
-              <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-6">
+              <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-6">
                 {t('contact_label')}
               </p>
-              <p className="text-sm text-muted leading-relaxed mb-6">
+              <p className="text-base text-muted leading-relaxed mb-6">
                 {t('contact_body')}
               </p>
               <a
                 href="mailto:info@merchantclubsa.com"
-                className="text-sm text-parchment hover:text-gold transition-colors"
+                className="text-base text-parchment hover:text-gold transition-colors"
               >
                 {t('contact_cta')}
               </a>
             </div>
 
             <div>
-              <p className="text-[10px] text-gold tracking-[0.35em] uppercase mb-6">
+              <p className="text-[13px] text-gold tracking-[0.35em] uppercase mb-6">
                 {t('apply_label')}
               </p>
-              <Link
-                href="/apply"
-                className="inline-flex items-center justify-center bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-              >
+              <Button href="/apply" variant="primary" className="bg-gold text-ink hover:bg-gold-light">
                 {t('apply_cta')}
-              </Link>
+              </Button>
             </div>
 
           </div>

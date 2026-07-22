@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { ProductsClient } from '@/components/dashboard/ProductsClient'
+import { Button } from '@/components/ui/Button'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 export default async function ProductsPage() {
@@ -35,17 +35,14 @@ export default async function ProductsPage() {
       {/* Header */}
       <div className="flex items-end justify-between mb-10">
         <div>
-          <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.products.eyebrow}</p>
+          <p className="text-[12px] text-gold tracking-[0.35em] uppercase mb-3">{t.products.eyebrow}</p>
           <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">
             {t.products.heading}
           </h1>
         </div>
-        <Link
-          href="/dashboard/brand/products/new"
-          className="bg-gold text-ink text-[10px] font-medium tracking-[0.18em] uppercase px-6 py-3 hover:bg-gold-light transition-colors"
-        >
+        <Button href="/dashboard/brand/products/new" native variant="primary" className="bg-gold text-ink hover:bg-gold-light">
           {t.products.add_product}
-        </Link>
+        </Button>
       </div>
 
       {(!products || products.length === 0) ? (
@@ -59,15 +56,12 @@ export default async function ProductsPage() {
             <h2 className="font-display text-2xl font-light text-parchment mb-4">
               {t.products.no_products_heading}
             </h2>
-            <p className="text-muted text-sm leading-relaxed mb-10">
+            <p className="text-muted text-base leading-relaxed mb-10">
               {t.products.no_products_body}
             </p>
-            <Link
-              href="/dashboard/brand/products/new"
-              className="inline-flex items-center justify-center bg-gold text-ink text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 hover:bg-gold-light transition-colors"
-            >
+            <Button href="/dashboard/brand/products/new" native variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               {t.products.add_first}
-            </Link>
+            </Button>
           </div>
         </div>
       ) : (

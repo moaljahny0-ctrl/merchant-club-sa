@@ -33,7 +33,7 @@
   "apply": {
     "eyebrow": "Merchant Club SA",
     "heading": "Become a partner.",
-    "subheading": "We read every application ourselves. No filters, no bots — just a real look at what you've built and whether it belongs here.",
+    "subheading": "We read every application ourselves. No filters, no bots — just a real look at what you've built and whether it meets our standards.",
     "note": "We get back to every applicant. Usually within a week.",
     "fields": {
       "brand_name": "Brand Name",
@@ -73,7 +73,7 @@
     "heading": "Join the club.",
     "subheading": "Two paths. One standard.",
     "partner_title": "I'm a brand.",
-    "partner_body": "You've built something — a product, an identity, a following. We curate and showcase the best Saudi independent brands.",
+    "partner_body": "You've built something — a product, an identity, a following. Meet our standards, and we'll host your storefront and grow it through our creator network.",
     "partner_cta": "Apply as a Partner",
     "member_title": "I'm a creator.",
     "member_body": "You have the audience and the cultural pull. We build the product around you, handle production and commerce, and make it real.",

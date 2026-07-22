@@ -132,7 +132,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             {/* Text — right in RTL */}
             <div className="flex-1 max-w-lg">
               <div
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs mb-6"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm mb-6"
                 style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.75)' }}
               >
                 + {isAr ? 'منصة العلامات السعودية المنتقاة' : 'Saudi Curated Brands Platform'}
@@ -154,7 +154,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
               </p>
               <a
                 href="#products"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-opacity hover:opacity-85"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-bold transition-opacity hover:opacity-85"
                 style={{ background: C.gold, color: '#FFFFFF' }}
               >
                 {isAr ? 'تسوّق الآن ←' : '→ Shop Now'}
@@ -177,7 +177,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
       {categories.length > 0 && (
         <section className="px-6 md:px-10 py-7" style={{ borderBottom: `1px solid ${C.border}` }}>
           <div className="max-w-7xl mx-auto">
-            <p className="text-sm font-semibold mb-4" style={{ color: C.text }}>
+            <p className="text-base font-semibold mb-4" style={{ color: C.text }}>
               {isAr ? 'تصفح حسب الفئة' : 'Browse by Category'}
             </p>
             <div className="flex gap-2 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
@@ -218,7 +218,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             <select
               value={sortOrder}
               onChange={e => setSortOrder(e.target.value)}
-              className="text-xs rounded-md px-2 py-1.5 border"
+              className="text-sm rounded-md px-2 py-1.5 border"
               style={{ color: C.text2, borderColor: C.border, background: C.card, outline: 'none' }}
             >
               <option value="newest">{isAr ? 'الأحدث' : 'Newest'}</option>
@@ -235,7 +235,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
                 <button
                   key={tab.key}
                   onClick={() => setActivePriceRange(tab.key)}
-                  className="shrink-0 px-3 py-1.5 rounded-full text-xs transition-colors"
+                  className="shrink-0 px-3 py-1.5 rounded-full text-sm transition-colors"
                   style={{
                     background: isActive ? C.text : C.catBg,
                     color:      isActive ? '#FFFFFF' : C.text2,
@@ -249,7 +249,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
           </div>
 
           {/* Result count */}
-          <p className="text-xs mb-5" style={{ color: C.text2 }}>
+          <p className="text-sm mb-5" style={{ color: C.text2 }}>
             {isAr
               ? `${filteredProducts.length} ${filteredProducts.length === 1 ? 'منتج' : 'منتجاً'}`
               : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'}`}
@@ -263,7 +263,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
               ))}
             </div>
           ) : (
-            <p className="text-center py-16 text-sm" style={{ color: C.text2 }}>
+            <p className="text-center py-16 text-base" style={{ color: C.text2 }}>
               {isAr ? 'لا توجد منتجات في هذه الفئة' : 'No products in this category'}
             </p>
           )}
@@ -278,10 +278,10 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             style={{ background: C.promo }}
           >
             <div>
-              <p className="text-sm font-bold mb-1" style={{ color: C.text }}>
+              <p className="text-base font-bold mb-1" style={{ color: C.text }}>
                 🎁 {isAr ? 'عرض محدود' : 'Limited Offer'}
               </p>
-              <p className="text-sm leading-relaxed" style={{ color: C.text2 }}>
+              <p className="text-base leading-relaxed" style={{ color: C.text2 }}>
                 {isAr
                   ? 'استخدم الكود أثناء الشحن للحصول على شحن مجاني لأول طلب'
                   : 'Use code at checkout to get free shipping on your first order'}
@@ -289,7 +289,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             </div>
             <button
               onClick={copyPromoCode}
-              className="shrink-0 px-6 py-3 rounded-lg text-sm font-bold tracking-widest transition-opacity hover:opacity-85 active:scale-95"
+              className="shrink-0 px-6 py-3 rounded-lg text-base font-bold tracking-widest transition-opacity hover:opacity-85 active:scale-95"
               style={{
                 background: C.promobtn,
                 color: '#FFFFFF',
@@ -314,7 +314,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             </h2>
             <Link
               href="/brands"
-              className="text-sm transition-opacity hover:opacity-70"
+              className="text-base transition-opacity hover:opacity-70"
               style={{ color: C.gold }}
             >
               {isAr ? '← عرض الكل' : 'View All →'}
@@ -327,7 +327,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
               ))}
             </div>
           ) : (
-            <p className="text-sm" style={{ color: C.text2 }}>
+            <p className="text-base" style={{ color: C.text2 }}>
               {isAr ? 'لا توجد علامات متاحة بعد.' : 'No brands available yet.'}
             </p>
           )}
@@ -351,7 +351,7 @@ function CategoryPill({
   return (
     <button
       onClick={onClick}
-      className="shrink-0 px-4 py-2 rounded-full text-sm transition-colors"
+      className="shrink-0 px-4 py-2 rounded-full text-base transition-colors"
       style={{
         background: active ? C.catActive : C.catBg,
         color:      active ? C.text      : C.text2,
@@ -407,12 +407,12 @@ function HeroCard({
       </div>
       <div className="px-3 py-2.5">
         <p
-          className="text-xs font-medium leading-snug line-clamp-2 mb-1"
+          className="text-sm font-medium leading-snug line-clamp-2 mb-1"
           style={{ color: 'rgba(255,255,255,0.9)' }}
         >
           {title}
         </p>
-        <p className="text-xs font-bold" style={{ color: C.gold }}>
+        <p className="text-sm font-bold" style={{ color: C.gold }}>
           {(salePrice ?? price).toFixed(0)} {isAr ? 'ريال' : 'SAR'}
         </p>
       </div>
@@ -477,27 +477,27 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
         <div className="pt-3 space-y-1">
           {brandName && (
             <p
-              className="text-[10px] uppercase tracking-wider"
+              className="text-[13px] uppercase tracking-wider"
               style={{ color: C.gold, fontFamily: 'var(--font-body)' }}
             >
               {brandName}
             </p>
           )}
-          <p className="text-sm font-medium leading-snug" style={{ color: C.text }}>
+          <p className="text-base font-medium leading-snug" style={{ color: C.text }}>
             {title}
           </p>
           <div className="flex items-baseline gap-2">
             {salePrice ? (
               <>
-                <span className="text-sm font-bold" style={{ color: C.gold }}>
+                <span className="text-base font-bold" style={{ color: C.gold }}>
                   {salePrice.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
                 </span>
-                <span className="text-xs line-through" style={{ color: C.text2 }}>
+                <span className="text-sm line-through" style={{ color: C.text2 }}>
                   {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
                 </span>
               </>
             ) : (
-              <span className="text-sm font-bold" style={{ color: C.gold }}>
+              <span className="text-base font-bold" style={{ color: C.gold }}>
                 {price.toFixed(0)} {isAr ? 'ريال' : 'SAR'}
               </span>
             )}
@@ -506,7 +506,7 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
       </Link>
       <button
         onClick={handleAddToCart}
-        className="mt-3 w-full py-2 text-[10px] tracking-[0.2em] uppercase transition-all duration-200"
+        className="mt-3 w-full py-2 text-[13px] tracking-[0.2em] uppercase transition-all duration-200"
         style={{
           border:     `1px solid ${added ? '#4A9E6B' : C.border}`,
           background: added ? '#F0F7F3' : 'transparent',
@@ -556,12 +556,12 @@ function LightPartnerCard({ partner, isAr }: { partner: Partner; isAr: boolean }
       </div>
       <div className="pt-3 space-y-0.5">
         {name && (
-          <p className="text-sm font-medium" style={{ color: C.text }}>
+          <p className="text-base font-medium" style={{ color: C.text }}>
             {name}
           </p>
         )}
         {category && (
-          <p className="text-[10px] uppercase tracking-wider" style={{ color: C.text2 }}>
+          <p className="text-[13px] uppercase tracking-wider" style={{ color: C.text2 }}>
             {category}
           </p>
         )}

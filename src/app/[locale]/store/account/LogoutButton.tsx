@@ -24,7 +24,7 @@ export function LogoutButton() {
         background: 'transparent',
         border: '1px solid #E5DDD0',
         color: '#6B5B4E',
-        fontSize: '10px',
+        fontSize: '13px',
         letterSpacing: '0.2em',
         textTransform: 'uppercase',
         padding: '12px 24px',

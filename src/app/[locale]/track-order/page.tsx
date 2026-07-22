@@ -1,6 +1,7 @@
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
 import { Footer } from '@/components/layout/Footer';
 import { createServiceClient } from '@/lib/supabase/server';
+import { Button } from '@/components/ui/Button';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -91,7 +92,7 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
         <div className="max-w-sm w-full py-16">
 
           <p
-            className="text-[9px] tracking-[0.45em] uppercase mb-6"
+            className="text-[12px] tracking-[0.45em] uppercase mb-6"
             style={{ color: '#B8975A' }}
           >
             Merchant Club SA
@@ -102,7 +103,7 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
           >
             {isAr ? 'تتبع طلبك' : 'Track your order'}
           </h1>
-          <p className="text-sm mb-10 leading-relaxed" style={{ color: '#6B5B4E' }}>
+          <p className="text-base mb-10 leading-relaxed" style={{ color: '#6B5B4E' }}>
             {isAr
               ? 'أدخل رقم الطلب ورقم الجوال المستخدم عند الطلب.'
               : 'Enter your order number and the phone number you used when ordering.'}
@@ -112,7 +113,7 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
           <form method="GET" className="flex flex-col gap-4 mb-8">
             <div>
               <label
-                className="block text-[10px] tracking-[0.2em] uppercase mb-2"
+                className="block text-[13px] tracking-[0.2em] uppercase mb-2"
                 style={{ color: '#6B5B4E' }}
               >
                 {isAr ? 'رقم الطلب' : 'Order Number'}
@@ -123,14 +124,14 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
                 required
                 defaultValue={orderNumber ?? ''}
                 placeholder="MCO-20260501-1234"
-                className="w-full text-sm px-4 py-3 border border-[#E5DDD0] placeholder:text-[#6B5B4E]/40 focus:outline-none focus:border-[#B8975A] transition-colors font-mono tracking-wide"
+                className="w-full text-base px-4 py-3 border border-[#E5DDD0] placeholder:text-[#6B5B4E]/40 focus:outline-none focus:border-[#B8975A] transition-colors font-mono tracking-wide"
                 style={{ background: '#FFFFFF', color: '#1A1208' }}
                 dir="ltr"
               />
             </div>
             <div>
               <label
-                className="block text-[10px] tracking-[0.2em] uppercase mb-2"
+                className="block text-[13px] tracking-[0.2em] uppercase mb-2"
                 style={{ color: '#6B5B4E' }}
               >
                 {isAr ? 'رقم الجوال' : 'Phone Number'}
@@ -141,14 +142,16 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
                 required
                 defaultValue={phone ?? ''}
                 placeholder="+966 5X XXX XXXX"
-                className="w-full text-sm px-4 py-3 border border-[#E5DDD0] placeholder:text-[#6B5B4E]/40 focus:outline-none focus:border-[#B8975A] transition-colors"
+                className="w-full text-base px-4 py-3 border border-[#E5DDD0] placeholder:text-[#6B5B4E]/40 focus:outline-none focus:border-[#B8975A] transition-colors"
                 style={{ background: '#FFFFFF', color: '#1A1208' }}
                 dir="ltr"
               />
             </div>
-            <button
+            <Button
               type="submit"
-              className="inline-flex items-center justify-center text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 transition-opacity hover:opacity-85 w-full mt-2"
+              variant="primary"
+              fullWidth
+              className="mt-2"
               style={{
                 background: '#3D2B1F',
                 color: '#FFFFFF',
@@ -156,7 +159,7 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
               }}
             >
               {isAr ? 'بحث عن الطلب' : 'Find Order'}
-            </button>
+            </Button>
           </form>
 
           {/* Error */}
@@ -165,7 +168,7 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
               className="px-4 py-4 mb-6 rounded-lg"
               style={{ border: '1px solid rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.05)' }}
             >
-              <p className="text-sm text-red-600">
+              <p className="text-base text-red-600">
                 {isAr
                   ? 'لم يُعثر على طلب بهذه المعلومات. تحقق من رقم الطلب ورقم الجوال.'
                   : 'No order found. Please check your order number and phone number.'}
@@ -179,15 +182,15 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
               className="p-6 space-y-4 rounded-xl"
               style={{ border: '1px solid #E5DDD0', background: '#FFFFFF' }}
             >
-              <p className="text-[10px] tracking-[0.35em] uppercase" style={{ color: '#B8975A' }}>
+              <p className="text-[13px] tracking-[0.35em] uppercase" style={{ color: '#B8975A' }}>
                 {isAr ? 'تفاصيل الطلب' : 'Order Details'}
               </p>
 
               <div className="flex items-center justify-between gap-4">
-                <p className="text-[10px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
+                <p className="text-[13px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
                   {isAr ? 'رقم الطلب' : 'Order'}
                 </p>
-                <p className="font-mono text-sm" style={{ color: '#1A1208' }}>
+                <p className="font-mono text-base" style={{ color: '#1A1208' }}>
                   {orderData.order_number}
                 </p>
               </div>
@@ -195,10 +198,10 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
               <div className="h-px" style={{ background: '#E5DDD0' }} />
 
               <div className="flex items-center justify-between gap-4">
-                <p className="text-[10px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
+                <p className="text-[13px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
                   {isAr ? 'الاسم' : 'Name'}
                 </p>
-                <p className="text-sm" style={{ color: '#1A1208' }}>
+                <p className="text-base" style={{ color: '#1A1208' }}>
                   {orderData.customer_name ?? '—'}
                 </p>
               </div>
@@ -206,10 +209,10 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
               <div className="h-px" style={{ background: '#E5DDD0' }} />
 
               <div className="flex items-center justify-between gap-4">
-                <p className="text-[10px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
+                <p className="text-[13px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
                   {isAr ? 'الإجمالي' : 'Total'}
                 </p>
-                <p className="text-sm font-bold" style={{ color: '#B8975A' }}>
+                <p className="text-base font-bold" style={{ color: '#B8975A' }}>
                   {Number(orderData.subtotal).toFixed(2)} {isAr ? 'ريال' : 'SAR'}
                 </p>
               </div>
@@ -218,10 +221,10 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
                 <>
                   <div className="h-px" style={{ background: '#E5DDD0' }} />
                   <div className="flex items-center justify-between gap-4">
-                    <p className="text-[10px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
+                    <p className="text-[13px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
                       {isAr ? 'المدينة' : 'City'}
                     </p>
-                    <p className="text-sm" style={{ color: '#1A1208' }}>
+                    <p className="text-base" style={{ color: '#1A1208' }}>
                       {orderData.delivery_address.city}
                     </p>
                   </div>
@@ -231,11 +234,11 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
               <div className="h-px" style={{ background: '#E5DDD0' }} />
 
               <div className="flex items-center justify-between gap-4">
-                <p className="text-[10px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
+                <p className="text-[13px] tracking-[0.15em] uppercase" style={{ color: '#6B5B4E' }}>
                   {isAr ? 'الحالة' : 'Status'}
                 </p>
                 <p
-                  className="text-sm font-medium"
+                  className="text-base font-medium"
                   style={{ color: STATUS_COLOR[currentStatus] ?? '#6B5B4E' }}
                 >
                   {isAr
@@ -246,7 +249,7 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
             </div>
           )}
 
-          <p className="mt-8 text-[10px] text-center" style={{ color: '#6B5B4E' }}>
+          <p className="mt-8 text-[13px] text-center" style={{ color: '#6B5B4E' }}>
             {isAr ? 'تحتاج مساعدة؟ ' : 'Need help? '}
             <a
               href="mailto:info@merchantclubsa.com"

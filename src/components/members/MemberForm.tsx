@@ -18,7 +18,7 @@ export function MemberForm() {
         <h2 className="font-display text-3xl font-light text-parchment mb-4">
           {t('success_heading')}
         </h2>
-        <p className="text-muted text-sm leading-relaxed max-w-sm">
+        <p className="text-muted text-base leading-relaxed max-w-sm">
           {t('success_body')}
         </p>
       </div>
@@ -29,15 +29,15 @@ export function MemberForm() {
     <form action={action} className="space-y-8">
 
       {state.error === 'required' && (
-        <p className="text-xs text-red-400 tracking-[0.1em]">{t('error_required')}</p>
+        <p className="text-sm text-red-400 tracking-[0.1em]">{t('error_required')}</p>
       )}
       {state.error === 'send_failed' && (
-        <p className="text-xs text-red-400 tracking-[0.1em]">{t('error_send_failed')}</p>
+        <p className="text-sm text-red-400 tracking-[0.1em]">{t('error_send_failed')}</p>
       )}
 
       {/* Name */}
       <div className="space-y-2">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.name')} <span className="text-gold">*</span>
         </label>
         <input
@@ -45,20 +45,20 @@ export function MemberForm() {
           type="text"
           required
           placeholder={t('placeholders.name')}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
         />
       </div>
 
       {/* Type */}
       <div className="space-y-2">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.type')} <span className="text-gold">*</span>
         </label>
         <select
           name="type"
           required
           defaultValue=""
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors appearance-none"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors appearance-none"
         >
           <option value="" disabled className="text-muted/40">
             {t('placeholders.type')}
@@ -74,7 +74,7 @@ export function MemberForm() {
 
       {/* Platform */}
       <div className="space-y-2">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.platform')} <span className="text-gold">*</span>
         </label>
         <input
@@ -82,26 +82,26 @@ export function MemberForm() {
           type="text"
           required
           placeholder={t('placeholders.platform')}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
         />
       </div>
 
       {/* Audience */}
       <div className="space-y-2">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.audience')}
         </label>
         <input
           name="audience"
           type="text"
           placeholder={t('placeholders.audience')}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
         />
       </div>
 
       {/* Idea */}
       <div className="space-y-2">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.idea')} <span className="text-gold">*</span>
         </label>
         <textarea
@@ -109,26 +109,26 @@ export function MemberForm() {
           required
           rows={5}
           placeholder={t('placeholders.idea')}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors resize-none leading-relaxed"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors resize-none leading-relaxed"
         />
       </div>
 
       {/* Instagram */}
       <div className="space-y-2">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.instagram')}
         </label>
         <input
           name="instagram"
           type="text"
           placeholder={t('placeholders.instagram')}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
         />
       </div>
 
       {/* Email */}
       <div className="space-y-2">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.email')} <span className="text-gold">*</span>
         </label>
         <input
@@ -136,14 +136,14 @@ export function MemberForm() {
           type="email"
           required
           placeholder={t('placeholders.email')}
-          className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
+          className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
         />
       </div>
 
       <button
         type="submit"
         disabled={pending}
-        className="w-full bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-gold text-ink text-sm font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {pending ? t('submitting') : t('submit')}
       </button>

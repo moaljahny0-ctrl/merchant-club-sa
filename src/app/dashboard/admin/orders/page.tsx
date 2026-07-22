@@ -48,22 +48,22 @@ export default async function AdminOrdersPage() {
   return (
     <div className="p-6 md:p-10 max-w-6xl">
       <div className="mb-8">
-        <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-1">Admin</p>
+        <p className="text-[13px] text-gold tracking-[0.3em] uppercase mb-1">Admin</p>
         <h1 className="font-display text-3xl font-light text-parchment">Orders</h1>
-        <p className="text-muted text-sm mt-1">
+        <p className="text-muted text-base mt-1">
           {orders?.length ?? 0} orders · SAR {totalRevenue.toLocaleString('en-SA', { minimumFractionDigits: 2 })} revenue
         </p>
       </div>
 
       {(!orders || orders.length === 0) ? (
         <div className="border border-border p-10 text-center">
-          <p className="text-muted text-sm">No orders yet.</p>
+          <p className="text-muted text-base">No orders yet.</p>
         </div>
       ) : (
         <div className="border border-border">
           <div className="hidden md:grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-4 px-5 py-3 border-b border-border">
             {['Order #', 'Brand', 'Customer', 'Total', 'Status', 'Date'].map(h => (
-              <p key={h} className="text-[9px] text-muted tracking-[0.2em] uppercase">{h}</p>
+              <p key={h} className="text-[12px] text-muted tracking-[0.2em] uppercase">{h}</p>
             ))}
           </div>
 
@@ -75,17 +75,17 @@ export default async function AdminOrdersPage() {
                   key={order.id}
                   className="grid grid-cols-1 md:grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-2 md:gap-4 px-5 py-4 items-center hover:bg-surface transition-colors"
                 >
-                  <p className="text-parchment text-xs font-mono">{order.order_number}</p>
-                  <p className="text-parchment text-sm truncate">{brandName}</p>
+                  <p className="text-parchment text-sm font-mono">{order.order_number}</p>
+                  <p className="text-parchment text-base truncate">{brandName}</p>
                   <div>
-                    <p className="text-parchment text-sm">{order.customer_name ?? '—'}</p>
-                    <p className="text-muted text-xs">{order.customer_email ?? ''}</p>
+                    <p className="text-parchment text-base">{order.customer_name ?? '—'}</p>
+                    <p className="text-muted text-sm">{order.customer_email ?? ''}</p>
                   </div>
-                  <p className="text-parchment text-sm">SAR {Number(order.subtotal).toFixed(2)}</p>
-                  <span className={`text-xs ${STATUS_COLORS[order.status as OrderStatus] ?? 'text-muted'}`}>
+                  <p className="text-parchment text-base">SAR {Number(order.subtotal).toFixed(2)}</p>
+                  <span className={`text-sm ${STATUS_COLORS[order.status as OrderStatus] ?? 'text-muted'}`}>
                     {order.status}
                   </span>
-                  <p className="text-muted text-xs">
+                  <p className="text-muted text-sm">
                     {new Date(order.created_at).toLocaleDateString('en-SA', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
                 </div>

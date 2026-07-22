@@ -43,22 +43,22 @@ function ChangePasswordForm({ locale }: { locale: DashLang }) {
 
   return (
     <section>
-      <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_password}</h2>
+      <h2 className="text-[13px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_password}</h2>
 
       {error && (
         <div className="border border-red-500/30 bg-red-500/10 px-4 py-3 mb-4">
-          <p className="text-red-400 text-xs">{error}</p>
+          <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
       {success && (
         <div className="border border-green-500/30 bg-green-500/10 px-4 py-3 mb-4">
-          <p className="text-green-400 text-xs">{t.pw_updated}</p>
+          <p className="text-green-400 text-sm">{t.pw_updated}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
         <div>
-          <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
+          <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">
             {t.label_new_password}
           </label>
           <input
@@ -68,11 +68,11 @@ function ChangePasswordForm({ locale }: { locale: DashLang }) {
             dir="ltr"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
-            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
         <div>
-          <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
+          <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">
             {t.label_confirm}
           </label>
           <input
@@ -82,13 +82,13 @@ function ChangePasswordForm({ locale }: { locale: DashLang }) {
             dir="ltr"
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
-            className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
         <button
           type="submit"
           disabled={isPending}
-          className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
+          className="bg-gold text-ink text-sm font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
         >
           {isPending ? t.updating : t.btn_update_pw}
         </button>
@@ -160,19 +160,19 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
 
       {state.error && (
         <div className="border border-red-500/30 bg-red-500/10 px-4 py-3">
-          <p className="text-red-400 text-xs">{state.error}</p>
+          <p className="text-red-400 text-sm">{state.error}</p>
         </div>
       )}
 
       {state.success && !state.error && (
         <div className="border border-green-500/30 bg-green-500/10 px-4 py-3">
-          <p className="text-green-400 text-xs">{t.profile_saved}</p>
+          <p className="text-green-400 text-sm">{t.profile_saved}</p>
         </div>
       )}
 
       {/* Logo */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_logo}</h2>
+        <h2 className="text-[13px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_logo}</h2>
         <div className="flex items-center gap-6">
 
           {/* Preview */}
@@ -181,11 +181,11 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logoUrl} alt="Brand logo" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-[10px] text-muted/50 tracking-wider uppercase">{t.no_logo}</span>
+              <span className="text-[13px] text-muted/50 tracking-wider uppercase">{t.no_logo}</span>
             )}
             {logoUploading && (
               <div className="absolute inset-0 bg-ink/60 flex items-center justify-center">
-                <span className="text-[10px] text-parchment/80 tracking-widest uppercase animate-pulse">
+                <span className="text-[13px] text-parchment/80 tracking-widest uppercase animate-pulse">
                   {t.uploading}
                 </span>
               </div>
@@ -195,7 +195,7 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
           {/* Controls */}
           <div className="flex flex-col gap-2">
             <label
-              className={`inline-flex items-center justify-center bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-5 py-2.5 transition-opacity cursor-pointer ${logoUploading ? 'opacity-40 pointer-events-none' : 'hover:bg-gold-light'}`}
+              className={`inline-flex items-center justify-center bg-gold text-ink text-sm font-medium tracking-[0.2em] uppercase px-5 py-2.5 transition-opacity cursor-pointer ${logoUploading ? 'opacity-40 pointer-events-none' : 'hover:bg-gold-light'}`}
             >
               {logoUploading ? t.uploading : logoUrl ? t.change_logo : t.upload_logo}
               <input
@@ -207,9 +207,9 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
                 disabled={logoUploading}
               />
             </label>
-            <p className="text-[10px] text-muted/60">{t.logo_formats}</p>
-            {logoError && <p className="text-xs text-red-400">{logoError}</p>}
-            {logoSuccess && <p className="text-xs text-green-400">{t.logo_saved}</p>}
+            <p className="text-[13px] text-muted/60">{t.logo_formats}</p>
+            {logoError && <p className="text-sm text-red-400">{logoError}</p>}
+            {logoSuccess && <p className="text-sm text-green-400">{t.logo_saved}</p>}
           </div>
 
         </div>
@@ -217,10 +217,10 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
 
       {/* Names */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_name}</h2>
+        <h2 className="text-[13px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_name}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">
               {t.label_en} <span className="text-gold">*</span>
             </label>
             <input
@@ -228,16 +228,16 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
               required
               dir="ltr"
               defaultValue={brand.name_en}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
             <input
               name="name_ar"
               dir="rtl"
               defaultValue={brand.name_ar ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
             />
           </div>
         </div>
@@ -245,25 +245,25 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
 
       {/* Tagline */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_tagline}</h2>
+        <h2 className="text-[13px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_tagline}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_en}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_en}</label>
             <input
               name="tagline_en"
               dir="ltr"
               defaultValue={brand.tagline_en ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
               placeholder={t.placeholder_tagline}
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
             <input
               name="tagline_ar"
               dir="rtl"
               defaultValue={brand.tagline_ar ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
             />
           </div>
         </div>
@@ -271,26 +271,26 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
 
       {/* Description */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_description}</h2>
+        <h2 className="text-[13px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_description}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_en}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_en}</label>
             <textarea
               name="description_en"
               rows={4}
               dir="ltr"
               defaultValue={brand.description_en ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_ar}</label>
             <textarea
               name="description_ar"
               dir="rtl"
               rows={4}
               defaultValue={brand.description_ar ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
             />
           </div>
         </div>
@@ -298,36 +298,36 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
 
       {/* Contact */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_contact}</h2>
+        <h2 className="text-[13px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_contact}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_email}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_email}</label>
             <input
               name="contact_email"
               type="email"
               dir="ltr"
               defaultValue={brand.contact_email ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_phone}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_phone}</label>
             <input
               name="contact_phone"
               dir="ltr"
               defaultValue={brand.contact_phone ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
               placeholder="+966 5x xxx xxxx"
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_website}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_website}</label>
             <input
               name="website_url"
               type="url"
               dir="ltr"
               defaultValue={brand.website_url ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors"
               placeholder="https://yourbrand.com"
             />
           </div>
@@ -336,27 +336,27 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
 
       {/* Policies */}
       <section>
-        <h2 className="text-[10px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_policies}</h2>
+        <h2 className="text-[13px] text-muted tracking-[0.25em] uppercase mb-4">{t.section_policies}</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_shipping}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_shipping}</label>
             <textarea
               name="shipping_info_en"
               rows={3}
               dir="ltr"
               defaultValue={brand.shipping_info_en ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
               placeholder={t.placeholder_shipping}
             />
           </div>
           <div>
-            <label className="block text-[10px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_returns}</label>
+            <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2">{t.label_returns}</label>
             <textarea
               name="return_policy_en"
               rows={3}
               dir="ltr"
               defaultValue={brand.return_policy_en ?? ''}
-              className="w-full bg-surface border border-border text-parchment text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
+              className="w-full bg-surface border border-border text-parchment text-base px-4 py-3 focus:outline-none focus:border-gold transition-colors resize-none"
               placeholder={t.placeholder_returns}
             />
           </div>
@@ -366,7 +366,7 @@ export function BrandProfileForm({ brand, locale = 'en' }: { brand: Brand; local
       <button
         type="submit"
         disabled={isPending || logoUploading}
-        className="bg-gold text-ink text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
+        className="bg-gold text-ink text-sm font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
       >
         {logoUploading ? t.uploading : isPending ? t.saving : t.btn_save}
       </button>

@@ -37,19 +37,19 @@ export function ProductReviewClient({ products }: { products: ProductWithBrand[]
       <div style={{ display: 'flex', gap: '12px', marginBottom: '18px', flexWrap: 'wrap' }}>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--gold)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{products.length}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Total</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Total</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--green)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.live ?? 0}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Live</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Live</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--gold)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.submitted ?? 0}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Submitted</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Submitted</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--red)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.rejected ?? 0}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Rejected</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Rejected</div>
         </div>
       </div>
 
@@ -65,7 +65,7 @@ export function ProductReviewClient({ products }: { products: ProductWithBrand[]
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
               {(counts[tab] ?? 0) > 0 && (
                 <span style={{
-                  marginLeft: '5px', fontSize: '9px', padding: '1px 5px', borderRadius: '8px',
+                  marginLeft: '5px', fontSize: '12px', padding: '1px 5px', borderRadius: '8px',
                   background: filter === tab ? 'rgba(184,151,90,0.3)' : 'var(--border2)',
                   color: filter === tab ? 'var(--gold)' : 'var(--text3)',
                 }}>
@@ -80,7 +80,7 @@ export function ProductReviewClient({ products }: { products: ProductWithBrand[]
       {/* Table */}
       <div className="a-chart-card" style={{ padding: 0, overflow: 'hidden' }}>
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '11px' }}>
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '14px' }}>
             No products found
           </div>
         ) : (
@@ -104,7 +104,7 @@ export function ProductReviewClient({ products }: { products: ProductWithBrand[]
         )}
       </div>
 
-      <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '10px' }}>
+      <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '10px' }}>
         {filtered.length} product{filtered.length !== 1 ? 's' : ''}
       </div>
     </>
@@ -175,9 +175,9 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
               </div>
             )}
             <div>
-              <div style={{ color: 'var(--text)', fontWeight: 500, fontSize: '11px' }}>{product.title_en}</div>
+              <div style={{ color: 'var(--text)', fontWeight: 500, fontSize: '14px' }}>{product.title_en}</div>
               {product.title_ar && (
-                <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '1px' }}>{product.title_ar}</div>
+                <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '1px' }}>{product.title_ar}</div>
               )}
             </div>
           </div>
@@ -198,7 +198,7 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
             <button
               className="a-action-btn"
               onClick={() => setExpanded(v => !v)}
-              style={{ padding: '4px 10px', fontSize: '10px' }}
+              style={{ padding: '4px 10px', fontSize: '13px' }}
             >
               {expanded ? 'Close' : 'View'}
             </button>
@@ -208,14 +208,14 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
                   className="a-action-btn"
                   onClick={handleApprove}
                   disabled={isPending}
-                  style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
+                  style={{ padding: '4px 10px', fontSize: '13px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
                 >
                   {isPending ? '…' : 'Approve'}
                 </button>
                 <button
                   className="a-action-btn"
                   onClick={() => setExpanded(true)}
-                  style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--red-bg)', borderColor: 'var(--red)', color: 'var(--red)' }}
+                  style={{ padding: '4px 10px', fontSize: '13px', background: 'var(--red-bg)', borderColor: 'var(--red)', color: 'var(--red)' }}
                 >
                   Reject
                 </button>
@@ -226,7 +226,7 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
                 className="a-action-btn"
                 onClick={handleUnpublish}
                 disabled={isPending}
-                style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--gold-bg)', borderColor: 'var(--gold)', color: 'var(--gold)', opacity: isPending ? 0.5 : 1 }}
+                style={{ padding: '4px 10px', fontSize: '13px', background: 'var(--gold-bg)', borderColor: 'var(--gold)', color: 'var(--gold)', opacity: isPending ? 0.5 : 1 }}
               >
                 Unpublish
               </button>
@@ -240,7 +240,7 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
             {/* Images */}
             {product.product_images && product.product_images.length > 0 && (
               <div style={{ marginBottom: '14px' }}>
-                <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '8px' }}>Images</div>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '8px' }}>Images</div>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {[...product.product_images]
                     .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order)
@@ -253,7 +253,7 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
                           style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border)', display: 'block' }}
                         />
                         {img.is_primary && (
-                          <span style={{ position: 'absolute', top: '3px', left: '3px', background: 'var(--gold)', color: '#1a1208', fontSize: '8px', padding: '1px 4px', borderRadius: '3px' }}>
+                          <span style={{ position: 'absolute', top: '3px', left: '3px', background: 'var(--gold)', color: '#1a1208', fontSize: '12px', padding: '1px 4px', borderRadius: '3px' }}>
                             Primary
                           </span>
                         )}
@@ -272,37 +272,37 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
                 { label: 'Brand',   value: brandName },
               ].map(f => (
                 <div key={f.label}>
-                  <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '3px' }}>{f.label}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text)' }}>{f.value ?? '—'}</div>
+                  <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '3px' }}>{f.label}</div>
+                  <div style={{ fontSize: '14px', color: 'var(--text)' }}>{f.value ?? '—'}</div>
                 </div>
               ))}
             </div>
 
             {product.description_en && (
               <div style={{ marginBottom: '14px' }}>
-                <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px' }}>Description (EN)</div>
-                <div style={{ fontSize: '11px', color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{product.description_en}</div>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px' }}>Description (EN)</div>
+                <div style={{ fontSize: '14px', color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{product.description_en}</div>
               </div>
             )}
 
             {product.description_ar && (
               <div style={{ marginBottom: '14px' }}>
-                <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px' }}>Description (AR)</div>
-                <div style={{ fontSize: '11px', color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap', direction: 'rtl' }}>{product.description_ar}</div>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px' }}>Description (AR)</div>
+                <div style={{ fontSize: '14px', color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap', direction: 'rtl' }}>{product.description_ar}</div>
               </div>
             )}
 
             {product.rejection_reason && (
               <div style={{ background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: '6px', padding: '10px 12px', marginBottom: '14px' }}>
-                <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '4px' }}>Previous rejection reason</div>
-                <div style={{ fontSize: '11px', color: 'var(--red)' }}>{product.rejection_reason}</div>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '4px' }}>Previous rejection reason</div>
+                <div style={{ fontSize: '14px', color: 'var(--red)' }}>{product.rejection_reason}</div>
               </div>
             )}
 
             {/* Rejection form for submitted */}
             {product.status === 'submitted' && (
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px', marginBottom: '14px' }}>
-                <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '8px' }}>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '8px' }}>
                   Rejection reason (required to reject)
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -312,7 +312,7 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
                     placeholder="Reason for rejection…"
                     style={{
                       flex: 1, background: 'var(--bg2)', border: '1px solid var(--border)',
-                      borderRadius: '6px', padding: '7px 12px', fontSize: '11px',
+                      borderRadius: '6px', padding: '7px 12px', fontSize: '14px',
                       color: 'var(--text)', outline: 'none', fontFamily: "'DM Sans',sans-serif",
                     }}
                   />
@@ -361,7 +361,7 @@ function ProductRow({ product, index }: { product: ProductWithBrand; index: numb
             </div>
 
             {actionError && (
-              <div style={{ fontSize: '11px', color: 'var(--red)', marginTop: '10px' }}>{actionError}</div>
+              <div style={{ fontSize: '14px', color: 'var(--red)', marginTop: '10px' }}>{actionError}</div>
             )}
           </td>
         </tr>

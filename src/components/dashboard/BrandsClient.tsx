@@ -29,9 +29,9 @@ function pillCls(status: string) {
 }
 
 function onboardingPillStyle(state: string): React.CSSProperties {
-  if (state === 'live') return { background: 'rgba(74,158,107,0.15)', color: '#4a9e6b', border: '1px solid rgba(74,158,107,0.3)', borderRadius: '3px', padding: '2px 7px', fontSize: '9px', letterSpacing: '0.1em', textTransform: 'uppercase' }
-  if (state === 'submitted') return { background: 'rgba(212,175,55,0.15)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '3px', padding: '2px 7px', fontSize: '9px', letterSpacing: '0.1em', textTransform: 'uppercase' }
-  return { background: 'var(--bg3)', color: 'var(--text3)', border: '1px solid var(--border)', borderRadius: '3px', padding: '2px 7px', fontSize: '9px', letterSpacing: '0.1em', textTransform: 'uppercase' }
+  if (state === 'live') return { background: 'rgba(74,158,107,0.15)', color: '#4a9e6b', border: '1px solid rgba(74,158,107,0.3)', borderRadius: '3px', padding: '2px 7px', fontSize: '12px', letterSpacing: '0.1em', textTransform: 'uppercase' }
+  if (state === 'submitted') return { background: 'rgba(212,175,55,0.15)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '3px', padding: '2px 7px', fontSize: '12px', letterSpacing: '0.1em', textTransform: 'uppercase' }
+  return { background: 'var(--bg3)', color: 'var(--text3)', border: '1px solid var(--border)', borderRadius: '3px', padding: '2px 7px', fontSize: '12px', letterSpacing: '0.1em', textTransform: 'uppercase' }
 }
 
 export function BrandsClient({ brands }: { brands: Brand[] }) {
@@ -56,7 +56,7 @@ export function BrandsClient({ brands }: { brands: Brand[] }) {
       </h1>
 
       {submittedCount > 0 && (
-        <div style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '6px', padding: '10px 14px', marginBottom: '14px', fontSize: '12px', color: '#D4AF37' }}>
+        <div style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '6px', padding: '10px 14px', marginBottom: '14px', fontSize: '15px', color: '#D4AF37' }}>
           ⚡ {submittedCount} brand{submittedCount !== 1 ? 's' : ''} submitted for storefront review
         </div>
       )}
@@ -65,19 +65,19 @@ export function BrandsClient({ brands }: { brands: Brand[] }) {
       <div style={{ display: 'flex', gap: '12px', marginBottom: '18px', flexWrap: 'wrap' }}>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--gold)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{brands.length}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Total</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Total</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--green)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{(counts.approved ?? 0) + (counts.active ?? 0)}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Approved</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Approved</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--red)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.suspended ?? 0}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Suspended</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Suspended</div>
         </div>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderTop: '2px solid var(--gold)', borderRadius: '8px', padding: '10px 14px', minWidth: '90px' }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{counts.pending ?? 0}</div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Pending</div>
+          <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginTop: '4px' }}>Pending</div>
         </div>
       </div>
 
@@ -93,7 +93,7 @@ export function BrandsClient({ brands }: { brands: Brand[] }) {
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
               {(counts[tab] ?? 0) > 0 && (
                 <span style={{
-                  marginLeft: '5px', fontSize: '9px', padding: '1px 5px', borderRadius: '8px',
+                  marginLeft: '5px', fontSize: '12px', padding: '1px 5px', borderRadius: '8px',
                   background: filter === tab ? 'rgba(184,151,90,0.3)' : 'var(--border2)',
                   color: filter === tab ? 'var(--gold)' : 'var(--text3)',
                 }}>
@@ -122,7 +122,7 @@ export function BrandsClient({ brands }: { brands: Brand[] }) {
       {/* Table */}
       <div className="a-chart-card" style={{ padding: 0, overflow: 'hidden' }}>
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '11px' }}>
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '14px' }}>
             No brands found
           </div>
         ) : (
@@ -147,7 +147,7 @@ export function BrandsClient({ brands }: { brands: Brand[] }) {
         )}
       </div>
 
-      <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '10px' }}>
+      <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '10px' }}>
         {filtered.length} brand{filtered.length !== 1 ? 's' : ''}
       </div>
     </>
@@ -203,12 +203,12 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
         <td style={{ color: 'var(--text)', fontWeight: 500 }}>
           {brand.name_en}
           {brand.name_ar && (
-            <span style={{ fontSize: '10px', color: 'var(--text3)', marginLeft: '6px', fontWeight: 400 }}>
+            <span style={{ fontSize: '13px', color: 'var(--text3)', marginLeft: '6px', fontWeight: 400 }}>
               {brand.name_ar}
             </span>
           )}
           {highlightSubmitted && (
-            <span style={{ marginLeft: '6px', fontSize: '8px', background: 'rgba(212,175,55,0.2)', color: '#D4AF37', padding: '1px 5px', borderRadius: '3px' }}>
+            <span style={{ marginLeft: '6px', fontSize: '12px', background: 'rgba(212,175,55,0.2)', color: '#D4AF37', padding: '1px 5px', borderRadius: '3px' }}>
               REVIEW
             </span>
           )}
@@ -238,7 +238,7 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
             <button
               className="a-action-btn"
               onClick={() => setExpanded(v => !v)}
-              style={{ padding: '4px 10px', fontSize: '10px' }}
+              style={{ padding: '4px 10px', fontSize: '13px' }}
             >
               {expanded ? 'Close' : 'View'}
             </button>
@@ -247,7 +247,7 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                 className="a-action-btn"
                 onClick={() => handleStatus('approved')}
                 disabled={isPending}
-                style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
+                style={{ padding: '4px 10px', fontSize: '13px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
               >
                 Approve
               </button>
@@ -257,7 +257,7 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                 className="a-action-btn"
                 onClick={() => handleOnboardingState('live')}
                 disabled={isPending}
-                style={{ padding: '4px 10px', fontSize: '10px', background: '#4a9e6b', borderColor: '#4a9e6b', color: '#fff', opacity: isPending ? 0.5 : 1 }}
+                style={{ padding: '4px 10px', fontSize: '13px', background: '#4a9e6b', borderColor: '#4a9e6b', color: '#fff', opacity: isPending ? 0.5 : 1 }}
               >
                 Go Live
               </button>
@@ -267,7 +267,7 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                 className="a-action-btn"
                 onClick={() => setShowRequestChanges(true)}
                 disabled={isPending}
-                style={{ padding: '4px 10px', fontSize: '10px' }}
+                style={{ padding: '4px 10px', fontSize: '13px' }}
               >
                 Request Changes
               </button>
@@ -277,7 +277,7 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                 className="a-action-btn"
                 onClick={() => setShowSuspendReason(true)}
                 disabled={isPending}
-                style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--red-bg)', borderColor: 'var(--red)', color: 'var(--red)', opacity: isPending ? 0.5 : 1 }}
+                style={{ padding: '4px 10px', fontSize: '13px', background: 'var(--red-bg)', borderColor: 'var(--red)', color: 'var(--red)', opacity: isPending ? 0.5 : 1 }}
               >
                 Suspend
               </button>
@@ -287,7 +287,7 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                 className="a-action-btn"
                 onClick={() => handleStatus('approved')}
                 disabled={isPending}
-                style={{ padding: '4px 10px', fontSize: '10px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
+                style={{ padding: '4px 10px', fontSize: '13px', background: 'var(--green)', borderColor: 'var(--green)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
               >
                 Restore
               </button>
@@ -303,20 +303,20 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                 value={suspendReason}
                 onChange={e => setSuspendReason(e.target.value)}
                 placeholder="Suspension reason (optional — sent to brand)"
-                style={{ flex: 1, minWidth: '220px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', padding: '6px 10px', fontSize: '12px', outline: 'none' }}
+                style={{ flex: 1, minWidth: '220px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', padding: '6px 10px', fontSize: '15px', outline: 'none' }}
               />
               <button
                 className="a-action-btn"
                 onClick={() => handleStatus('suspended', suspendReason)}
                 disabled={isPending}
-                style={{ padding: '6px 14px', fontSize: '11px', background: 'var(--red)', borderColor: 'var(--red)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
+                style={{ padding: '6px 14px', fontSize: '14px', background: 'var(--red)', borderColor: 'var(--red)', color: '#fff', opacity: isPending ? 0.5 : 1 }}
               >
                 Confirm suspend
               </button>
               <button
                 className="a-action-btn"
                 onClick={() => setShowSuspendReason(false)}
-                style={{ padding: '6px 10px', fontSize: '11px' }}
+                style={{ padding: '6px 10px', fontSize: '14px' }}
               >
                 Cancel
               </button>
@@ -332,20 +332,20 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                 value={changesReason}
                 onChange={e => setChangesReason(e.target.value)}
                 placeholder="Describe what needs to change (sent to brand)"
-                style={{ flex: 1, minWidth: '220px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', padding: '6px 10px', fontSize: '12px', outline: 'none' }}
+                style={{ flex: 1, minWidth: '220px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', padding: '6px 10px', fontSize: '15px', outline: 'none' }}
               />
               <button
                 className="a-action-btn"
                 onClick={handleRequestChanges}
                 disabled={isPending}
-                style={{ padding: '6px 14px', fontSize: '11px', background: 'var(--gold)', borderColor: 'var(--gold)', color: 'var(--ink)', opacity: isPending ? 0.5 : 1 }}
+                style={{ padding: '6px 14px', fontSize: '14px', background: 'var(--gold)', borderColor: 'var(--gold)', color: 'var(--ink)', opacity: isPending ? 0.5 : 1 }}
               >
                 Send feedback
               </button>
               <button
                 className="a-action-btn"
                 onClick={() => setShowRequestChanges(false)}
-                style={{ padding: '6px 10px', fontSize: '11px' }}
+                style={{ padding: '6px 10px', fontSize: '14px' }}
               >
                 Cancel
               </button>
@@ -365,16 +365,16 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                 { label: 'Onboarding',    value: brand.onboarding_state },
               ].map(f => (
                 <div key={f.label}>
-                  <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '3px' }}>
+                  <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '3px' }}>
                     {f.label}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text)' }}>{f.value ?? '—'}</div>
+                  <div style={{ fontSize: '14px', color: 'var(--text)' }}>{f.value ?? '—'}</div>
                 </div>
               ))}
             </div>
 
             <div style={{ marginTop: '8px' }}>
-              <div style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px' }}>
+              <div style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px' }}>
                 Set onboarding stage
               </div>
               <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
@@ -385,7 +385,7 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
                     onClick={() => handleOnboardingState(state)}
                     disabled={isPending || brand.onboarding_state === state}
                     style={{
-                      padding: '3px 9px', fontSize: '9px', letterSpacing: '0.05em',
+                      padding: '3px 9px', fontSize: '12px', letterSpacing: '0.05em',
                       opacity: (isPending || brand.onboarding_state === state) ? 0.4 : 1,
                       background: brand.onboarding_state === state ? 'var(--gold)' : undefined,
                       borderColor: brand.onboarding_state === state ? 'var(--gold)' : undefined,
@@ -399,7 +399,7 @@ function BrandRow({ brand, index }: { brand: Brand; index: number }) {
             </div>
 
             {actionError && (
-              <div style={{ fontSize: '11px', color: 'var(--red)', marginTop: '10px' }}>{actionError}</div>
+              <div style={{ fontSize: '14px', color: 'var(--red)', marginTop: '10px' }}>{actionError}</div>
             )}
           </td>
         </tr>

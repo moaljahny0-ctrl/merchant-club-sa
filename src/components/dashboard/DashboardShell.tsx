@@ -98,10 +98,10 @@ export function DashboardShell({ children, isAdmin, brand, isCreator = false, us
       <div className="px-6 py-6 border-b border-border flex items-center gap-3.5">
         <Image src="/logo.png" alt="Merchant Club SA" width={30} height={30} className="shrink-0" />
         <div>
-          <p className="text-[9px] text-gold tracking-[0.3em] uppercase leading-none mb-1">
+          <p className="text-[12px] text-gold tracking-[0.3em] uppercase leading-none mb-1">
             Merchant Club SA
           </p>
-          <p className="text-[8px] text-muted/70 tracking-[0.2em] uppercase leading-none">
+          <p className="text-[12px] text-muted/70 tracking-[0.2em] uppercase leading-none">
             {portalLabel}
           </p>
         </div>
@@ -110,14 +110,14 @@ export function DashboardShell({ children, isAdmin, brand, isCreator = false, us
       {/* Brand identity strip */}
       {(brand || isAdmin) && (
         <div className="px-6 py-5 border-b border-border">
-          <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-1.5">
+          <p className="text-[12px] text-muted/60 tracking-[0.2em] uppercase mb-1.5">
             {isAdmin ? t.shell.access_level : t.shell.active_brand}
           </p>
-          <p className="text-parchment text-[13px] font-medium leading-snug truncate">
+          <p className="text-parchment text-[15px] font-medium leading-snug truncate">
             {sectionLabel}
           </p>
           {brand && (
-            <span className={`inline-block mt-2 text-[8px] tracking-[0.2em] uppercase px-2 py-0.5 border ${
+            <span className={`inline-block mt-2 text-[12px] tracking-[0.2em] uppercase px-2 py-0.5 border ${
               brand.status === 'active'
                 ? 'border-green-700/40 text-green-400/80 bg-green-900/10'
                 : brand.status === 'approved'
@@ -132,7 +132,7 @@ export function DashboardShell({ children, isAdmin, brand, isCreator = false, us
 
       {/* Navigation */}
       <div className="flex-1 py-4 px-3">
-        <p className="text-[8px] text-muted/40 tracking-[0.2em] uppercase px-3 mb-2">{t.shell.menu}</p>
+        <p className="text-[12px] text-muted/40 tracking-[0.2em] uppercase px-3 mb-2">{t.shell.menu}</p>
         <ul className="space-y-0.5">
           {nav.map(item => {
             const active = pathname === item.href || (
@@ -145,7 +145,7 @@ export function DashboardShell({ children, isAdmin, brand, isCreator = false, us
                 <Link
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 text-[11px] tracking-[0.1em] uppercase transition-all duration-150 ${locale === 'ar' ? 'border-r-2 rounded-l-sm' : 'border-l-2 rounded-r-sm'} ${
+                  className={`flex items-center gap-3 px-3 py-2.5 text-[14px] tracking-[0.1em] uppercase transition-all duration-150 ${locale === 'ar' ? 'border-r-2 rounded-l-sm' : 'border-l-2 rounded-r-sm'} ${
                     active
                       ? 'border-gold text-gold bg-gold/5 font-medium'
                       : 'border-transparent text-muted/80 hover:text-parchment hover:bg-surface-2/60 hover:border-border'
@@ -161,12 +161,12 @@ export function DashboardShell({ children, isAdmin, brand, isCreator = false, us
 
       {/* Footer */}
       <div className="px-6 pt-4 pb-6 border-t border-border">
-        <p className="text-[9px] text-muted/40 truncate mb-3 leading-none tracking-wide">{userEmail}</p>
+        <p className="text-[12px] text-muted/40 truncate mb-3 leading-none tracking-wide">{userEmail}</p>
         <div className="flex items-center gap-3 mb-3">
           <button
             onClick={toggleLocale}
             disabled={localePending}
-            className="text-[9px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
+            className="text-[12px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors disabled:opacity-40"
             title={locale === 'en' ? 'Switch to Arabic' : 'Switch to English'}
           >
             {locale === 'en' ? t.shell.switch_to_ar : t.shell.switch_to_en}
@@ -174,7 +174,7 @@ export function DashboardShell({ children, isAdmin, brand, isCreator = false, us
         </div>
         <button
           onClick={handleSignOut}
-          className="text-[9px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors"
+          className="text-[12px] text-muted/60 hover:text-gold tracking-[0.15em] uppercase transition-colors"
         >
           {t.shell.sign_out}
         </button>
@@ -193,7 +193,7 @@ export function DashboardShell({ children, isAdmin, brand, isCreator = false, us
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-surface border-b border-border px-5 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <Image src="/logo.png" alt="Merchant Club SA" width={22} height={22} />
-          <p className="text-parchment text-sm font-medium tracking-wide">{sectionLabel}</p>
+          <p className="text-parchment text-base font-medium tracking-wide">{sectionLabel}</p>
         </div>
         <button
           onClick={() => setMobileOpen(v => !v)}

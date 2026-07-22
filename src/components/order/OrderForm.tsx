@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react'
 import Image from 'next/image'
-import { Link } from '@/i18n/navigation'
+import { Button } from '@/components/ui/Button'
 import { createOrder, type OrderFormState } from '@/lib/actions/orders'
 
 type Props = {
@@ -20,7 +20,7 @@ type Props = {
 
 const initialState: OrderFormState = { error: null, orderId: null }
 
-const INPUT = 'w-full text-sm px-4 py-3 border border-[#E5DDD0] placeholder:text-[#6B5B4E]/40 focus:outline-none focus:border-[#B8975A] transition-colors'
+const INPUT = 'w-full text-base px-4 py-3 border border-[#E5DDD0] placeholder:text-[#6B5B4E]/40 focus:outline-none focus:border-[#B8975A] transition-colors'
 
 export function OrderForm({
   productId,
@@ -47,14 +47,10 @@ export function OrderForm({
       <div className="md:sticky md:top-24 flex flex-col gap-5">
 
         {/* Back link */}
-        <Link
-          href={`/brands/${brandSlug}/products/${productId}`}
-          className="inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-60"
-          style={{ color: '#6B5B4E' }}
-        >
+        <Button href={`/brands/${brandSlug}/products/${productId}`} variant="back" style={{ color: '#6B5B4E' }}>
           <span aria-hidden>{isAr ? '→' : '←'}</span>
           <span>{label('Back to product', 'العودة للمنتج')}</span>
-        </Link>
+        </Button>
 
         {/* Image */}
         <div
@@ -80,11 +76,11 @@ export function OrderForm({
 
         <div>
           {brandName && (
-            <p className="text-[10px] tracking-[0.35em] uppercase mb-1" style={{ color: '#B8975A' }}>
+            <p className="text-[13px] tracking-[0.35em] uppercase mb-1" style={{ color: '#B8975A' }}>
               {brandName}
             </p>
           )}
-          <p className="text-sm font-medium leading-snug mb-2" style={{ color: '#1A1208' }}>
+          <p className="text-base font-medium leading-snug mb-2" style={{ color: '#1A1208' }}>
             {productTitle}
           </p>
           <div className="flex items-baseline gap-2">
@@ -92,12 +88,12 @@ export function OrderForm({
               {displayPrice.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
             </span>
             {originalPrice && (
-              <span className="text-sm line-through" style={{ color: '#6B5B4E' }}>
+              <span className="text-base line-through" style={{ color: '#6B5B4E' }}>
                 {originalPrice.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
               </span>
             )}
           </div>
-          <p className="text-xs text-emerald-600 mt-1.5">
+          <p className="text-sm text-emerald-600 mt-1.5">
             {label('In Stock', 'متوفر')} — {stockQuantity} {label('units', 'وحدة')}
           </p>
         </div>
@@ -105,7 +101,7 @@ export function OrderForm({
 
       {/* ── Order form ── */}
       <div>
-        <p className="text-[10px] tracking-[0.35em] uppercase mb-4" style={{ color: '#B8975A' }}>
+        <p className="text-[13px] tracking-[0.35em] uppercase mb-4" style={{ color: '#B8975A' }}>
           {label('Order Details', 'تفاصيل الطلب')}
         </p>
         <h1 className="font-display text-2xl md:text-3xl font-light mb-8" style={{ color: '#1A1208' }}>
@@ -121,7 +117,7 @@ export function OrderForm({
 
           {/* Name */}
           <div>
-            <label className="block text-[10px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Full Name', 'الاسم الكامل')}{required}
             </label>
             <input
@@ -137,7 +133,7 @@ export function OrderForm({
 
           {/* Phone */}
           <div>
-            <label className="block text-[10px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Phone Number', 'رقم الجوال')}{required}
             </label>
             <input
@@ -154,7 +150,7 @@ export function OrderForm({
 
           {/* Email */}
           <div>
-            <label className="block text-[10px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Email', 'البريد الإلكتروني')}
               <span className="ml-1 normal-case tracking-normal" style={{ color: '#6B5B4E', opacity: 0.6 }}>
                 ({label('optional', 'اختياري')})
@@ -173,7 +169,7 @@ export function OrderForm({
 
           {/* City */}
           <div>
-            <label className="block text-[10px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('City', 'المدينة')}{required}
             </label>
             <input
@@ -189,7 +185,7 @@ export function OrderForm({
 
           {/* Address */}
           <div>
-            <label className="block text-[10px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Delivery Address', 'عنوان التوصيل')}{required}
             </label>
             <textarea
@@ -205,7 +201,7 @@ export function OrderForm({
 
           {/* Quantity */}
           <div>
-            <label className="block text-[10px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Quantity', 'الكمية')}
             </label>
             <select
@@ -222,7 +218,7 @@ export function OrderForm({
 
           {/* Notes */}
           <div>
-            <label className="block text-[10px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Notes', 'ملاحظات')}
               <span className="ml-1 normal-case tracking-normal" style={{ color: '#6B5B4E', opacity: 0.6 }}>
                 ({label('optional', 'اختياري')})
@@ -240,7 +236,7 @@ export function OrderForm({
           {/* Error */}
           {state.error && (
             <p
-              className="text-sm px-4 py-3 rounded-lg text-red-600"
+              className="text-base px-4 py-3 rounded-lg text-red-600"
               style={{ border: '1px solid rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.05)' }}
             >
               {state.error}
@@ -252,7 +248,7 @@ export function OrderForm({
             className="flex items-center justify-between py-4"
             style={{ borderTop: '1px solid #E5DDD0' }}
           >
-            <p className="text-[10px] tracking-[0.2em] uppercase" style={{ color: '#6B5B4E' }}>
+            <p className="text-[13px] tracking-[0.2em] uppercase" style={{ color: '#6B5B4E' }}>
               {label('Total', 'الإجمالي')}
             </p>
             <p className="text-lg font-bold" style={{ color: '#B8975A' }}>
@@ -261,18 +257,19 @@ export function OrderForm({
           </div>
 
           {/* Submit */}
-          <button
+          <Button
             type="submit"
             disabled={pending}
-            className="inline-flex items-center justify-center text-[10px] font-medium tracking-[0.22em] uppercase px-8 py-4 transition-opacity hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+            variant="primary"
+            fullWidth
             style={{ background: '#3D2B1F', color: '#FFFFFF', fontFamily: 'var(--font-body)' }}
           >
             {pending
               ? label('Placing Order…', 'جاري الطلب…')
               : label('Confirm Order', 'تأكيد الطلب')}
-          </button>
+          </Button>
 
-          <p className="text-[10px] text-center" style={{ color: 'rgba(107,91,78,0.6)' }}>
+          <p className="text-[13px] text-center" style={{ color: 'rgba(107,91,78,0.6)' }}>
             {label(
               'By placing this order you agree to the delivery terms of the brand.',
               'بتأكيد طلبك توافق على شروط التوصيل الخاصة بالمتجر.'

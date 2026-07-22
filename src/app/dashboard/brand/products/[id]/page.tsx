@@ -51,14 +51,14 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
       <div className="mb-8">
         <Link
           href="/dashboard/brand/products"
-          className="text-[10px] text-muted hover:text-gold tracking-[0.2em] uppercase transition-colors"
+          className="text-[13px] text-muted hover:text-gold tracking-[0.2em] uppercase transition-colors"
         >
           {t.back}
         </Link>
         <div className="flex items-start justify-between mt-3">
           <div>
             <h1 className="font-display text-3xl font-light text-parchment">{product.title_en}</h1>
-            <p className="text-muted text-xs mt-1">
+            <p className="text-muted text-sm mt-1">
               {t.label_status} <span className="text-parchment">{t.status[product.status as keyof typeof t.status] ?? product.status}</span>
             </p>
           </div>
@@ -67,28 +67,28 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
 
       {imageError && (
         <div className="border border-yellow-500/30 bg-yellow-500/5 px-5 py-4 mb-8">
-          <p className="text-yellow-400 text-xs font-medium mb-1">{t.img_error_heading}</p>
-          <p className="text-muted text-xs">{t.img_error_body}</p>
+          <p className="text-yellow-400 text-sm font-medium mb-1">{t.img_error_heading}</p>
+          <p className="text-muted text-sm">{t.img_error_body}</p>
         </div>
       )}
 
       {product.status === 'rejected' && product.rejection_reason && (
         <div className="border border-red-500/30 bg-red-500/10 px-5 py-4 mb-8">
-          <p className="text-red-400 text-xs font-medium mb-1">{t.rejected_heading}</p>
-          <p className="text-muted text-xs">{product.rejection_reason}</p>
-          <p className="text-muted text-xs mt-2">{t.rejected_note}</p>
+          <p className="text-red-400 text-sm font-medium mb-1">{t.rejected_heading}</p>
+          <p className="text-muted text-sm">{product.rejection_reason}</p>
+          <p className="text-muted text-sm mt-2">{t.rejected_note}</p>
         </div>
       )}
 
       {product.status === 'submitted' && (
         <div className="border border-yellow-500/30 bg-yellow-500/5 px-5 py-4 mb-8">
-          <p className="text-yellow-400 text-xs">{t.review_note}</p>
+          <p className="text-yellow-400 text-sm">{t.review_note}</p>
         </div>
       )}
 
       {product.status === 'live' && (
         <div className="border border-green-500/30 bg-green-500/5 px-5 py-4 mb-8">
-          <p className="text-green-400 text-xs">{t.live_note}</p>
+          <p className="text-green-400 text-sm">{t.live_note}</p>
         </div>
       )}
 

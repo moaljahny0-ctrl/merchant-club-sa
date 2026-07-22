@@ -47,44 +47,44 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-8">
           <Link
             href="/about"
-            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
+            className={`text-sm hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('about')}
           </Link>
           <Link
             href="/brands"
-            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
+            className={`text-sm hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('brands')}
           </Link>
           <Link
             href="/members"
-            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
+            className={`text-sm hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('members')}
           </Link>
           <Link
             href="/store"
-            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
+            className={`text-sm hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('shop')}
           </Link>
           <Link
             href="/auth/login"
-            className={`text-xs hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
+            className={`text-sm hover:text-parchment transition-colors tracking-[0.2em] uppercase ${transparent ? 'text-parchment/80' : 'text-muted'}`}
           >
             {t('login')}
           </Link>
           <Link
             href="/apply"
-            className="text-xs bg-gold text-ink hover:bg-gold-light transition-colors px-5 py-2.5 tracking-[0.2em] uppercase"
+            className="text-sm bg-gold text-ink hover:bg-gold-light transition-colors px-5 py-2.5 tracking-[0.2em] uppercase"
           >
             {t('apply')}
           </Link>
           <Link
             href={pathname}
             locale={isRTL ? 'en' : 'ar'}
-            className={`text-xs hover:text-parchment transition-colors tracking-widest ${
+            className={`text-sm hover:text-parchment transition-colors tracking-widest ${
               isRTL ? 'text-parchment/80' : (transparent ? 'text-parchment/80' : 'text-muted')
             }`}
             style={isRTL ? { fontFamily: 'var(--font-body)', letterSpacing: '0.1em' } : undefined}
@@ -98,7 +98,7 @@ export function Navbar() {
           <Link
             href={pathname}
             locale={isRTL ? 'en' : 'ar'}
-            className={`text-xs hover:text-parchment transition-colors ${isRTL ? 'text-parchment/80' : 'text-muted'}`}
+            className={`text-sm hover:text-parchment transition-colors ${isRTL ? 'text-parchment/80' : 'text-muted'}`}
             style={isRTL ? { fontFamily: 'var(--font-body)', letterSpacing: '0.1em' } : undefined}
           >
             {isRTL ? 'EN' : 'ع'}
@@ -131,49 +131,49 @@ export function Navbar() {
           <Link
             href="/about"
             onClick={() => setOpen(false)}
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className="text-sm text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
           >
             {t('about')}
           </Link>
           <Link
             href="/brands"
             onClick={() => setOpen(false)}
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className="text-sm text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
           >
             {t('brands')}
           </Link>
           <Link
             href="/members"
             onClick={() => setOpen(false)}
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className="text-sm text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
           >
             {t('members')}
           </Link>
           <Link
             href="/store"
             onClick={() => setOpen(false)}
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className="text-sm text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
           >
             {t('shop')}
           </Link>
           <Link
             href="/track-order"
             onClick={() => setOpen(false)}
-            className="text-xs text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
+            className="text-sm text-muted hover:text-parchment transition-colors tracking-[0.2em] uppercase"
           >
             {t('track_order')}
           </Link>
           <Link
             href="/apply"
             onClick={() => setOpen(false)}
-            className="text-xs text-parchment tracking-[0.2em] uppercase"
+            className="text-sm text-parchment tracking-[0.2em] uppercase"
           >
             {t('apply')}
           </Link>
           <Link
             href="/auth/login"
             onClick={() => setOpen(false)}
-            className="text-xs text-muted/40 hover:text-muted transition-colors tracking-[0.2em] uppercase"
+            className="text-sm text-muted/40 hover:text-muted transition-colors tracking-[0.2em] uppercase"
           >
             {t('partner_login')}
           </Link>

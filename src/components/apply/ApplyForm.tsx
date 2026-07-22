@@ -38,12 +38,12 @@ export function ApplyForm() {
 
       {/* Error */}
       {state.error === 'required' && (
-        <p className="text-xs text-gold border border-gold/30 bg-gold/5 px-4 py-3">
+        <p className="text-sm text-gold border border-gold/30 bg-gold/5 px-4 py-3">
           {t('error_required')}
         </p>
       )}
       {state.error === 'send_failed' && (
-        <p className="text-xs text-gold border border-gold/30 bg-gold/5 px-4 py-3">
+        <p className="text-sm text-gold border border-gold/30 bg-gold/5 px-4 py-3">
           {t('error_send_failed')}
         </p>
       )}
@@ -58,14 +58,14 @@ export function ApplyForm() {
 
       {/* Category */}
       <div className="space-y-3">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.category')} <span className="text-gold">*</span>
         </label>
         <select
           name="category"
           required
           defaultValue=""
-          className="w-full bg-surface border border-border text-parchment px-4 py-3.5 text-sm focus:outline-none focus:border-gold transition-colors appearance-none cursor-pointer"
+          className="w-full bg-surface border border-border text-parchment px-4 py-3.5 text-base focus:outline-none focus:border-gold transition-colors appearance-none cursor-pointer"
         >
           <option value="" disabled>
             {t('placeholders.category')}
@@ -80,7 +80,7 @@ export function ApplyForm() {
 
       {/* Story */}
       <div className="space-y-3">
-        <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+        <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
           {t('fields.story')} <span className="text-gold">*</span>
         </label>
         <textarea
@@ -88,7 +88,7 @@ export function ApplyForm() {
           required
           placeholder={t('placeholders.story')}
           rows={5}
-          className="w-full bg-surface border border-border text-parchment px-4 py-3.5 text-sm placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors resize-none leading-relaxed"
+          className="w-full bg-surface border border-border text-parchment px-4 py-3.5 text-base placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors resize-none leading-relaxed"
         />
       </div>
 
@@ -118,11 +118,11 @@ export function ApplyForm() {
 
       {/* Note + Submit */}
       <div className="space-y-6 pt-2">
-        <p className="text-[11px] text-muted tracking-wide">{t('note')}</p>
+        <p className="text-[14px] text-muted tracking-wide">{t('note')}</p>
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-gold text-ink text-xs font-medium tracking-[0.25em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-gold text-ink text-sm font-medium tracking-[0.25em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? t('submitting') : t('submit')}
         </button>
@@ -149,7 +149,7 @@ function Field({
 }) {
   return (
     <div className="space-y-3">
-      <label className="block text-[10px] tracking-[0.25em] uppercase text-muted">
+      <label className="block text-[13px] tracking-[0.25em] uppercase text-muted">
         {label}
         {required && <span className="text-gold ms-1">*</span>}
       </label>
@@ -158,7 +158,7 @@ function Field({
         type={type}
         placeholder={placeholder}
         required={required}
-        className="w-full bg-surface border border-border text-parchment px-4 py-3.5 text-sm placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
+        className="w-full bg-surface border border-border text-parchment px-4 py-3.5 text-base placeholder:text-muted/40 focus:outline-none focus:border-gold transition-colors"
       />
     </div>
   );

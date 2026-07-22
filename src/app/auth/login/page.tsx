@@ -21,7 +21,7 @@ export default function LoginPage() {
 
         {/* Header */}
         <div className="mb-10">
-          <p className="text-[8px] text-gold tracking-[0.4em] uppercase mb-4">
+          <p className="text-[12px] text-gold tracking-[0.4em] uppercase mb-4">
             Brand & Partner Portal
           </p>
           <h1 className="font-display text-[2.25rem] font-light text-parchment leading-none">
@@ -32,19 +32,19 @@ export default function LoginPage() {
         {/* Rule */}
         <div className="h-px bg-border mb-10" />
 
-        <Suspense fallback={<div className="text-muted text-sm">Loading…</div>}>
+        <Suspense fallback={<div className="text-muted text-base">Loading…</div>}>
           <LoginForm />
         </Suspense>
 
         {/* Cross-links */}
         <div className="mt-10 border border-border/40 bg-surface/30 px-4 py-4 flex flex-col gap-2">
-          <p className="text-[9px] text-muted/60 leading-relaxed text-center">
+          <p className="text-[12px] text-muted/60 leading-relaxed text-center">
             Are you a customer?{' '}
             <a href="/store/login" className="text-gold hover:underline">
               Login here →
             </a>
           </p>
-          <p className="text-[9px] text-muted/60 leading-relaxed text-center">
+          <p className="text-[12px] text-muted/60 leading-relaxed text-center">
             Looking to track your order?{' '}
             <a href="/track-order" className="text-gold hover:underline">
               Track it here
@@ -53,7 +53,7 @@ export default function LoginPage() {
         </div>
 
         {/* Footer */}
-        <p className="mt-8 text-[9px] text-muted/30 tracking-[0.15em] text-center">
+        <p className="mt-8 text-[12px] text-muted/30 tracking-[0.15em] text-center">
           © {new Date().getFullYear()} Merchant Club SA
         </p>
 

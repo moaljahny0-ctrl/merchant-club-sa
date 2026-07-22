@@ -111,9 +111,9 @@ export default async function BrandAnalyticsPage() {
   return (
     <div className="p-8 md:p-12 max-w-3xl">
       <div className="mb-10">
-        <p className="text-[9px] text-gold tracking-[0.35em] uppercase mb-3">{t.analytics.eyebrow}</p>
+        <p className="text-[12px] text-gold tracking-[0.35em] uppercase mb-3">{t.analytics.eyebrow}</p>
         <h1 className="font-display text-4xl md:text-5xl font-light text-parchment leading-none">{t.analytics.heading}</h1>
-        <p className="text-muted text-xs mt-3">{t.analytics.last_30}</p>
+        <p className="text-muted text-sm mt-3">{t.analytics.last_30}</p>
       </div>
 
       {/* Stat cards */}
@@ -124,8 +124,8 @@ export default async function BrandAnalyticsPage() {
           { label: t.analytics.stat_orders,     value: orderCount },
           { label: t.analytics.stat_revenue,    value: Math.round(revenue) },
         ].map(stat => (
-          <div key={stat.label} className="bg-surface border border-border px-5 py-6">
-            <p className="text-[8px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
+          <div key={stat.label} className="bg-surface border border-border rounded-lg px-5 py-6">
+            <p className="text-[12px] text-muted/60 tracking-[0.2em] uppercase mb-3">{stat.label}</p>
             <p className="text-3xl font-light text-parchment leading-none mb-2">{stat.value.toLocaleString()}</p>
             <div className="mt-3 h-1 bg-border rounded-full overflow-hidden">
               <div
@@ -139,16 +139,16 @@ export default async function BrandAnalyticsPage() {
 
       {/* Top products */}
       <div className="mb-8">
-        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.top_products_label}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.top_products_label}</p>
         {topProducts.length === 0 ? (
-          <p className="text-muted text-sm">{t.analytics.no_product_views}</p>
+          <p className="text-muted text-base">{t.analytics.no_product_views}</p>
         ) : (
           <div className="border border-border divide-y divide-border">
             {topProducts.map((p, i) => (
               <div key={p.id} className="flex items-center justify-between px-5 py-3.5 gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-[10px] text-muted/40 font-mono shrink-0">{i + 1}</span>
-                  <p className="text-parchment text-xs truncate">{p.title}</p>
+                  <span className="text-[13px] text-muted/40 font-mono shrink-0">{i + 1}</span>
+                  <p className="text-parchment text-sm truncate">{p.title}</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="w-20 h-1 bg-border rounded-full overflow-hidden">
@@ -157,7 +157,7 @@ export default async function BrandAnalyticsPage() {
                       style={{ width: `${Math.round((p.count / (topProducts[0]?.count || 1)) * 100)}%` }}
                     />
                   </div>
-                  <span className="text-muted text-xs w-8 text-right">{p.count}</span>
+                  <span className="text-muted text-sm w-8 text-right">{p.count}</span>
                 </div>
               </div>
             ))}
@@ -167,17 +167,17 @@ export default async function BrandAnalyticsPage() {
 
       {/* Top creator */}
       <div className="mb-8">
-        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.top_creator_label}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.top_creator_label}</p>
         {!topCreator ? (
-          <p className="text-muted text-sm">{t.analytics.no_creator_orders}</p>
+          <p className="text-muted text-base">{t.analytics.no_creator_orders}</p>
         ) : (
-          <div className="border border-border px-5 py-4 flex items-center justify-between">
+          <div className="border border-border rounded-lg px-5 py-4 flex items-center justify-between">
             <div>
-              <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">{t.analytics.col_link_code}</p>
-              <p className="text-parchment text-sm font-mono">{topCreator.code}</p>
+              <p className="text-[12px] text-muted/50 uppercase tracking-[0.15em] mb-1">{t.analytics.col_link_code}</p>
+              <p className="text-parchment text-base font-mono">{topCreator.code}</p>
             </div>
             <div className="text-right">
-              <p className="text-[9px] text-muted/50 uppercase tracking-[0.15em] mb-1">{t.analytics.col_orders}</p>
+              <p className="text-[12px] text-muted/50 uppercase tracking-[0.15em] mb-1">{t.analytics.col_orders}</p>
               <p className="text-parchment text-2xl font-light">{topCreator.count}</p>
             </div>
           </div>
@@ -186,14 +186,14 @@ export default async function BrandAnalyticsPage() {
 
       {/* Creator-attributed vs direct */}
       <div className="mb-8">
-        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.attribution_label}</p>
-        <div className="border border-border px-5 py-4 flex items-center gap-6">
+        <p className="text-[12px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.attribution_label}</p>
+        <div className="border border-border rounded-lg px-5 py-4 flex items-center gap-6">
           <div className="flex-1">
             <div className="h-2 bg-border rounded-full overflow-hidden flex">
               <div className="h-full bg-gold/70" style={{ width: `${orderCount ? Math.round((creatorOrders / orderCount) * 100) : 0}%` }} />
             </div>
           </div>
-          <div className="flex gap-5 shrink-0 text-xs">
+          <div className="flex gap-5 shrink-0 text-sm">
             <span className="text-parchment">{t.analytics.attribution_creator}: <strong>{creatorOrders}</strong></span>
             <span className="text-muted">{t.analytics.attribution_direct}: <strong>{directOrders}</strong></span>
           </div>
@@ -202,18 +202,18 @@ export default async function BrandAnalyticsPage() {
 
       {/* Sales trend — last 7 days */}
       <div>
-        <p className="text-[9px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.sales_trend_label}</p>
+        <p className="text-[12px] text-muted/50 tracking-[0.3em] uppercase mb-4">{t.analytics.sales_trend_label}</p>
         {orderCount === 0 ? (
-          <p className="text-muted text-sm">{t.analytics.no_sales_trend}</p>
+          <p className="text-muted text-base">{t.analytics.no_sales_trend}</p>
         ) : (
           <div className="border border-border divide-y divide-border">
             {days.map(d => (
               <div key={d.label} className="flex items-center justify-between px-5 py-2.5 gap-4">
-                <span className="text-muted text-xs w-10 shrink-0">{d.label}</span>
+                <span className="text-muted text-sm w-10 shrink-0">{d.label}</span>
                 <div className="flex-1 h-1 bg-border rounded-full overflow-hidden">
                   <div className="h-full bg-gold/60 rounded-full" style={{ width: `${Math.round((d.count / maxDayCount) * 100)}%` }} />
                 </div>
-                <span className="text-parchment text-xs w-16 text-right">{d.count} · SAR {Math.round(d.revenue)}</span>
+                <span className="text-parchment text-sm w-16 text-right">{d.count} · SAR {Math.round(d.revenue)}</span>
               </div>
             ))}
           </div>

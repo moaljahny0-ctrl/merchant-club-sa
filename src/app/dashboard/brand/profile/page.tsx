@@ -33,9 +33,9 @@ export default async function BrandProfilePage() {
   return (
     <div className="p-6 md:p-10 max-w-4xl">
       <div className="mb-8">
-        <p className="text-[10px] text-gold tracking-[0.3em] uppercase mb-1">{t.profile.eyebrow}</p>
+        <p className="text-[13px] text-gold tracking-[0.3em] uppercase mb-1">{t.profile.eyebrow}</p>
         <h1 className="font-display text-3xl font-light text-parchment">{t.profile.heading}</h1>
-        <p className="text-muted text-sm mt-1">{t.profile.subheading}</p>
+        <p className="text-muted text-base mt-1">{t.profile.subheading}</p>
       </div>
 
       <BrandProfileForm brand={brand} locale={locale} />
