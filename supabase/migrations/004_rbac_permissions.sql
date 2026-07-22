@@ -119,3 +119,13 @@ CREATE TABLE admin_audit_log (
   after       jsonb,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
+
+-- ─── RLS ─────────────────────────────────────────────────────────────────────
+-- No anon/authenticated policies on any of these — permission mappings and the
+-- audit log must never be exposed via the public REST API. Server-side code
+-- reads/writes them exclusively through the service-role client, which bypasses
+-- RLS entirely, so enabling it here with zero policies is a pure lockdown with
+-- no effect on the app itself.
+ALTER TABLE permissions       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE role_permissions  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_audit_log   ENABLE ROW LEVEL SECURITY;
