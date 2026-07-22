@@ -169,12 +169,12 @@ export async function adminReviewProduct(
 
 export async function adminUnpublishProduct(id: string): Promise<{ error: string | null }> {
   try {
-    await assertAdmin()
+    const admin = await assertAdmin()
     const service = createServiceClient()
 
     const { data: product } = await service
       .from('products')
-      .select('brands(slug)')
+      .select('status, brands(slug)')
       .eq('id', id)
       .single()
 
@@ -184,6 +184,15 @@ export async function adminUnpublishProduct(id: string): Promise<{ error: string
       .eq('id', id)
 
     if (error) return { error: error.message }
+
+    await logAdminAction({
+      actorId: admin.id,
+      action: 'product.unpublish',
+      targetType: 'product',
+      targetId: id,
+      before: { status: product?.status },
+      after: { status: 'archived' },
+    })
 
     const slug = (product?.brands as { slug?: string } | null)?.slug
     if (slug) {
@@ -200,11 +209,11 @@ export async function adminUnpublishProduct(id: string): Promise<{ error: string
 
 export async function adminDeleteProduct(id: string): Promise<{ error: string | null }> {
   try {
-    await assertAdmin()
+    const admin = await assertAdmin()
     const service = createServiceClient()
 
     const [{ data: product }, { data: images }] = await Promise.all([
-      service.from('products').select('brands(slug)').eq('id', id).single(),
+      service.from('products').select('title_en, status, brands(slug)').eq('id', id).single(),
       service.from('product_images').select('storage_path').eq('product_id', id),
     ])
 
@@ -215,6 +224,14 @@ export async function adminDeleteProduct(id: string): Promise<{ error: string | 
 
     const { error } = await service.from('products').delete().eq('id', id)
     if (error) return { error: error.message }
+
+    await logAdminAction({
+      actorId: admin.id,
+      action: 'product.delete',
+      targetType: 'product',
+      targetId: id,
+      before: { title_en: product?.title_en, status: product?.status },
+    })
 
     const slug = (product?.brands as { slug?: string } | null)?.slug
     if (slug) {
