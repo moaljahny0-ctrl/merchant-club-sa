@@ -173,13 +173,13 @@ export async function adminUpdateBrandOnboardingState(
   onboarding_state: 'invited' | 'account_setup' | 'profile_setup' | 'products_setup' | 'submitted' | 'live'
 ): Promise<{ error: string | null }> {
   try {
-    await assertAdmin()
+    const admin = await assertAdmin()
     const service = createServiceClient()
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
 
     const { data: brand } = await service
       .from('brands')
-      .select('name_en, contact_email')
+      .select('name_en, contact_email, onboarding_state')
       .eq('id', brandId)
       .single()
 
@@ -189,6 +189,15 @@ export async function adminUpdateBrandOnboardingState(
       .eq('id', brandId)
 
     if (error) return { error: error.message }
+
+    await logAdminAction({
+      actorId: admin.id,
+      action: 'brand.onboarding_state_change',
+      targetType: 'brand',
+      targetId: brandId,
+      before: { onboarding_state: brand?.onboarding_state },
+      after: { onboarding_state },
+    })
 
     const apiKey = process.env.RESEND_API_KEY
     if (apiKey && brand?.contact_email && onboarding_state !== 'invited') {

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
-import { assertAdmin, esc, type ServiceClient } from './_admin-utils'
+import { assertAdmin, esc, logAdminAction, type ServiceClient } from './_admin-utils'
 
 async function generateUniqueSlug(service: ServiceClient, name: string): Promise<string> {
   const base = name
@@ -182,6 +182,15 @@ export async function reviewApplication(
         .eq('id', id)
 
       if (error) return { error: error.message }
+
+      await logAdminAction({
+        actorId: admin.id,
+        action: 'application.reject',
+        targetType: 'brand_application',
+        targetId: id,
+        after: { status: 'rejected', rejection_reason: rejectionReason ?? '' },
+      })
+
       revalidatePath('/dashboard/admin/applications')
       return { error: null }
     }
@@ -287,6 +296,14 @@ export async function reviewApplication(
       .eq('id', id)
 
     if (appUpdateErr) return { error: appUpdateErr.message }
+
+    await logAdminAction({
+      actorId: admin.id,
+      action: 'application.approve',
+      targetType: 'brand_application',
+      targetId: id,
+      after: { status: 'approved', brand_id: brand.id },
+    })
 
     // 9. Send branded approval email via Resend
     const apiKey = process.env.RESEND_API_KEY

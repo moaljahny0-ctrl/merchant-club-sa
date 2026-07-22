@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/lib/supabase/server'
-import { assertAdmin, esc } from './_admin-utils'
+import { assertAdmin, esc, logAdminAction } from './_admin-utils'
 
 function buildCreatorApprovalEmailHtml(name: string, email: string, tempPassword: string, siteUrl: string): string {
   const loginUrl = `${siteUrl}/auth/login`
@@ -114,7 +114,7 @@ export async function updateMemberStatus(
   status: 'approved' | 'rejected'
 ): Promise<{ error: string | null }> {
   try {
-    await assertAdmin()
+    const admin = await assertAdmin()
     const service = createServiceClient()
 
     const { data: member, error: fetchErr } = await service
@@ -135,6 +135,15 @@ export async function updateMemberStatus(
         .eq('id', memberId)
 
       if (error) return { error: error.message }
+
+      await logAdminAction({
+        actorId: admin.id,
+        action: 'member.reject',
+        targetType: 'member',
+        targetId: memberId,
+        before: { status: member.status },
+        after: { status: 'rejected' },
+      })
 
       // If this member was previously approved (a revoke, not a fresh reject),
       // pull their creator access — role and active links — rather than
@@ -222,6 +231,15 @@ export async function updateMemberStatus(
       .eq('id', memberId)
 
     if (updateErr) return { error: updateErr.message }
+
+    await logAdminAction({
+      actorId: admin.id,
+      action: 'member.approve',
+      targetType: 'member',
+      targetId: memberId,
+      before: { status: member.status },
+      after: { status: 'approved' },
+    })
 
     // Send credentials
     const apiKey = process.env.RESEND_API_KEY
