@@ -1,5 +1,6 @@
 'use server';
 
+import { after } from 'next/server';
 import { Resend } from 'resend';
 import { createServiceClient } from '@/lib/supabase/server';
 
@@ -209,23 +210,28 @@ export async function submitApplication(
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com';
 
-  try {
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: 'Merchant Club SA <applications@merchantclubsa.com>',
-      to:   ['info@merchantclubsa.com'],
-      replyTo: email,
-      subject: `New partner application — ${brandName}`,
-      html: buildEmailHtml({ brandName, category, story, instagram, email, website, applicationId, submittedAt, adminUrl: `${siteUrl}/dashboard/admin/applications` }),
-    });
+  // Application is already durably saved above — don't make the user wait on
+  // an external email API round-trip before seeing success. Runs after the
+  // response is sent; failures are logged, never surfaced to the applicant.
+  after(async () => {
+    try {
+      const resend = new Resend(apiKey);
+      const { error } = await resend.emails.send({
+        from: 'Merchant Club SA <applications@merchantclubsa.com>',
+        to:   ['info@merchantclubsa.com'],
+        replyTo: email,
+        subject: `New partner application — ${brandName}`,
+        html: buildEmailHtml({ brandName, category, story, instagram, email, website, applicationId, submittedAt, adminUrl: `${siteUrl}/dashboard/admin/applications` }),
+      });
 
-    if (error) {
-      // DB row already saved — log email failure but don't fail the user
-      console.error('[apply] Resend error (DB row saved):', error);
+      if (error) {
+        // DB row already saved — log email failure but don't fail the user
+        console.error('[apply] Resend error (DB row saved):', error);
+      }
+    } catch (err) {
+      console.error('[apply] Resend threw (DB row saved):', err);
     }
-  } catch (err) {
-    console.error('[apply] Resend threw (DB row saved):', err);
-  }
+  });
 
   return { success: true, error: null };
 }

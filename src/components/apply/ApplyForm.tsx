@@ -1,8 +1,14 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { submitApplication, type ApplicationState } from '@/lib/actions/apply';
+
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 const initialState: ApplicationState = { success: false, error: null };
 
@@ -20,6 +26,12 @@ const CATEGORIES = [
 export function ApplyForm() {
   const t = useTranslations('apply');
   const [state, formAction, isPending] = useActionState(submitApplication, initialState);
+
+  useEffect(() => {
+    if (state.success) {
+      window.gtag?.('event', 'generate_lead', { event_category: 'apply_partner' });
+    }
+  }, [state.success]);
 
   if (state.success) {
     return (

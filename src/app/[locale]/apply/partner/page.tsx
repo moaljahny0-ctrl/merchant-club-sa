@@ -3,6 +3,8 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ApplyForm } from '@/components/apply/ApplyForm';
 
+export const dynamic = 'force-static';
+
 export default async function ApplyPartnerPage() {
   const t = await getTranslations('apply');
 
