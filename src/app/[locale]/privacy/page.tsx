@@ -8,6 +8,7 @@ export default async function PrivacyPage() {
   const sections = [
     { title: t('sections.collect_title'),      body: t('sections.collect_body') },
     { title: t('sections.purpose_title'),      body: t('sections.purpose_body') },
+    { title: t('sections.cookies_title'),      body: t('sections.cookies_body') },
     { title: t('sections.storage_title'),      body: t('sections.storage_body') },
     { title: t('sections.retention_title'),    body: t('sections.retention_body') },
     { title: t('sections.rights_title'),       body: t('sections.rights_body') },
