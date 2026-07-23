@@ -52,15 +52,15 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           </div>
 
           <p
-            className="text-[13px] tracking-[0.35em] uppercase mb-4 text-center"
+            className="text-[13px] font-semibold tracking-[0.1em] uppercase mb-4 text-center"
             style={{ color: '#B8975A' }}
           >
             {isAr ? 'تم تأكيد الطلب' : 'Order Confirmed'}
           </p>
 
           <h1
-            className="font-display text-3xl font-light text-center mb-2"
-            style={{ color: '#1A1208' }}
+            className="text-3xl font-semibold text-center mb-2"
+            style={{ color: '#1A1208', letterSpacing: '-0.01em' }}
           >
             {isAr ? 'شكراً لك' : 'Thank you'}
             {order.customer_name ? `, ${order.customer_name.split(' ')[0]}` : ''}
@@ -78,7 +78,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             style={{ border: '1px solid #E5DDD0', background: '#FFFFFF' }}
           >
             <div className="flex items-start justify-between gap-4">
-              <p className="text-[13px] tracking-[0.2em] uppercase" style={{ color: '#6B5B4E' }}>
+              <p className="text-[13px] font-medium tracking-[0.08em] uppercase" style={{ color: '#6B5B4E' }}>
                 {isAr ? 'رقم الطلب' : 'Order Number'}
               </p>
               <p className="font-mono text-base" style={{ color: '#1A1208' }}>
@@ -89,7 +89,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             <div className="h-px" style={{ background: '#E5DDD0' }} />
 
             <div className="flex items-start justify-between gap-4">
-              <p className="text-[13px] tracking-[0.2em] uppercase" style={{ color: '#6B5B4E' }}>
+              <p className="text-[13px] font-medium tracking-[0.08em] uppercase" style={{ color: '#6B5B4E' }}>
                 {isAr ? 'الإجمالي' : 'Total'}
               </p>
               <p className="text-base font-bold" style={{ color: '#B8975A' }}>
@@ -101,7 +101,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
               <>
                 <div className="h-px" style={{ background: '#E5DDD0' }} />
                 <div className="flex items-start justify-between gap-4">
-                  <p className="text-[13px] tracking-[0.2em] uppercase" style={{ color: '#6B5B4E' }}>
+                  <p className="text-[13px] font-medium tracking-[0.08em] uppercase" style={{ color: '#6B5B4E' }}>
                     {isAr ? 'المدينة' : 'City'}
                   </p>
                   <p className="text-base" style={{ color: '#1A1208' }}>{address.city}</p>
@@ -112,7 +112,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             <div className="h-px" style={{ background: '#E5DDD0' }} />
 
             <div className="flex items-start justify-between gap-4">
-              <p className="text-[13px] tracking-[0.2em] uppercase" style={{ color: '#6B5B4E' }}>
+              <p className="text-[13px] font-medium tracking-[0.08em] uppercase" style={{ color: '#6B5B4E' }}>
                 {isAr ? 'الحالة' : 'Status'}
               </p>
               <p className="text-sm uppercase tracking-wider text-emerald-600">

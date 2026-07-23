@@ -135,11 +135,11 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm mb-6"
                 style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.75)' }}
               >
-                + {isAr ? 'منصة العلامات السعودية المنتقاة' : 'Saudi Curated Brands Platform'}
+                + {isAr ? 'منصة العلامات السعودية' : 'Saudi Independent Brands Platform'}
               </div>
               <h1
-                className="font-bold leading-tight mb-4"
-                style={{ color: '#FFFFFF', fontSize: 'clamp(2rem, 5vw, 3rem)' }}
+                className="font-bold leading-[1.08] mb-4"
+                style={{ color: '#FFFFFF', fontSize: 'clamp(2.25rem, 5vw, 3.25rem)', letterSpacing: '-0.02em' }}
               >
                 {isAr ? (
                   <>اكتشف أفضل<br />العلامات السعودية</>
@@ -149,13 +149,13 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
               </h1>
               <p className="text-base mb-8 leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
                 {isAr
-                  ? 'منتجات مختارة بعناية من شركاء موثوقين'
-                  : 'Carefully selected products from trusted partners'}
+                  ? 'اكتشف علامات سعودية مستقلة وادعمها مباشرة'
+                  : 'Discover and support independent Saudi brands directly'}
               </p>
               <a
                 href="#products"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-bold transition-opacity hover:opacity-85"
-                style={{ background: C.gold, color: '#FFFFFF' }}
+                className="inline-flex items-center gap-2 px-6 rounded-lg text-base font-bold transition-opacity hover:opacity-85"
+                style={{ background: C.gold, color: '#FFFFFF', minHeight: '48px' }}
               >
                 {isAr ? 'تسوّق الآن ←' : '→ Shop Now'}
               </a>
@@ -177,7 +177,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
       {categories.length > 0 && (
         <section className="px-6 md:px-10 py-7" style={{ borderBottom: `1px solid ${C.border}` }}>
           <div className="max-w-7xl mx-auto">
-            <p className="text-base font-semibold mb-4" style={{ color: C.text }}>
+            <p className="text-[13px] font-semibold uppercase mb-4" style={{ color: C.text, letterSpacing: '0.08em' }}>
               {isAr ? 'تصفح حسب الفئة' : 'Browse by Category'}
             </p>
             <div className="flex gap-2 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
@@ -212,14 +212,14 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
 
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-base font-bold" style={{ color: C.text }}>
+            <h2 className="text-lg font-semibold" style={{ color: C.text, letterSpacing: '-0.01em' }}>
               {isAr ? 'أحدث المنتجات' : 'Latest Products'}
             </h2>
             <select
               value={sortOrder}
               onChange={e => setSortOrder(e.target.value)}
-              className="text-sm rounded-md px-2 py-1.5 border"
-              style={{ color: C.text2, borderColor: C.border, background: C.card, outline: 'none' }}
+              className="text-sm rounded-lg px-3 border"
+              style={{ color: C.text2, borderColor: C.border, background: C.card, outline: 'none', minHeight: '44px' }}
             >
               <option value="newest">{isAr ? 'الأحدث' : 'Newest'}</option>
               <option value="price_asc">{isAr ? 'السعر: الأقل' : 'Price: Low to High'}</option>
@@ -235,11 +235,12 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
                 <button
                   key={tab.key}
                   onClick={() => setActivePriceRange(tab.key)}
-                  className="shrink-0 px-3 py-1.5 rounded-full text-sm transition-colors"
+                  className="shrink-0 px-4 rounded-full text-sm transition-colors inline-flex items-center"
                   style={{
                     background: isActive ? C.text : C.catBg,
                     color:      isActive ? '#FFFFFF' : C.text2,
                     border:     `1px solid ${isActive ? C.text : C.border}`,
+                    minHeight:  '44px',
                   }}
                 >
                   {isAr ? tab.ar : tab.en}
@@ -289,11 +290,12 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             </div>
             <button
               onClick={copyPromoCode}
-              className="shrink-0 px-6 py-3 rounded-lg text-base font-bold tracking-widest transition-opacity hover:opacity-85 active:scale-95"
+              className="shrink-0 px-6 rounded-lg text-base font-bold tracking-widest transition-opacity hover:opacity-85 active:scale-95"
               style={{
                 background: C.promobtn,
                 color: '#FFFFFF',
                 minWidth: '170px',
+                minHeight: '48px',
                 transition: 'opacity 0.15s, transform 0.1s',
               }}
             >
@@ -309,7 +311,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
       <section className="px-6 md:px-10 py-12">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-base font-bold" style={{ color: C.text }}>
+            <h2 className="text-lg font-semibold" style={{ color: C.text, letterSpacing: '-0.01em' }}>
               {isAr ? 'شركاؤنا' : 'Our Partners'}
             </h2>
             <Link
@@ -351,12 +353,13 @@ function CategoryPill({
   return (
     <button
       onClick={onClick}
-      className="shrink-0 px-4 py-2 rounded-full text-base transition-colors"
+      className="shrink-0 px-4 rounded-full text-[14px] transition-colors inline-flex items-center"
       style={{
         background: active ? C.catActive : C.catBg,
         color:      active ? C.text      : C.text2,
         border:     `1px solid ${active ? '#C8B89A' : C.border}`,
-        fontWeight: active ? 600 : 400,
+        fontWeight: active ? 600 : 500,
+        minHeight:  '44px',
       }}
     >
       {label}
@@ -457,7 +460,7 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
     <div className="group flex flex-col">
       <Link href={href} className="flex flex-col cursor-pointer">
         <div
-          className="relative aspect-[3/4] overflow-hidden rounded-lg"
+          className="relative aspect-[3/4] overflow-hidden rounded-xl transition-shadow duration-200 group-hover:shadow-md"
           style={{ background: C.catBg }}
         >
           {primaryImg ? (
@@ -506,13 +509,14 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
       </Link>
       <button
         onClick={handleAddToCart}
-        className="mt-3 w-full py-2 text-[13px] tracking-[0.2em] uppercase transition-all duration-200"
+        className="mt-3 w-full text-[13px] font-medium tracking-[0.08em] uppercase rounded-lg transition-all duration-200"
         style={{
           border:     `1px solid ${added ? '#4A9E6B' : C.border}`,
           background: added ? '#F0F7F3' : 'transparent',
           color:      added ? '#4A9E6B' : C.text2,
           cursor:     'pointer',
           fontFamily: 'inherit',
+          minHeight:  '44px',
         }}
       >
         {added
@@ -532,7 +536,7 @@ function LightPartnerCard({ partner, isAr }: { partner: Partner; isAr: boolean }
   const card = (
     <div className="group flex flex-col cursor-pointer">
       <div
-        className="relative aspect-[3/4] overflow-hidden rounded-lg"
+        className="relative aspect-[3/4] overflow-hidden rounded-xl transition-shadow duration-200 group-hover:shadow-md"
         style={{ background: C.catBg, border: `1px solid ${C.border}` }}
       >
         {partner.imageUrl ? (

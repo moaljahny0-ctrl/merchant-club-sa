@@ -84,7 +84,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
             {/* ── Image ── */}
             <div
-              className="relative aspect-[4/5] overflow-hidden rounded-lg"
+              className="relative aspect-[4/5] overflow-hidden rounded-xl"
               style={{ background: '#F0EBE1' }}
             >
               {primaryImage ? (
@@ -109,15 +109,15 @@ export default async function ProductDetailPage({ params }: Props) {
 
               {/* Brand eyebrow */}
               {brandName && (
-                <p className="text-[13px] tracking-[0.35em] uppercase" style={{ color: '#B8975A' }}>
+                <p className="text-[13px] font-medium tracking-[0.1em] uppercase" style={{ color: '#B8975A' }}>
                   {brandName}
                 </p>
               )}
 
               {/* Product title */}
               <h1
-                className="font-display text-3xl md:text-4xl lg:text-5xl font-light leading-tight"
-                style={{ color: '#1A1208' }}
+                className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-[1.05]"
+                style={{ color: '#1A1208', letterSpacing: '-0.02em' }}
               >
                 {title}
               </h1>
@@ -126,7 +126,7 @@ export default async function ProductDetailPage({ params }: Props) {
               <div className="flex items-baseline gap-3">
                 {salePrice ? (
                   <>
-                    <span className="text-2xl md:text-3xl font-light" style={{ color: '#B8975A' }}>
+                    <span className="text-2xl md:text-3xl font-semibold" style={{ color: '#B8975A' }}>
                       {salePrice.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
                     </span>
                     <span className="text-base line-through" style={{ color: '#6B5B4E' }}>
@@ -134,7 +134,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     </span>
                   </>
                 ) : (
-                  <span className="text-2xl md:text-3xl font-light" style={{ color: '#B8975A' }}>
+                  <span className="text-2xl md:text-3xl font-semibold" style={{ color: '#B8975A' }}>
                     {price.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
                   </span>
                 )}
@@ -194,7 +194,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
               {/* Trust strip */}
               <div
-                className="px-4 py-4 flex flex-col gap-2 rounded-lg"
+                className="px-4 py-4 flex flex-col gap-2 rounded-xl"
                 style={{ border: '1px solid #E5DDD0', background: '#FFFFFF' }}
               >
                 <p className="text-[13px] leading-relaxed" style={{ color: '#6B5B4E' }}>

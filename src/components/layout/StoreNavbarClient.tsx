@@ -131,7 +131,7 @@ export function StoreNavbarClient({ customer }: Props) {
         <div className="flex items-center gap-4">
           <button
             onClick={openCart}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', position: 'relative', display: 'flex', alignItems: 'center', gap: '6px', color: '#6B5B4E' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', minHeight: '44px', position: 'relative', display: 'flex', alignItems: 'center', gap: '6px', color: '#6B5B4E' }}
             aria-label="Open cart"
           >
             <span style={{ position: 'relative', display: 'inline-flex' }}>
@@ -188,7 +188,7 @@ export function StoreNavbarClient({ customer }: Props) {
           {/* Hamburger — mobile only */}
           <button
             onClick={() => setOpen(!open)}
-            className="flex md:hidden flex-col gap-[5px] p-1"
+            className="flex md:hidden flex-col items-center justify-center gap-[5px] min-w-11 min-h-11"
             style={{ color: '#1A1208' }}
             aria-label="Toggle menu"
           >

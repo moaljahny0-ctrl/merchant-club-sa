@@ -8,7 +8,8 @@ import { loginCustomer } from '@/lib/actions/customers';
 const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: '12px',
-  letterSpacing: '0.25em',
+  fontWeight: 600,
+  letterSpacing: '0.08em',
   textTransform: 'uppercase',
   color: '#6B5B4E',
   marginBottom: '8px',
@@ -17,6 +18,7 @@ const labelStyle: React.CSSProperties = {
 const inputStyle: React.CSSProperties = {
   width: '100%',
   border: '1px solid #E5DDD0',
+  borderRadius: '8px',
   background: '#FFFFFF',
   color: '#1A1208',
   fontSize: '17px',
@@ -24,6 +26,7 @@ const inputStyle: React.CSSProperties = {
   outline: 'none',
   fontFamily: 'inherit',
   boxSizing: 'border-box',
+  transition: 'border-color 0.15s',
 };
 
 export function StoreLoginForm() {
@@ -91,10 +94,12 @@ export function StoreLoginForm() {
           background: isPending ? '#9A8060' : '#1A1208',
           color: '#F5F0E8',
           fontSize: '13px',
-          letterSpacing: '0.25em',
+          fontWeight: 600,
+          letterSpacing: '0.08em',
           textTransform: 'uppercase',
           padding: '16px',
           border: 'none',
+          borderRadius: '8px',
           cursor: isPending ? 'not-allowed' : 'pointer',
           fontFamily: 'inherit',
           transition: 'background 0.2s',

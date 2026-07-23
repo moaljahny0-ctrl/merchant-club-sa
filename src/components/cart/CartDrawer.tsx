@@ -51,7 +51,7 @@ export function CartDrawer() {
           flexShrink: 0,
         }}>
           <div>
-            <p style={{ fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '2px' }}>
+            <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '2px' }}>
               {isAr ? 'سلة المشتريات' : 'Your Cart'}
             </p>
             <p style={{ fontSize: '14px', color: '#6B5B4E' }}>
@@ -60,7 +60,7 @@ export function CartDrawer() {
           </div>
           <button
             onClick={closeCart}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', color: '#6B5B4E', fontSize: '16px', lineHeight: 1 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', fontSize: '16px', lineHeight: 1, borderRadius: '8px' }}
             aria-label="Close cart"
           >
             ✕
@@ -97,7 +97,7 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div style={{ padding: '20px 24px', borderTop: '1px solid #E5DDD0', flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '14px', color: '#6B5B4E', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
+              <span style={{ fontSize: '14px', color: '#6B5B4E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 {isAr ? 'المجموع' : 'Subtotal'}
               </span>
               <span style={{ fontSize: '16px', fontWeight: 500, color: '#1A1208' }}>
@@ -146,7 +146,7 @@ function CartItemRow({
         height: '86px',
         flexShrink: 0,
         background: '#F0EBE1',
-        borderRadius: '6px',
+        borderRadius: '10px',
         position: 'relative',
         overflow: 'hidden',
       }}>
@@ -161,7 +161,7 @@ function CartItemRow({
 
       {/* Details */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '12px', color: '#B8975A', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: '3px' }}>
+        <p style={{ fontSize: '12px', color: '#B8975A', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
           {item.brandName}
         </p>
         <p style={{ fontSize: '16px', color: '#1A1208', marginBottom: '4px', lineHeight: 1.3 }}>
@@ -172,25 +172,25 @@ function CartItemRow({
         </p>
 
         {/* Qty + remove */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <button
             onClick={() => onQty(item.productId, item.quantity - 1)}
-            style={{ width: '26px', height: '26px', border: '1px solid #E5DDD0', borderRadius: '6px', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
+            style={{ width: '36px', height: '36px', border: '1px solid #E5DDD0', borderRadius: '8px', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
           >
             −
           </button>
-          <span style={{ fontSize: '16px', minWidth: '18px', textAlign: 'center', color: '#1A1208' }}>
+          <span style={{ fontSize: '16px', minWidth: '22px', textAlign: 'center', color: '#1A1208' }}>
             {item.quantity}
           </span>
           <button
             onClick={() => onQty(item.productId, item.quantity + 1)}
-            style={{ width: '26px', height: '26px', border: '1px solid #E5DDD0', borderRadius: '6px', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
+            style={{ width: '36px', height: '36px', border: '1px solid #E5DDD0', borderRadius: '8px', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
           >
             +
           </button>
           <button
             onClick={() => onRemove(item.productId)}
-            style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#CC5555', padding: '4px', letterSpacing: '0.05em' }}
+            style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#CC5555', padding: '8px', minHeight: '36px', letterSpacing: '0.02em' }}
           >
             {isAr ? 'حذف' : 'Remove'}
           </button>

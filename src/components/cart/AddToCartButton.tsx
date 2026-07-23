@@ -37,13 +37,13 @@ export function AddToCartButton({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Quantity selector */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
-        <span style={{ fontSize: '12px', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#6B5B4E', marginRight: '16px' }}>
+        <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6B5B4E', marginRight: '16px' }}>
           {isAr ? 'الكمية' : 'Qty'}
         </span>
         <div style={{ display: 'flex', border: '1px solid #E5DDD0', borderRadius: '8px', overflow: 'hidden' }}>
           <button
             onClick={() => setQuantity(q => Math.max(1, q - 1))}
-            style={{ width: '36px', height: '36px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#6B5B4E', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #E5DDD0' }}
+            style={{ width: '40px', height: '40px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#6B5B4E', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #E5DDD0' }}
           >
             −
           </button>
@@ -52,7 +52,7 @@ export function AddToCartButton({
           </span>
           <button
             onClick={() => setQuantity(q => Math.min(max, q + 1))}
-            style={{ width: '36px', height: '36px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#6B5B4E', display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '1px solid #E5DDD0' }}
+            style={{ width: '40px', height: '40px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#6B5B4E', display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '1px solid #E5DDD0' }}
           >
             +
           </button>

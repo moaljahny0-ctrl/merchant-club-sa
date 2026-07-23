@@ -35,23 +35,23 @@ const BASE_URL = 'https://www.merchantclubsa.com';
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'Merchant Club SA — Curated Saudi Brands',
+    default: 'Merchant Club SA — Saudi Independent Brands',
     template: '%s — Merchant Club SA',
   },
-  description: "Saudi Arabia's first curated marketplace for independent brands.",
-  keywords: ['Saudi brands', 'independent brands', 'Saudi marketplace', 'curated brands', 'علامات سعودية'],
+  description: "Saudi Arabia's home for independent brands — discovered through creators, hosted under one platform.",
+  keywords: ['Saudi brands', 'independent brands', 'Saudi marketplace', 'creator commerce', 'علامات سعودية'],
   authors: [{ name: 'Merchant Club SA', url: BASE_URL }],
   openGraph: {
-    title: 'Merchant Club SA — Curated Saudi Brands',
-    description: "Saudi Arabia's first curated marketplace for independent brands.",
+    title: 'Merchant Club SA — Saudi Independent Brands',
+    description: "Saudi Arabia's home for independent brands — discovered through creators, hosted under one platform.",
     url: BASE_URL,
     siteName: 'Merchant Club SA',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Merchant Club SA — Curated Saudi Brands',
-    description: "Saudi Arabia's first curated marketplace for independent brands.",
+    title: 'Merchant Club SA — Saudi Independent Brands',
+    description: "Saudi Arabia's home for independent brands — discovered through creators, hosted under one platform.",
   },
   icons: {
     icon: '/logo.png',

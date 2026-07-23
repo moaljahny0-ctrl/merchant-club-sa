@@ -35,7 +35,7 @@ export type ButtonProps = AsButton | AsLink;
 const shapeByVariant: Record<Variant, string> = {
   primary: 'px-8 py-4 text-[13px] font-medium rounded-lg shadow-sm',
   secondary: 'px-8 py-4 text-[13px] font-medium border rounded-lg',
-  back: 'px-4 py-2 text-[13px] font-medium border border-current/15 bg-transparent hover:border-current/35 rounded-full',
+  back: 'px-4 py-2 min-h-11 text-[13px] font-medium border border-current/15 bg-transparent hover:border-current/35 rounded-full',
 };
 
 const liftByVariant: Record<Variant, string> = {

@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'Merchant Club SA — Curated Saudi Brands';
+export const alt = 'Merchant Club SA — Saudi Independent Brands';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -32,10 +32,10 @@ export default async function Image() {
             Merchant Club SA
           </p>
           <h1 style={{ margin: 0, fontSize: 68, fontWeight: 600, color: '#FFFFFF', lineHeight: 1.04, maxWidth: 760 }}>
-            Not every brand belongs here.
+            Saudi&apos;s home for independent brands.
           </h1>
           <p style={{ margin: 0, fontSize: 22, color: '#BFBFBF', fontWeight: 400 }}>
-            We select the ones that do.
+            Discovered through creators. Built for scale.
           </p>
         </div>
 

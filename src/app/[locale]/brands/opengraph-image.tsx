@@ -35,7 +35,7 @@ export default async function Image() {
             The Roster
           </h1>
           <p style={{ margin: 0, fontSize: 22, color: '#BFBFBF', fontWeight: 400 }}>
-            Independent Saudi brands, curated for quality.
+            Independent Saudi brands, hosted under one platform.
           </p>
         </div>
 

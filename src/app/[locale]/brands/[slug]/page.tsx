@@ -159,14 +159,14 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
             )}
             <div>
               <p
-                className="text-[13px] tracking-[0.35em] uppercase mb-4"
+                className="text-[13px] font-medium tracking-[0.1em] uppercase mb-4"
                 style={{ color: accentHex }}
               >
                 {isAr ? 'المتجر' : 'Brand'}
               </p>
               <h1
-                className={`font-display font-light leading-tight mb-3 ${templateId === 'grid' ? 'text-3xl md:text-4xl' : 'text-4xl md:text-6xl'}`}
-                style={{ color: '#1A1208' }}
+                className={`font-semibold leading-[1.05] mb-3 ${templateId === 'grid' ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'}`}
+                style={{ color: '#1A1208', letterSpacing: '-0.02em' }}
               >
                 {brandName}
               </h1>
@@ -203,7 +203,7 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
           return (
             <section key={collection.id} className="px-6 md:px-10 py-10 md:py-14" style={{ borderBottom: '1px solid #E5DDD0' }}>
               <div className="max-w-7xl mx-auto">
-                <p className="text-[13px] tracking-[0.35em] uppercase mb-6" style={{ color: accentHex }}>
+                <p className="text-[13px] font-medium tracking-[0.1em] uppercase mb-6" style={{ color: accentHex }}>
                   {name}
                 </p>
                 <div className={`grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-6 ${templateId === 'grid' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
@@ -213,7 +213,7 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
                     const title = isAr && product.title_ar ? product.title_ar : product.title_en
                     return (
                       <Link key={product.id} href={`/brands/${slug}/products/${product.id}`} className="group flex flex-col cursor-pointer">
-                        <div className="relative aspect-[3/4] overflow-hidden rounded-lg" style={{ background: '#F0EBE1' }}>
+                        <div className="relative aspect-[3/4] overflow-hidden rounded-xl transition-shadow duration-200 group-hover:shadow-md" style={{ background: '#F0EBE1' }}>
                           {primaryImage && (
                             <Image src={primaryImage.url} alt={title} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" sizes="(max-width: 768px) 50vw, 25vw" />
                           )}
@@ -240,7 +240,7 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
             ) : (
               <>
                 <p
-                  className="text-[13px] tracking-[0.35em] uppercase mb-10"
+                  className="text-[13px] font-medium tracking-[0.1em] uppercase mb-10"
                   style={{ color: accentHex }}
                 >
                   {isAr ? 'كل المنتجات' : 'All Products'} ({liveProducts.length})
@@ -260,7 +260,7 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
                         className="group flex flex-col cursor-pointer"
                       >
                         <div
-                          className="relative aspect-[3/4] overflow-hidden rounded-lg"
+                          className="relative aspect-[3/4] overflow-hidden rounded-xl transition-shadow duration-200 group-hover:shadow-md"
                           style={{ background: '#F0EBE1' }}
                         >
                           {primaryImage ? (

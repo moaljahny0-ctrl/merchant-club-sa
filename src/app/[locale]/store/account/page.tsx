@@ -71,17 +71,17 @@ export default async function AccountPage({ params }: Props) {
 
         {/* Welcome */}
         <div style={{ marginBottom: '48px' }}>
-          <p style={{ color: '#B8975A', fontSize: '12px', letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: '8px' }}>
+          <p style={{ color: '#B8975A', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '8px' }}>
             My Account
           </p>
-          <h1 style={{ color: '#1A1208', fontSize: '28px', fontWeight: 400, lineHeight: 1.2 }}>
+          <h1 style={{ color: '#1A1208', fontSize: '30px', fontWeight: 600, letterSpacing: '-0.01em', lineHeight: 1.2 }}>
             مرحباً {firstName}.
           </h1>
         </div>
 
         {/* My Orders */}
         <section style={{ marginBottom: '48px' }}>
-          <h2 style={{ color: '#1A1208', fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 500 }}>
+          <h2 style={{ color: '#1A1208', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 600 }}>
             My Orders
           </h2>
 
@@ -98,7 +98,7 @@ export default async function AccountPage({ params }: Props) {
               )}
             </p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: '#E5DDD0' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: '#E5DDD0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5DDD0' }}>
               {orders.map(order => {
                 const items = Array.isArray(order.items) ? (order.items as OrderItem[]) : [];
                 const productTitle = items[0]?.title ?? 'Order';
@@ -132,10 +132,10 @@ export default async function AccountPage({ params }: Props) {
                         </p>
                         <span style={{
                           fontSize: '12px',
-                          letterSpacing: '0.15em',
+                          fontWeight: 600,
+                          letterSpacing: '0.08em',
                           textTransform: 'uppercase',
                           color: statusColors[order.status] ?? '#6B5B4E',
-                          fontWeight: 500,
                         }}>
                           {order.status}
                         </span>
@@ -150,10 +150,10 @@ export default async function AccountPage({ params }: Props) {
 
         {/* My Info */}
         <section style={{ marginBottom: '48px' }}>
-          <h2 style={{ color: '#1A1208', fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 500 }}>
+          <h2 style={{ color: '#1A1208', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 600 }}>
             My Info
           </h2>
-          <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '12px', overflow: 'hidden' }}>
             {[
               { label: 'Name',  value: session.full_name },
               { label: 'Phone', value: session.phone ?? '—' },
