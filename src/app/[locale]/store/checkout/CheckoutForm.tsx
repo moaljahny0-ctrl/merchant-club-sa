@@ -1,11 +1,21 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { useCart } from '@/lib/cart/CartContext';
 import { placeOrder } from '@/lib/actions/orders';
 import { Button } from '@/components/ui/Button';
+import { CardFields, type CardFieldsHandle } from '@/components/checkout/CardFields';
+
+const CARD_PAYMENT_AVAILABLE = Boolean(process.env.NEXT_PUBLIC_MOYASAR_PUBLISHABLE_KEY);
+
+function paymentErrorMessage(code: string, ar: boolean): string {
+  if (code === 'declined') {
+    return ar ? 'تم رفض عملية الدفع. جرّب بطاقة أخرى أو اختر الدفع عند الاستلام.' : 'Your payment was declined. Try a different card, or choose cash on delivery.';
+  }
+  return ar ? 'حدث خطأ أثناء تأكيد الدفع. لم يتم خصم أي مبلغ — يرجى المحاولة مرة أخرى.' : 'Something went wrong confirming your payment. Nothing was charged — please try again.';
+}
 
 const PROMO_CODE = 'MERCHANT2026';
 
@@ -20,7 +30,8 @@ function isValidSaudiPhone(p: string): boolean {
 const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: '12px',
-  letterSpacing: '0.25em',
+  fontWeight: 600,
+  letterSpacing: '0.08em',
   textTransform: 'uppercase',
   color: '#6B5B4E',
   marginBottom: '8px',
@@ -37,17 +48,20 @@ const inputStyle: React.CSSProperties = {
   outline: 'none',
   fontFamily: 'inherit',
   boxSizing: 'border-box',
+  transition: 'border-color 0.15s',
 };
 
 type Customer = { name: string; phone: string; email: string } | null;
-type Props = { locale: string; customer: Customer };
+type Props = { locale: string; customer: Customer; paymentError: string | null };
 
-export function CheckoutForm({ locale, customer }: Props) {
+export function CheckoutForm({ locale, customer, paymentError }: Props) {
   const ar = locale === 'ar';
   const router = useRouter();
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal } = useCart();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(paymentError ? paymentErrorMessage(paymentError, ar) : null);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cod'>('cod');
+  const cardFieldsRef = useRef<CardFieldsHandle>(null);
 
   const [name,    setName]    = useState(customer?.name    ?? '');
   const [phone,   setPhone]   = useState(customer?.phone   ?? '');
@@ -81,6 +95,17 @@ export function CheckoutForm({ locale, customer }: Props) {
     }
 
     startTransition(async () => {
+      let paymentToken: string | undefined;
+
+      if (paymentMethod === 'card') {
+        const tokenResult = await cardFieldsRef.current?.tokenize();
+        if (!tokenResult || 'error' in tokenResult) {
+          setError(tokenResult?.error ?? (ar ? 'تعذر التحقق من بيانات البطاقة.' : 'Could not verify card details.'));
+          return;
+        }
+        paymentToken = tokenResult.token;
+      }
+
       const result = await placeOrder({
         cartItems: items,
         customerName: name.trim(),
@@ -89,14 +114,25 @@ export function CheckoutForm({ locale, customer }: Props) {
         customerCity: city.trim(),
         customerAddress: address.trim(),
         notes: notes.trim() || null,
+        locale,
+        paymentMethod,
+        paymentToken,
       });
 
-      if (result.error) {
+      if (result.kind === 'error') {
         setError(result.error);
         return;
       }
 
-      clearCart();
+      // 3DS challenge — navigate the browser to Moyasar. Cart is left intact;
+      // it's only cleared once we land back on a confirmed order-confirmation
+      // page (see ClearCartOnMount), so an abandoned/declined payment doesn't
+      // lose the customer's cart.
+      if (result.kind === 'redirect') {
+        window.location.href = result.redirectUrl;
+        return;
+      }
+
       const orderParam = result.orderNumbers.join(',');
       router.push(`/store/order-confirmation?order=${encodeURIComponent(orderParam)}`);
     });
@@ -131,10 +167,10 @@ export function CheckoutForm({ locale, customer }: Props) {
             <span>←</span>
             <span>{ar ? 'العودة للمتجر' : 'Back to Store'}</span>
           </Button>
-          <p style={{ fontSize: '12px', letterSpacing: '0.32em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '6px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '6px' }}>
             {ar ? 'إتمام الطلب' : 'Checkout'}
           </p>
-          <h1 style={{ fontSize: '24px', fontWeight: 400, color: '#1A1208' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 600, letterSpacing: '-0.01em', color: '#1A1208' }}>
             {ar ? 'تفاصيل طلبك' : 'Your Order'}
           </h1>
         </div>
@@ -143,11 +179,11 @@ export function CheckoutForm({ locale, customer }: Props) {
 
           {/* ── LEFT: Order Summary ── */}
           <div style={{ order: 2 }} className="md:order-1">
-            <h2 style={{ fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1A1208', marginBottom: '20px', fontWeight: 500 }}>
+            <h2 style={{ fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#1A1208', marginBottom: '20px', fontWeight: 600 }}>
               {ar ? 'ملخص الطلب' : 'Order Summary'}
             </h2>
 
-            <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
+            <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '12px', boxShadow: '0 1px 2px rgba(26,18,8,0.04)', overflow: 'hidden', marginBottom: '16px' }}>
               {items.map((item, i) => (
                 <div
                   key={item.productId}
@@ -159,7 +195,7 @@ export function CheckoutForm({ locale, customer }: Props) {
                     alignItems: 'flex-start',
                   }}
                 >
-                  <div style={{ width: '56px', height: '70px', flexShrink: 0, background: '#F0EBE1', borderRadius: '6px', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ width: '56px', height: '70px', flexShrink: 0, background: '#F0EBE1', borderRadius: '8px', position: 'relative', overflow: 'hidden' }}>
                     {item.image_url ? (
                       <Image src={item.image_url} alt={item.productName} fill className="object-cover object-top" sizes="56px" />
                     ) : (
@@ -169,7 +205,7 @@ export function CheckoutForm({ locale, customer }: Props) {
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: '12px', color: '#B8975A', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '3px' }}>
+                    <p style={{ fontSize: '12px', color: '#B8975A', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
                       {item.brandName}
                     </p>
                     <p style={{ fontSize: '16px', color: '#1A1208', marginBottom: '4px' }}>
@@ -187,7 +223,7 @@ export function CheckoutForm({ locale, customer }: Props) {
             </div>
 
             {/* Totals */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '10px', padding: '16px 20px' }}>
+            <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '12px', boxShadow: '0 1px 2px rgba(26,18,8,0.04)', padding: '16px 20px' }}>
               {[
                 { label: ar ? 'المجموع الفرعي' : 'Subtotal',  value: `${subtotal.toFixed(2)} ${ar ? 'ريال' : 'SAR'}` },
                 { label: ar ? 'الشحن' : 'Shipping',            value: promoApplied ? (ar ? 'مجانًا ✓' : 'Free ✓') : (ar ? 'مجانًا' : 'Free') },
@@ -223,13 +259,15 @@ export function CheckoutForm({ locale, customer }: Props) {
                   disabled={promoApplied}
                   style={{
                     padding: '12px 20px',
+                    minHeight: '44px',
                     background: promoApplied ? '#4A9E6B' : '#1A1208',
                     color: '#F5F0E8',
                     border: 'none',
                     borderRadius: '8px',
                     cursor: promoApplied ? 'default' : 'pointer',
                     fontSize: '13px',
-                    letterSpacing: '0.2em',
+                    fontWeight: 600,
+                    letterSpacing: '0.08em',
                     textTransform: 'uppercase',
                     fontFamily: 'inherit',
                     flexShrink: 0,
@@ -251,7 +289,7 @@ export function CheckoutForm({ locale, customer }: Props) {
 
           {/* ── RIGHT: Customer Info ── */}
           <div style={{ order: 1 }} className="md:order-2">
-            <h2 style={{ fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1A1208', marginBottom: '20px', fontWeight: 500 }}>
+            <h2 style={{ fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#1A1208', marginBottom: '20px', fontWeight: 600 }}>
               {ar ? 'بيانات التوصيل' : 'Delivery Details'}
             </h2>
 
@@ -319,6 +357,40 @@ export function CheckoutForm({ locale, customer }: Props) {
                 />
               </div>
 
+              {CARD_PAYMENT_AVAILABLE && (
+                <div>
+                  <label style={labelStyle}>{ar ? 'طريقة الدفع' : 'Payment Method'}</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {(['cod', 'card'] as const).map(method => (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => setPaymentMethod(method)}
+                        style={{
+                          padding: '12px 16px',
+                          borderRadius: '8px',
+                          border: `1px solid ${paymentMethod === method ? '#B8975A' : '#E5DDD0'}`,
+                          background: paymentMethod === method ? 'rgba(184,151,90,0.08)' : '#FFFFFF',
+                          color: '#1A1208',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        {method === 'cod'
+                          ? (ar ? 'الدفع عند الاستلام' : 'Cash on Delivery')
+                          : (ar ? 'بطاقة ائتمان' : 'Credit Card')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === 'card' && CARD_PAYMENT_AVAILABLE && (
+                <CardFields ref={cardFieldsRef} locale={locale} />
+              )}
+
               {error && (
                 <p style={{ fontSize: '15px', color: '#CC5555', lineHeight: 1.5 }}>{error}</p>
               )}
@@ -341,7 +413,9 @@ export function CheckoutForm({ locale, customer }: Props) {
               </Button>
 
               <p style={{ fontSize: '14px', color: '#6B5B4E', textAlign: 'center', lineHeight: 1.6 }}>
-                {ar ? '✓ الدفع عند الاستلام · لا يلزم بطاقة' : '✓ Cash on delivery · No card required'}
+                {!CARD_PAYMENT_AVAILABLE || paymentMethod === 'cod'
+                  ? (ar ? '✓ الدفع عند الاستلام · لا يلزم بطاقة' : '✓ Cash on delivery · No card required')
+                  : (ar ? '✓ دفع آمن عبر البطاقة الائتمانية' : '✓ Secure card payment')}
               </p>
             </div>
           </div>

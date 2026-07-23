@@ -1,9 +1,11 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useRef, useState, useTransition } from 'react'
+import { useRouter } from '@/i18n/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
-import { createOrder, type OrderFormState } from '@/lib/actions/orders'
+import { placeOrder } from '@/lib/actions/orders'
+import { CardFields, type CardFieldsHandle } from '@/components/checkout/CardFields'
 
 type Props = {
   productId: string
@@ -18,9 +20,8 @@ type Props = {
   stockQuantity: number
 }
 
-const initialState: OrderFormState = { error: null, orderId: null }
-
-const INPUT = 'w-full text-base px-4 py-3 border border-[#E5DDD0] placeholder:text-[#6B5B4E]/40 focus:outline-none focus:border-[#B8975A] transition-colors'
+const INPUT = 'w-full text-base px-4 py-3 rounded-lg border border-[#E5DDD0] placeholder:text-[#6B5B4E]/40 focus:outline-none focus:border-[#B8975A] transition-colors'
+const CARD_PAYMENT_AVAILABLE = Boolean(process.env.NEXT_PUBLIC_MOYASAR_PUBLISHABLE_KEY)
 
 export function OrderForm({
   productId,
@@ -34,11 +35,81 @@ export function OrderForm({
   primaryImageUrl,
   stockQuantity,
 }: Props) {
-  const [state, formAction, pending] = useActionState(createOrder, initialState)
   const isAr = locale === 'ar'
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cod'>('cod')
+  const cardFieldsRef = useRef<CardFieldsHandle>(null)
+
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [city, setCity] = useState('')
+  const [address, setAddress] = useState('')
+  const [quantity, setQuantity] = useState(1)
+  const [notes, setNotes] = useState('')
 
   const label    = (en: string, ar: string) => isAr ? ar : en
   const required = <span className="text-red-500 ml-0.5">*</span>
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+
+    if (phone.replace(/\D/g, '').length < 9) {
+      setError(label('Please enter a valid phone number.', 'يرجى إدخال رقم جوال صحيح.'))
+      return
+    }
+
+    startTransition(async () => {
+      let paymentToken: string | undefined
+
+      if (paymentMethod === 'card') {
+        const tokenResult = await cardFieldsRef.current?.tokenize()
+        if (!tokenResult || 'error' in tokenResult) {
+          setError(tokenResult?.error ?? label('Could not verify card details.', 'تعذر التحقق من بيانات البطاقة.'))
+          return
+        }
+        paymentToken = tokenResult.token
+      }
+
+      const result = await placeOrder({
+        cartItems: [{
+          productId,
+          brandId,
+          brandSlug,
+          productName: productTitle,
+          brandName,
+          price: displayPrice,
+          quantity,
+          image_url: primaryImageUrl,
+        }],
+        customerName: name.trim(),
+        customerPhone: phone.trim(),
+        customerEmail: email.trim() || null,
+        customerCity: city.trim(),
+        customerAddress: address.trim(),
+        notes: notes.trim() || null,
+        locale,
+        paymentMethod,
+        paymentToken,
+      })
+
+      if (result.kind === 'error') {
+        setError(result.error)
+        return
+      }
+
+      if (result.kind === 'redirect') {
+        window.location.href = result.redirectUrl
+        return
+      }
+
+      const orderParam = result.orderNumbers.join(',')
+      router.push(`/store/order-confirmation?order=${encodeURIComponent(orderParam)}`)
+    })
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16 items-start">
@@ -54,7 +125,7 @@ export function OrderForm({
 
         {/* Image */}
         <div
-          className="relative aspect-[3/4] overflow-hidden rounded-lg"
+          className="relative aspect-[3/4] overflow-hidden rounded-xl"
           style={{ background: '#F0EBE1' }}
         >
           {primaryImageUrl ? (
@@ -76,7 +147,7 @@ export function OrderForm({
 
         <div>
           {brandName && (
-            <p className="text-[13px] tracking-[0.35em] uppercase mb-1" style={{ color: '#B8975A' }}>
+            <p className="text-[13px] font-medium tracking-[0.1em] uppercase mb-1" style={{ color: '#B8975A' }}>
               {brandName}
             </p>
           )}
@@ -101,31 +172,26 @@ export function OrderForm({
 
       {/* ── Order form ── */}
       <div>
-        <p className="text-[13px] tracking-[0.35em] uppercase mb-4" style={{ color: '#B8975A' }}>
+        <p className="text-[13px] font-medium tracking-[0.1em] uppercase mb-4" style={{ color: '#B8975A' }}>
           {label('Order Details', 'تفاصيل الطلب')}
         </p>
-        <h1 className="font-display text-2xl md:text-3xl font-light mb-8" style={{ color: '#1A1208' }}>
+        <h1 className="text-2xl md:text-3xl font-semibold mb-8" style={{ color: '#1A1208', letterSpacing: '-0.01em' }}>
           {label('Place Your Order', 'أكمل طلبك')}
         </h1>
 
-        <form action={formAction} className="flex flex-col gap-5">
-          {/* Hidden fields */}
-          <input type="hidden" name="product_id" value={productId} />
-          <input type="hidden" name="brand_id"   value={brandId} />
-          <input type="hidden" name="locale"     value={locale} />
-          <input type="hidden" name="brand_slug" value={brandSlug} />
-
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {/* Name */}
           <div>
-            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] font-medium tracking-[0.08em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Full Name', 'الاسم الكامل')}{required}
             </label>
             <input
-              name="customer_name"
               type="text"
               required
               autoComplete="name"
               placeholder={label('Your full name', 'الاسم الكامل')}
+              value={name}
+              onChange={e => setName(e.target.value)}
               className={INPUT}
               style={{ background: '#FFFFFF', color: '#1A1208' }}
             />
@@ -133,15 +199,16 @@ export function OrderForm({
 
           {/* Phone */}
           <div>
-            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] font-medium tracking-[0.08em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Phone Number', 'رقم الجوال')}{required}
             </label>
             <input
-              name="customer_phone"
               type="tel"
               required
               autoComplete="tel"
               placeholder="+966 5X XXX XXXX"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
               className={INPUT}
               style={{ background: '#FFFFFF', color: '#1A1208' }}
               dir="ltr"
@@ -150,17 +217,18 @@ export function OrderForm({
 
           {/* Email */}
           <div>
-            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] font-medium tracking-[0.08em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Email', 'البريد الإلكتروني')}
               <span className="ml-1 normal-case tracking-normal" style={{ color: '#6B5B4E', opacity: 0.6 }}>
                 ({label('optional', 'اختياري')})
               </span>
             </label>
             <input
-              name="customer_email"
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               className={INPUT}
               style={{ background: '#FFFFFF', color: '#1A1208' }}
               dir="ltr"
@@ -169,15 +237,16 @@ export function OrderForm({
 
           {/* City */}
           <div>
-            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] font-medium tracking-[0.08em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('City', 'المدينة')}{required}
             </label>
             <input
-              name="customer_city"
               type="text"
               required
               autoComplete="address-level2"
               placeholder={label('e.g. Riyadh', 'مثال: الرياض')}
+              value={city}
+              onChange={e => setCity(e.target.value)}
               className={INPUT}
               style={{ background: '#FFFFFF', color: '#1A1208' }}
             />
@@ -185,15 +254,16 @@ export function OrderForm({
 
           {/* Address */}
           <div>
-            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] font-medium tracking-[0.08em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Delivery Address', 'عنوان التوصيل')}{required}
             </label>
             <textarea
-              name="customer_address"
               required
               rows={3}
               autoComplete="street-address"
               placeholder={label('Street, building, apartment…', 'الشارع، المبنى، الشقة...')}
+              value={address}
+              onChange={e => setAddress(e.target.value)}
               className={`${INPUT} resize-none`}
               style={{ background: '#FFFFFF', color: '#1A1208' }}
             />
@@ -201,12 +271,12 @@ export function OrderForm({
 
           {/* Quantity */}
           <div>
-            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] font-medium tracking-[0.08em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Quantity', 'الكمية')}
             </label>
             <select
-              name="quantity"
-              defaultValue="1"
+              value={quantity}
+              onChange={e => setQuantity(Number(e.target.value))}
               className={`${INPUT} appearance-none cursor-pointer`}
               style={{ background: '#FFFFFF', color: '#1A1208' }}
             >
@@ -218,28 +288,59 @@ export function OrderForm({
 
           {/* Notes */}
           <div>
-            <label className="block text-[13px] tracking-[0.2em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+            <label className="block text-[13px] font-medium tracking-[0.08em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
               {label('Notes', 'ملاحظات')}
               <span className="ml-1 normal-case tracking-normal" style={{ color: '#6B5B4E', opacity: 0.6 }}>
                 ({label('optional', 'اختياري')})
               </span>
             </label>
             <textarea
-              name="notes"
               rows={2}
               placeholder={label('Any special requests or instructions', 'أي طلبات أو تعليمات خاصة')}
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
               className={`${INPUT} resize-none`}
               style={{ background: '#FFFFFF', color: '#1A1208' }}
             />
           </div>
 
+          {/* Payment method */}
+          {CARD_PAYMENT_AVAILABLE && (
+            <div>
+              <label className="block text-[13px] font-medium tracking-[0.08em] uppercase mb-2" style={{ color: '#6B5B4E' }}>
+                {label('Payment Method', 'طريقة الدفع')}
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {(['cod', 'card'] as const).map(method => (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => setPaymentMethod(method)}
+                    className="rounded-lg px-4 py-3 text-sm font-semibold"
+                    style={{
+                      border: `1px solid ${paymentMethod === method ? '#B8975A' : '#E5DDD0'}`,
+                      background: paymentMethod === method ? 'rgba(184,151,90,0.08)' : '#FFFFFF',
+                      color: '#1A1208',
+                    }}
+                  >
+                    {method === 'cod' ? label('Cash on Delivery', 'الدفع عند الاستلام') : label('Credit Card', 'بطاقة ائتمان')}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {paymentMethod === 'card' && CARD_PAYMENT_AVAILABLE && (
+            <CardFields ref={cardFieldsRef} locale={locale} />
+          )}
+
           {/* Error */}
-          {state.error && (
+          {error && (
             <p
               className="text-base px-4 py-3 rounded-lg text-red-600"
               style={{ border: '1px solid rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.05)' }}
             >
-              {state.error}
+              {error}
             </p>
           )}
 
@@ -248,23 +349,23 @@ export function OrderForm({
             className="flex items-center justify-between py-4"
             style={{ borderTop: '1px solid #E5DDD0' }}
           >
-            <p className="text-[13px] tracking-[0.2em] uppercase" style={{ color: '#6B5B4E' }}>
+            <p className="text-[13px] font-medium tracking-[0.08em] uppercase" style={{ color: '#6B5B4E' }}>
               {label('Total', 'الإجمالي')}
             </p>
             <p className="text-lg font-bold" style={{ color: '#B8975A' }}>
-              {displayPrice.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
+              {(displayPrice * quantity).toFixed(2)} {isAr ? 'ريال' : 'SAR'}
             </p>
           </div>
 
           {/* Submit */}
           <Button
             type="submit"
-            disabled={pending}
+            disabled={isPending}
             variant="primary"
             fullWidth
             style={{ background: '#3D2B1F', color: '#FFFFFF', fontFamily: 'var(--font-body)' }}
           >
-            {pending
+            {isPending
               ? label('Placing Order…', 'جاري الطلب…')
               : label('Confirm Order', 'تأكيد الطلب')}
           </Button>

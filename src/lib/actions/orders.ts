@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import { trackEvent } from '@/lib/actions/analytics'
+import { createMoyasarPayment } from '@/lib/moyasar'
 import {
   sendOrderEmail,
   buildOrderPlacedCustomerHtml,
@@ -17,10 +17,7 @@ import { getCustomerSession } from '@/lib/customer-auth'
 import { randomInt } from 'crypto'
 import type { CartItem } from '@/lib/cart/CartContext'
 
-export type OrderFormState = {
-  error: string | null
-  orderId: string | null
-}
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
 
 async function resolveCreatorLinkId(brandId: string): Promise<string | null> {
   try {
@@ -51,384 +48,428 @@ function generateOrderNumber(): string {
   return `MCO-${ymd}-${rand}`
 }
 
-export async function createOrder(
-  _prev: OrderFormState,
-  formData: FormData
-): Promise<OrderFormState> {
-  const productId = formData.get('product_id') as string
-  const brandId   = formData.get('brand_id') as string
-  const locale    = formData.get('locale') as string
-  const slug      = formData.get('brand_slug') as string
-  const name      = (formData.get('customer_name') as string)?.trim()
-  const phone     = (formData.get('customer_phone') as string)?.trim()
-  const email     = (formData.get('customer_email') as string)?.trim() || null
-  const city      = (formData.get('customer_city') as string)?.trim()
-  const address   = (formData.get('customer_address') as string)?.trim()
-  const quantity  = Math.max(1, parseInt(formData.get('quantity') as string) || 1)
-  const notes     = (formData.get('notes') as string)?.trim() || null
+// ─── Cart validation + order materialization ──────────────────────────────────
+//
+// Shared by the immediate-paid path (initiatePayment, below) and the deferred
+// path (3DS callback route + webhook route), so a checkout is only ever
+// materialized into `orders` rows — and stock only ever decremented — once,
+// through one code path, regardless of which of those three callers first
+// sees the payment as `paid`.
 
-  if (!name || !phone || !city || !address) {
-    return { error: 'Please fill in all required fields.', orderId: null }
-  }
-  if (phone.replace(/\D/g, '').length < 9) {
-    return { error: 'Please enter a valid phone number.', orderId: null }
-  }
+type CartSnapshotItem = { brandId: string; productId: string; quantity: number }
 
-  const service = createServiceClient()
-
-  const { data: product } = await service
-    .from('products')
-    .select('id, title_en, title_ar, price, sale_price, stock_quantity, brands(name_en, contact_email, slug)')
-    .eq('id', productId)
-    .eq('status', 'live')
-    .single()
-
-  if (!product) {
-    return { error: 'Product not found or no longer available.', orderId: null }
-  }
-
-  const stock = product.stock_quantity ?? 0
-  if (stock < 1) {
-    return { error: 'This product is out of stock.', orderId: null }
-  }
-  if (quantity > stock) {
-    return { error: `Only ${stock} unit${stock === 1 ? '' : 's'} available.`, orderId: null }
-  }
-
-  const unitPrice = product.sale_price ? Number(product.sale_price) : Number(product.price)
-  const subtotal  = unitPrice * quantity
-
-  const creatorLinkId = await resolveCreatorLinkId(brandId)
-
-  const { data: order, error: insertError } = await service
-    .from('orders')
-    .insert({
-      order_number:     generateOrderNumber(),
-      brand_id:         brandId,
-      customer_name:    name,
-      customer_phone:   phone,
-      customer_email:   email,
-      delivery_address: { city, address },
-      items: [
-        {
-          product_id: productId,
-          title:      product.title_en,
-          quantity,
-          unit_price: unitPrice,
-          total:      subtotal,
-        },
-      ],
-      subtotal,
-      status:      'pending',
-      brand_notes: notes,
-      ...(creatorLinkId ? { creator_link_id: creatorLinkId } : {}),
-    })
-    .select('id, order_number')
-    .single()
-
-  if (insertError || !order) {
-    return { error: 'Failed to place order. Please try again.', orderId: null }
-  }
-
-  trackEvent({ event_type: 'order_placed', brand_id: brandId, product_id: productId, creator_link_id: creatorLinkId }).catch(() => {})
-
-  // Atomic stock decrement — conditional on stock still being available
-  const newStock = Math.max(0, (product.stock_quantity ?? 0) - quantity)
-  const { data: decremented } = await service
-    .from('products')
-    .update({
-      stock_quantity: newStock,
-      ...(newStock === 0 ? { status: 'out_of_stock' } : {}),
-    })
-    .eq('id', productId)
-    .gte('stock_quantity', quantity)
-    .select('id')
-
-  if (!decremented || decremented.length === 0) {
-    await service.from('orders').delete().eq('id', order.id)
-    return { error: 'This product just sold out. Please try again.', orderId: null }
-  }
-
-  const brand = (product.brands as unknown) as { name_en: string; contact_email: string | null } | null
-
-  // Email A — customer confirmation
-  if (email) {
-    console.log('[email] Customer confirmation firing to:', email, '| order:', order.order_number)
-    sendOrderEmail({
-      to: email,
-      subject: `Order Confirmed — #${order.order_number}`,
-      html: buildOrderPlacedCustomerHtml({
-        customerName: name,
-        orderNumber:  order.order_number,
-        productTitle: product.title_en,
-        quantity,
-        unitPrice,
-        subtotal,
-        city,
-        address,
-      }),
-    }).catch(err => console.error('[email] Customer confirmation failed:', err))
-  }
-
-  // Email D — guest account invitation (fire-and-forget, only for unregistered customers)
-  if (email) {
-    service
-      .from('customers')
-      .select('id')
-      .eq('phone', phone)
-      .maybeSingle()
-      .then(({ data: existingCustomer }) => {
-        if (!existingCustomer) {
-          sendOrderEmail({
-            to: email,
-            subject: 'أكمل تسجيلك في Merchant Club SA',
-            html: buildGuestInvitationHtml({ customerName: name, orderNumber: order.order_number }),
-          }).catch(err => console.error('[email] Guest invitation failed:', err))
-        }
-      })
-  }
-
-  // Email B — brand notification
-  if (brand?.contact_email) {
-    console.log('[email] Brand notification firing to:', brand.contact_email, '| order:', order.order_number)
-    sendOrderEmail({
-      to: brand.contact_email,
-      subject: `New Order — #${order.order_number}`,
-      html: buildOrderPlacedBrandHtml({
-        brandName:     brand.name_en,
-        orderNumber:   order.order_number,
-        customerName:  name,
-        customerPhone: phone,
-        city,
-        productTitle:  product.title_en,
-        quantity,
-        subtotal,
-      }),
-    }).catch(err => console.error('[email] Brand notification failed:', err))
-  } else {
-    console.warn('[email] Brand has no contact_email — skipping brand notification | brand_id:', brandId, '| brand:', JSON.stringify(brand))
-  }
-
-  // Email C — admin notification (always fires)
-  console.log('[email] Admin notification firing | order:', order.order_number)
-  sendOrderEmail({
-    to: 'info@merchantclubsa.com',
-    subject: `[Admin] New Order — #${order.order_number}`,
-    html: buildOrderPlacedAdminHtml({
-      orderNumber:   order.order_number,
-      brandName:     brand?.name_en ?? 'Unknown Brand',
-      customerName:  name,
-      customerPhone: phone,
-      customerEmail: email,
-      city,
-      productTitle:  product.title_en,
-      quantity,
-      subtotal,
-    }),
-  }).catch(err => console.error('[email] Admin notification failed:', err))
-
-  const prefix = locale === 'ar' ? '/ar' : ''
-  redirect(`${prefix}/brands/${slug}/products/${productId}/order/confirmation?id=${order.id}`)
+type CartSnapshot = {
+  cartItems: CartSnapshotItem[]
+  customerUserId: string | null
+  customerName: string
+  customerPhone: string
+  customerEmail: string | null
+  customerCity: string
+  customerAddress: string
+  notes: string | null
+  locale: string
 }
 
-export type PlaceOrderInput = {
-  cartItems: CartItem[];
-  customerName: string;
-  customerPhone: string;
-  customerEmail: string | null;
-  customerCity: string;
-  customerAddress: string;
-  notes: string | null;
-};
+type ValidatedGroup = {
+  brandId: string
+  orderItems: Array<{ product_id: string; title: string; quantity: number; unit_price: number; total: number }>
+  subtotal: number
+  brand: { name_en: string; contact_email: string | null } | null
+}
 
-export async function placeOrder(
-  input: PlaceOrderInput
-): Promise<{ error: string | null; orderNumbers: string[] }> {
-  const session = await getCustomerSession();
-  const customerId = session?.id ?? null;
-
-  const service = createServiceClient();
-
-  // Group cart items by brand
-  const brandGroups = new Map<string, CartItem[]>();
-  for (const item of input.cartItems) {
-    const group = brandGroups.get(item.brandId) ?? [];
-    group.push(item);
-    brandGroups.set(item.brandId, group);
+async function validateCartGroups(
+  cartItems: CartSnapshotItem[]
+): Promise<{ error: string } | { groups: ValidatedGroup[]; total: number }> {
+  const service = createServiceClient()
+  const brandGroups = new Map<string, CartSnapshotItem[]>()
+  for (const item of cartItems) {
+    const group = brandGroups.get(item.brandId) ?? []
+    group.push(item)
+    brandGroups.set(item.brandId, group)
   }
 
-  const orderNumbers: string[] = [];
+  const groups: ValidatedGroup[] = []
+  let total = 0
 
   for (const [brandId, items] of brandGroups) {
-    // Fetch + validate all products in this brand group
-    const productIds = items.map(i => i.productId);
+    const productIds = items.map(i => i.productId)
     const { data: products } = await service
       .from('products')
       .select('id, title_en, price, sale_price, stock_quantity, brands(name_en, contact_email)')
       .in('id', productIds)
-      .eq('status', 'live');
+      .eq('status', 'live')
 
     if (!products || products.length !== items.length) {
-      return { error: 'One or more products are no longer available.', orderNumbers: [] };
+      return { error: 'One or more products are no longer available.' }
     }
 
-    // Build validated order items
-    const orderItems: Array<{ product_id: string; title: string; quantity: number; unit_price: number; total: number }> = [];
-    let subtotal = 0;
+    const orderItems: ValidatedGroup['orderItems'] = []
+    let subtotal = 0
 
     for (const cartItem of items) {
-      const product = products.find(p => p.id === cartItem.productId);
-      if (!product) return { error: 'Product not found.', orderNumbers: [] };
+      const product = products.find(p => p.id === cartItem.productId)
+      if (!product) return { error: 'Product not found.' }
 
-      const stock = product.stock_quantity ?? 0;
+      const stock = product.stock_quantity ?? 0
       if (stock < cartItem.quantity) {
-        return {
-          error: `Only ${stock} unit${stock === 1 ? '' : 's'} of "${product.title_en}" available.`,
-          orderNumbers: [],
-        };
+        return { error: `Only ${stock} unit${stock === 1 ? '' : 's'} of "${product.title_en}" available.` }
       }
 
-      const unitPrice = product.sale_price ? Number(product.sale_price) : Number(product.price);
-      const total = unitPrice * cartItem.quantity;
-      subtotal += total;
+      const unitPrice = product.sale_price ? Number(product.sale_price) : Number(product.price)
+      const itemTotal = unitPrice * cartItem.quantity
+      subtotal += itemTotal
 
       orderItems.push({
         product_id: cartItem.productId,
         title: product.title_en,
         quantity: cartItem.quantity,
         unit_price: unitPrice,
-        total,
-      });
-    }
-
-    const orderNumber = generateOrderNumber();
-    const creatorLinkId = await resolveCreatorLinkId(brandId);
-
-    const { data: order, error: insertError } = await service
-      .from('orders')
-      .insert({
-        order_number: orderNumber,
-        brand_id: brandId,
-        customer_user_id: customerId,
-        customer_name: input.customerName,
-        customer_phone: input.customerPhone,
-        customer_email: input.customerEmail,
-        delivery_address: { city: input.customerCity, address: input.customerAddress },
-        items: orderItems,
-        subtotal,
-        status: 'pending',
-        brand_notes: input.notes,
-        ...(creatorLinkId ? { creator_link_id: creatorLinkId } : {}),
+        total: itemTotal,
       })
-      .select('id, order_number')
-      .single();
-
-    if (insertError || !order) {
-      return { error: 'Failed to place order. Please try again.', orderNumbers: [] };
     }
 
-    orderNumbers.push(order.order_number);
-    trackEvent({ event_type: 'order_placed', brand_id: brandId, creator_link_id: creatorLinkId }).catch(() => {});
-
-    // Atomic stock decrement — conditional on stock still being available for each item
-    let stockFailed = false;
-    for (const cartItem of items) {
-      const product = products.find(p => p.id === cartItem.productId)!;
-      const newStock = Math.max(0, (product.stock_quantity ?? 0) - cartItem.quantity);
-      const { data: decremented } = await service
-        .from('products')
-        .update({
-          stock_quantity: newStock,
-          ...(newStock === 0 ? { status: 'out_of_stock' } : {}),
-        })
-        .eq('id', cartItem.productId)
-        .gte('stock_quantity', cartItem.quantity)
-        .select('id');
-      if (!decremented || decremented.length === 0) {
-        stockFailed = true;
-        console.error(`[stock] OVERSELL on product ${cartItem.productId} order ${order.order_number} — stock taken concurrently`);
-      }
-    }
-    if (stockFailed) {
-      await service.from('orders').delete().eq('id', order.id);
-      return { error: 'One or more items sold out while your order was being placed. Please review your cart and try again.', orderNumbers: [] };
-    }
-
-    const brand = (products[0].brands as unknown) as { name_en: string; contact_email: string | null } | null;
-    const firstTitle = orderItems[0].title;
-    const firstQty   = orderItems[0].quantity;
-    const extraItems = orderItems.length > 1 ? ` +${orderItems.length - 1} more` : '';
-    const displayTitle = `${firstTitle}${extraItems}`;
-
-    // Customer email
-    if (input.customerEmail) {
-      sendOrderEmail({
-        to: input.customerEmail,
-        subject: `Order Confirmed — #${order.order_number}`,
-        html: buildOrderPlacedCustomerHtml({
-          customerName: input.customerName,
-          orderNumber:  order.order_number,
-          productTitle: displayTitle,
-          quantity:     firstQty,
-          unitPrice:    orderItems[0].unit_price,
-          subtotal,
-          city:         input.customerCity,
-          address:      input.customerAddress,
-        }),
-      }).catch(err => console.error('[email] customer confirmation failed:', err));
-
-      // Guest invitation (only if not registered)
-      if (!customerId) {
-        service.from('customers').select('id').eq('phone', input.customerPhone).maybeSingle()
-          .then(({ data: existing }) => {
-            if (!existing) {
-              sendOrderEmail({
-                to: input.customerEmail!,
-                subject: 'أكمل تسجيلك في Merchant Club SA',
-                html: buildGuestInvitationHtml({ customerName: input.customerName, orderNumber: order.order_number }),
-              }).catch(err => console.error('[email] guest invitation failed:', err));
-            }
-          });
-      }
-    }
-
-    // Brand email
-    if (brand?.contact_email) {
-      sendOrderEmail({
-        to: brand.contact_email,
-        subject: `New Order — #${order.order_number}`,
-        html: buildOrderPlacedBrandHtml({
-          brandName:     brand.name_en,
-          orderNumber:   order.order_number,
-          customerName:  input.customerName,
-          customerPhone: input.customerPhone,
-          city:          input.customerCity,
-          productTitle:  displayTitle,
-          quantity:      firstQty,
-          subtotal,
-        }),
-      }).catch(err => console.error('[email] brand notification failed:', err));
-    }
-
-    // Admin email
-    sendOrderEmail({
-      to: 'info@merchantclubsa.com',
-      subject: `[Admin] New Order — #${order.order_number}`,
-      html: buildOrderPlacedAdminHtml({
-        orderNumber:   order.order_number,
-        brandName:     brand?.name_en ?? 'Unknown Brand',
-        customerName:  input.customerName,
-        customerPhone: input.customerPhone,
-        customerEmail: input.customerEmail,
-        city:          input.customerCity,
-        productTitle:  displayTitle,
-        quantity:      firstQty,
-        subtotal,
-      }),
-    }).catch(err => console.error('[email] admin notification failed:', err));
+    total += subtotal
+    groups.push({
+      brandId,
+      orderItems,
+      subtotal,
+      brand: (products[0].brands as unknown) as { name_en: string; contact_email: string | null } | null,
+    })
   }
 
-  return { error: null, orderNumbers };
+  return { groups, total }
+}
+
+async function insertOrderForGroup(
+  group: ValidatedGroup,
+  snapshot: CartSnapshot,
+  paymentId: string | null,
+  cartItemsForGroup: CartSnapshotItem[]
+): Promise<{ error: string | null; orderNumber: string | null }> {
+  const service = createServiceClient()
+  const orderNumber = generateOrderNumber()
+  const creatorLinkId = await resolveCreatorLinkId(group.brandId)
+
+  const { data: order, error: insertError } = await service
+    .from('orders')
+    .insert({
+      order_number: orderNumber,
+      brand_id: group.brandId,
+      customer_user_id: snapshot.customerUserId,
+      customer_name: snapshot.customerName,
+      customer_phone: snapshot.customerPhone,
+      customer_email: snapshot.customerEmail,
+      delivery_address: { city: snapshot.customerCity, address: snapshot.customerAddress },
+      items: group.orderItems,
+      subtotal: group.subtotal,
+      status: 'pending',
+      brand_notes: snapshot.notes,
+      payment_id: paymentId,
+      ...(creatorLinkId ? { creator_link_id: creatorLinkId } : {}),
+    })
+    .select('id, order_number')
+    .single()
+
+  if (insertError || !order) {
+    return { error: 'Failed to place order. Please try again.', orderNumber: null }
+  }
+
+  trackEvent({ event_type: 'order_placed', brand_id: group.brandId, creator_link_id: creatorLinkId }).catch(() => {})
+
+  // Atomic stock decrement — conditional on stock still being available for each item.
+  // Only runs here, at materialization time (payment already confirmed paid), not at
+  // checkout submission — an abandoned or failed payment never reserves stock.
+  let stockFailed = false
+  for (const cartItem of cartItemsForGroup) {
+    const { data: product } = await service
+      .from('products')
+      .select('stock_quantity')
+      .eq('id', cartItem.productId)
+      .single()
+    const newStock = Math.max(0, (product?.stock_quantity ?? 0) - cartItem.quantity)
+    const { data: decremented } = await service
+      .from('products')
+      .update({
+        stock_quantity: newStock,
+        ...(newStock === 0 ? { status: 'out_of_stock' } : {}),
+      })
+      .eq('id', cartItem.productId)
+      .gte('stock_quantity', cartItem.quantity)
+      .select('id')
+    if (!decremented || decremented.length === 0) {
+      stockFailed = true
+      console.error(`[stock] OVERSELL on product ${cartItem.productId} order ${orderNumber} — stock taken concurrently, after payment was already captured`)
+    }
+  }
+  if (stockFailed) {
+    // Payment was already captured — this order is now a manual-refund case, not a
+    // silent delete like the pre-payment flow used to do. Leave the order in place
+    // flagged via brand_notes so admin/finance can see it and refund/replace it.
+    await service
+      .from('orders')
+      .update({ brand_notes: `${snapshot.notes ?? ''}\n[SYSTEM] Oversold after payment captured — needs manual refund or restock.`.trim() })
+      .eq('id', order.id)
+  }
+
+  const firstTitle = group.orderItems[0].title
+  const firstQty = group.orderItems[0].quantity
+  const extraItems = group.orderItems.length > 1 ? ` +${group.orderItems.length - 1} more` : ''
+  const displayTitle = `${firstTitle}${extraItems}`
+
+  if (snapshot.customerEmail) {
+    sendOrderEmail({
+      to: snapshot.customerEmail,
+      subject: `Order Confirmed — #${orderNumber}`,
+      html: buildOrderPlacedCustomerHtml({
+        customerName: snapshot.customerName,
+        orderNumber,
+        productTitle: displayTitle,
+        quantity: firstQty,
+        unitPrice: group.orderItems[0].unit_price,
+        subtotal: group.subtotal,
+        city: snapshot.customerCity,
+        address: snapshot.customerAddress,
+      }),
+    }).catch(err => console.error('[email] customer confirmation failed:', err))
+
+    if (!snapshot.customerUserId) {
+      service.from('customers').select('id').eq('phone', snapshot.customerPhone).maybeSingle()
+        .then(({ data: existing }) => {
+          if (!existing) {
+            sendOrderEmail({
+              to: snapshot.customerEmail!,
+              subject: 'أكمل تسجيلك في Merchant Club SA',
+              html: buildGuestInvitationHtml({ customerName: snapshot.customerName, orderNumber }),
+            }).catch(err => console.error('[email] guest invitation failed:', err))
+          }
+        })
+    }
+  }
+
+  if (group.brand?.contact_email) {
+    sendOrderEmail({
+      to: group.brand.contact_email,
+      subject: `New Order — #${orderNumber}`,
+      html: buildOrderPlacedBrandHtml({
+        brandName: group.brand.name_en,
+        orderNumber,
+        customerName: snapshot.customerName,
+        customerPhone: snapshot.customerPhone,
+        city: snapshot.customerCity,
+        productTitle: displayTitle,
+        quantity: firstQty,
+        subtotal: group.subtotal,
+      }),
+    }).catch(err => console.error('[email] brand notification failed:', err))
+  }
+
+  sendOrderEmail({
+    to: 'info@merchantclubsa.com',
+    subject: `[Admin] New Order — #${orderNumber}`,
+    html: buildOrderPlacedAdminHtml({
+      orderNumber,
+      brandName: group.brand?.name_en ?? 'Unknown Brand',
+      customerName: snapshot.customerName,
+      customerPhone: snapshot.customerPhone,
+      customerEmail: snapshot.customerEmail,
+      city: snapshot.customerCity,
+      productTitle: displayTitle,
+      quantity: firstQty,
+      subtotal: group.subtotal,
+    }),
+  }).catch(err => console.error('[email] admin notification failed:', err))
+
+  return { error: null, orderNumber }
+}
+
+// Idempotent: safe to call more than once for the same payment (the 3DS
+// callback route and the webhook route can both observe `payment_paid` for
+// the same payment). Uses a conditional UPDATE as a claim/mutex — only the
+// caller that successfully flips `orders_materialized_at` from null proceeds
+// to create orders; everyone else just reads back what's already there.
+export async function materializeOrdersForPayment(
+  paymentRowId: string
+): Promise<{ error: string | null; orderNumbers: string[] }> {
+  const service = createServiceClient()
+
+  const { data: claimed } = await service
+    .from('payments')
+    .update({ orders_materialized_at: new Date().toISOString() })
+    .eq('id', paymentRowId)
+    .is('orders_materialized_at', null)
+    .select('id, cart_snapshot')
+    .maybeSingle()
+
+  if (!claimed) {
+    // Already materialized by another caller — return the existing orders.
+    const { data: existingOrders } = await service
+      .from('orders')
+      .select('order_number')
+      .eq('payment_id', paymentRowId)
+    return { error: null, orderNumbers: (existingOrders ?? []).map(o => o.order_number) }
+  }
+
+  const snapshot = claimed.cart_snapshot as CartSnapshot
+  const validated = await validateCartGroups(snapshot.cartItems)
+  if ('error' in validated) {
+    // Payment was captured but stock disappeared underneath it in the meantime —
+    // a real (if rare) edge case. Surface it, don't silently drop the payment.
+    return { error: `Payment captured but ${validated.error} Contact support to arrange a refund.`, orderNumbers: [] }
+  }
+
+  const orderNumbers: string[] = []
+  for (const group of validated.groups) {
+    const cartItemsForGroup = snapshot.cartItems.filter(i => i.brandId === group.brandId)
+    const result = await insertOrderForGroup(group, snapshot, paymentRowId, cartItemsForGroup)
+    if (result.error || !result.orderNumber) {
+      return { error: result.error, orderNumbers }
+    }
+    orderNumbers.push(result.orderNumber)
+  }
+
+  return { error: null, orderNumbers }
+}
+
+// ─── Checkout entry point (cart and single-item "buy now" both funnel here) ───
+
+export type PlaceOrderInput = {
+  cartItems: CartItem[]
+  customerName: string
+  customerPhone: string
+  customerEmail: string | null
+  customerCity: string
+  customerAddress: string
+  notes: string | null
+  locale: string
+  paymentMethod: 'card' | 'cod'
+  paymentToken?: string // required when paymentMethod === 'card'
+}
+
+export type PlaceOrderResult =
+  | { kind: 'error'; error: string }
+  | { kind: 'redirect'; redirectUrl: string } // 3DS challenge — caller must navigate the browser here
+  | { kind: 'success'; orderNumbers: string[] } // order(s) placed — paid immediately or COD
+
+export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResult> {
+  if (!input.customerName || !input.customerPhone || !input.customerCity || !input.customerAddress) {
+    return { kind: 'error', error: 'Please fill in all required fields.' }
+  }
+  if (input.customerPhone.replace(/\D/g, '').length < 9) {
+    return { kind: 'error', error: 'Please enter a valid phone number.' }
+  }
+  if (input.cartItems.length === 0) {
+    return { kind: 'error', error: 'Your cart is empty.' }
+  }
+  if (input.paymentMethod === 'card' && !input.paymentToken) {
+    return { kind: 'error', error: 'Payment details are required.' }
+  }
+
+  const session = await getCustomerSession()
+  const cartItems: CartSnapshotItem[] = input.cartItems.map(i => ({
+    brandId: i.brandId,
+    productId: i.productId,
+    quantity: i.quantity,
+  }))
+
+  const validated = await validateCartGroups(cartItems)
+  if ('error' in validated) {
+    return { kind: 'error', error: validated.error }
+  }
+  if (validated.total <= 0) {
+    return { kind: 'error', error: 'Order total must be greater than zero.' }
+  }
+
+  const snapshot: CartSnapshot = {
+    cartItems,
+    customerUserId: session?.id ?? null,
+    customerName: input.customerName,
+    customerPhone: input.customerPhone,
+    customerEmail: input.customerEmail,
+    customerCity: input.customerCity,
+    customerAddress: input.customerAddress,
+    notes: input.notes,
+    locale: input.locale,
+  }
+
+  // ── Cash on delivery — no gateway involved, materialize immediately ──────────
+  // (same behavior the platform has always had: create the order and decrement
+  // stock right away, no payment confirmation to wait for).
+  if (input.paymentMethod === 'cod') {
+    const orderNumbers: string[] = []
+    for (const group of validated.groups) {
+      const cartItemsForGroup = cartItems.filter(i => i.brandId === group.brandId)
+      const result = await insertOrderForGroup(group, snapshot, null, cartItemsForGroup)
+      if (result.error || !result.orderNumber) {
+        return { kind: 'error', error: result.error ?? 'Failed to place order. Please try again.' }
+      }
+      orderNumbers.push(result.orderNumber)
+    }
+    return { kind: 'success', orderNumbers }
+  }
+
+  // ── Card payment — defer order creation until Moyasar confirms payment ──────
+  const paymentToken = input.paymentToken as string // validated non-empty above
+  const service = createServiceClient()
+  const { data: paymentRow, error: paymentRowError } = await service
+    .from('payments')
+    .insert({
+      status: 'initiated',
+      amount: validated.total,
+      currency: 'SAR',
+      cart_snapshot: snapshot,
+      live: Boolean(process.env.MOYASAR_SECRET_KEY?.startsWith('sk_live_')),
+    })
+    .select('id')
+    .single()
+
+  if (paymentRowError || !paymentRow) {
+    return { kind: 'error', error: 'Could not start payment. Please try again.' }
+  }
+
+  try {
+    const payment = await createMoyasarPayment({
+      amountHalalas: Math.round(validated.total * 100),
+      description: `Merchant Club SA order — ${input.cartItems.length} item(s)`,
+      callbackUrl: `${SITE_URL}/api/payments/moyasar/callback?payment_row_id=${paymentRow.id}`,
+      token: paymentToken,
+      metadata: { payment_row_id: paymentRow.id },
+    })
+
+    await service
+      .from('payments')
+      .update({
+        moyasar_payment_id: payment.id,
+        status: payment.status === 'paid' ? 'paid' : payment.status === 'failed' ? 'failed' : 'initiated',
+        source_type: payment.source.type,
+        card_brand: payment.source.company ?? null,
+        card_last4: payment.source.number?.slice(-4) ?? null,
+        transaction_url: payment.source.transaction_url ?? null,
+        failure_message: payment.status === 'failed' ? payment.source.message ?? null : null,
+      })
+      .eq('id', paymentRow.id)
+
+    if (payment.status === 'paid') {
+      const result = await materializeOrdersForPayment(paymentRow.id)
+      if (result.error) return { kind: 'error', error: result.error }
+      return { kind: 'success', orderNumbers: result.orderNumbers }
+    }
+
+    if (payment.source.transaction_url) {
+      return { kind: 'redirect', redirectUrl: payment.source.transaction_url }
+    }
+
+    if (payment.status === 'failed') {
+      return { kind: 'error', error: payment.source.message ?? 'Payment failed. Please try a different card.' }
+    }
+
+    return { kind: 'error', error: 'Payment could not be started. Please try again.' }
+  } catch (err) {
+    await service
+      .from('payments')
+      .update({ status: 'failed', failure_message: err instanceof Error ? err.message : 'Unknown error' })
+      .eq('id', paymentRow.id)
+    return { kind: 'error', error: 'Payment failed. Please try again.' }
+  }
 }
 
 export async function brandUpdateOrderStatus(

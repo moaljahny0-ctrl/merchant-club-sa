@@ -4,6 +4,7 @@ import { getCustomerSession } from '@/lib/customer-auth';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
 import { Footer } from '@/components/layout/Footer';
 import { Link } from '@/i18n/navigation';
+import { ClearCartOnMount } from './ClearCartOnMount';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -33,10 +34,11 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
+      <ClearCartOnMount />
       <StoreNavbar />
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-md">
-          <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', padding: '48px 40px', textAlign: 'center' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '16px', boxShadow: '0 1px 3px rgba(26,18,8,0.05)', padding: '48px 40px', textAlign: 'center' }}>
 
             {/* Gold checkmark */}
             <div style={{
@@ -55,10 +57,10 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             </div>
 
             {/* Headline */}
-            <p style={{ fontSize: '12px', letterSpacing: '0.32em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '8px' }}>
+            <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#B8975A', marginBottom: '8px' }}>
               {ar ? 'تم الطلب' : 'Order Placed'}
             </p>
-            <h1 style={{ fontSize: '22px', fontWeight: 400, color: '#1A1208', marginBottom: '12px', lineHeight: 1.3 }}>
+            <h1 style={{ fontSize: '26px', fontWeight: 600, letterSpacing: '-0.01em', color: '#1A1208', marginBottom: '12px', lineHeight: 1.3 }}>
               {ar ? `شكراً لك${firstName ? '، ' + firstName : ''}.` : `Thank you${firstName ? ', ' + firstName : ''}.`}
             </h1>
             <p style={{ fontSize: '16px', color: '#6B5B4E', lineHeight: 1.65, marginBottom: '28px' }}>
@@ -68,7 +70,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             </p>
 
             {/* Order numbers */}
-            <div style={{ background: '#F5F0E8', padding: '16px 20px', marginBottom: '28px' }}>
+            <div style={{ background: '#F5F0E8', borderRadius: '10px', padding: '16px 20px', marginBottom: '28px' }}>
               {orderNumbers.map(num => (
                 <p key={num} style={{ fontSize: '15px', color: '#1A1208', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
                   #{num}
@@ -94,9 +96,11 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
                       background: '#1A1208',
                       color: '#F5F0E8',
                       fontSize: '13px',
-                      letterSpacing: '0.25em',
+                      fontWeight: 600,
+                      letterSpacing: '0.08em',
                       textTransform: 'uppercase',
                       padding: '14px',
+                      borderRadius: '8px',
                       textDecoration: 'none',
                     }}
                   >
@@ -114,9 +118,11 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
                     border: '1px solid #E5DDD0',
                     color: '#1A1208',
                     fontSize: '13px',
-                    letterSpacing: '0.25em',
+                    fontWeight: 600,
+                    letterSpacing: '0.08em',
                     textTransform: 'uppercase',
                     padding: '14px',
+                    borderRadius: '8px',
                     textDecoration: 'none',
                   }}
                 >
@@ -127,12 +133,16 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
               <Link
                 href="/store"
                 style={{
-                  display: 'block',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   color: '#B8975A',
                   fontSize: '14px',
-                  letterSpacing: '0.12em',
+                  fontWeight: 500,
+                  letterSpacing: '0.06em',
                   textDecoration: 'none',
                   padding: '8px',
+                  minHeight: '44px',
                 }}
               >
                 {ar ? 'مواصلة التسوق ←' : 'Continue Shopping →'}
