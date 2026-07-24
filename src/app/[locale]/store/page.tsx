@@ -1,19 +1,26 @@
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
-import { Footer } from '@/components/layout/Footer';
+import { StoreFooter } from '@/components/layout/StoreFooter';
 import { createServiceClient } from '@/lib/supabase/server';
+import { fetchLivePartners } from '@/lib/queries/partners';
 import { StoreClient } from './StoreClient';
 import type { ProductData } from './StoreClient';
-import type { Partner } from '@/lib/brands';
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ unavailable?: string }>;
+  searchParams: Promise<{ unavailable?: string; q?: string }>;
 };
+
+const NEW_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+
+function isNewProduct(publishedAt: string | null): boolean {
+  return !!publishedAt && Date.now() - new Date(publishedAt).getTime() < NEW_WINDOW_MS;
+}
 
 export default async function StorePage({ params, searchParams }: Props) {
   const { locale } = await params;
   const sp = await searchParams;
   const showUnavailable = sp?.unavailable === '1';
+  const query = (sp?.q ?? '').trim();
   const isAr = locale === 'ar';
   const supabase = createServiceClient();
 
@@ -21,46 +28,39 @@ export default async function StorePage({ params, searchParams }: Props) {
 
   const { data: productsRaw } = await supabase
     .from('products')
-    .select('id, title_en, title_ar, price, sale_price, category, published_at, brand_id, brands(name_en, name_ar, slug), product_images(url, is_primary)')
+    .select('id, title_en, title_ar, price, sale_price, category, published_at, brand_id, brands(name_en, name_ar, slug, logo_url), product_images(url, is_primary)')
     .eq('status', 'live')
     .order('published_at', { ascending: false });
 
-  const products = (productsRaw ?? []) as unknown as ProductData[];
+  const allProducts = ((productsRaw ?? []) as unknown as ProductData[]).map(p => ({
+    ...p,
+    isNew: isNewProduct(p.published_at),
+  }));
+
+  const products = query
+    ? allProducts.filter(p => {
+        const needle = query.toLowerCase();
+        return (
+          p.title_en?.toLowerCase().includes(needle) ||
+          p.title_ar?.toLowerCase().includes(needle) ||
+          p.brands?.name_en?.toLowerCase().includes(needle) ||
+          p.brands?.name_ar?.toLowerCase().includes(needle)
+        );
+      })
+    : allProducts;
 
   // ── Brands ────────────────────────────────────────────────────────────────────
 
-  type BrandRow = {
-    id: string;
-    name_en: string;
-    name_ar: string | null;
-    slug: string;
-    tagline_en: string | null;
-    tagline_ar: string | null;
-    logo_url: string | null;
-    products: { status: string }[];
-  };
+  const partners = await fetchLivePartners(supabase, isAr);
 
-  const { data: brandsRaw } = await supabase
-    .from('brands')
-    .select('id, name_en, name_ar, slug, tagline_en, tagline_ar, logo_url, products(status)')
-    .in('status', ['approved', 'active'])
-    .order('created_at', { ascending: true });
+  // ── Categories ────────────────────────────────────────────────────────────────
 
-  const brands = (brandsRaw ?? []) as BrandRow[];
+  const { data: categoriesRaw } = await supabase
+    .from('categories')
+    .select('key, name_en, name_ar, image_url')
+    .order('sort_order', { ascending: true });
 
-  const partners: Partner[] = brands
-    .filter(brand => (brand.products ?? []).some(p => p.status === 'live'))
-    .map(brand => ({
-      id: brand.id,
-      name: brand.name_en,
-      nameAr: brand.name_ar ?? brand.name_en,
-      category: isAr
-        ? (brand.tagline_ar ?? brand.tagline_en ?? '')
-        : (brand.tagline_en ?? ''),
-      categoryAr: brand.tagline_ar ?? brand.tagline_en ?? '',
-      imageUrl: brand.logo_url ?? undefined,
-      slug: brand.slug,
-    }));
+  const categoryPhotos = (categoriesRaw ?? []) as { key: string; name_en: string; name_ar: string; image_url: string | null }[];
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
@@ -82,11 +82,13 @@ export default async function StorePage({ params, searchParams }: Props) {
       )}
       <StoreClient
         products={products}
-        heroProducts={products.slice(0, 2)}
+        heroProducts={allProducts.slice(0, 2)}
         partners={partners}
         locale={locale}
+        searchQuery={query}
+        categoryPhotos={categoryPhotos}
       />
-      <Footer />
+      <StoreFooter />
     </div>
   );
 }

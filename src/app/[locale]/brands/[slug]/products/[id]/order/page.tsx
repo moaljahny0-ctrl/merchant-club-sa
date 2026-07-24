@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { StoreNavbar } from '@/components/layout/StoreNavbar'
-import { Footer } from '@/components/layout/Footer'
+import { StoreFooter } from '@/components/layout/StoreFooter'
 import { createServiceClient } from '@/lib/supabase/server'
 import { OrderForm } from '@/components/order/OrderForm'
 
@@ -63,7 +63,7 @@ export default async function OrderPage({ params }: Props) {
           />
         </section>
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   )
 }

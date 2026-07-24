@@ -2,7 +2,7 @@ import { getCustomerSession } from '@/lib/customer-auth';
 import { createServiceClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
-import { Footer } from '@/components/layout/Footer';
+import { StoreFooter } from '@/components/layout/StoreFooter';
 import { LogoutButton } from './LogoutButton';
 import type { OrderStatus } from '@/lib/types/database';
 
@@ -180,7 +180,7 @@ export default async function AccountPage({ params }: Props) {
 
       </main>
 
-      <Footer />
+      <StoreFooter />
     </div>
   );
 }

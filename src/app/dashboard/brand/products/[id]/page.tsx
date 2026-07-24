@@ -41,7 +41,7 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
   if (!product) notFound()
 
   const images = (product.product_images as ProductImage[]) ?? []
-  const primaryImage = images.find(img => img.is_primary) ?? images[0]
+  const sortedImages = [...images].sort((a, b) => a.sort_order - b.sort_order)
 
   const canEdit = true
   const canSubmit = ['draft', 'rejected'].includes(product.status)
@@ -96,7 +96,7 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
         product={product as Product}
         canEdit={canEdit}
         canSubmit={canSubmit}
-        currentImageUrl={primaryImage?.url}
+        existingImages={sortedImages}
         locale={locale}
       />
     </div>

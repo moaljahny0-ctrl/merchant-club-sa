@@ -1,3 +1,5 @@
+import type { DesignTokens } from '@/lib/theme-tokens'
+
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -150,6 +152,18 @@ export type ProductImage = {
   created_at: string
 }
 
+export type Category = {
+  id: string
+  key: string
+  name_en: string
+  name_ar: string
+  image_url: string | null
+  storage_path: string | null
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
 export type SocialLinks = {
   instagram?: string
   tiktok?: string
@@ -166,6 +180,7 @@ export type Storefront = {
   template_id: StorefrontTemplate
   accent_color_id: string
   social_links: SocialLinks
+  design_tokens: DesignTokens
   submitted_at: string | null
   approved_at: string | null
   approved_by: string | null

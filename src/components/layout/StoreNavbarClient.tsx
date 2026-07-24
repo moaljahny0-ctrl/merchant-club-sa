@@ -19,16 +19,17 @@ export function StoreNavbarClient({ customer }: Props) {
   const pathname = usePathname();
   const isRTL = locale === 'ar';
 
+  // Store-context header — only utilities a customer mid-shop actually needs.
+  // Company/marketing pages (About, Brands, Members) live in the footer, not here.
   const links = [
-    { href: '/about',       label: t('about') },
-    { href: '/brands',      label: t('brands') },
-    { href: '/members',     label: t('members') },
-    { href: '/store',       label: t('shop') },
-    { href: '/track-order', label: t('track_order') },
+    { href: '/store/partners', label: t('brands') },
+    { href: '/track-order',    label: t('track_order') },
   ].map(link => ({
     ...link,
     active: pathname === link.href || pathname.startsWith(link.href + '/'),
   }));
+
+  const searchAction = isRTL ? '/ar/store' : '/store';
 
   return (
     <>
@@ -51,6 +52,24 @@ export function StoreNavbarClient({ customer }: Props) {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
+          <form
+            action={searchAction}
+            method="GET"
+            className="flex items-center gap-2 px-3 rounded-full transition-colors"
+            style={{ background: '#F5F0E8', border: '1px solid #E5DDD0', minHeight: '38px' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B5B4E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              name="q"
+              type="search"
+              placeholder={isRTL ? 'ابحث عن منتج' : 'Search products'}
+              className="text-sm bg-transparent outline-none w-36 lg:w-48"
+              style={{ color: '#1A1208' }}
+            />
+          </form>
           {links.map(link => (
             <Link
               key={link.href}
@@ -208,6 +227,24 @@ export function StoreNavbarClient({ customer }: Props) {
         }}
       >
         <div className="px-6 py-5 flex flex-col gap-5">
+          <form
+            action={searchAction}
+            method="GET"
+            className="flex items-center gap-2 px-3 rounded-full"
+            style={{ background: '#F5F0E8', border: '1px solid #E5DDD0', minHeight: '44px' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B5B4E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              name="q"
+              type="search"
+              placeholder={isRTL ? 'ابحث عن منتج' : 'Search products'}
+              className="text-sm bg-transparent outline-none flex-1"
+              style={{ color: '#1A1208' }}
+            />
+          </form>
           {links.map(link => (
             <Link
               key={link.href}

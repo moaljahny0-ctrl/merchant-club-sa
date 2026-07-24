@@ -1,5 +1,5 @@
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
-import { Footer } from '@/components/layout/Footer';
+import { StoreFooter } from '@/components/layout/StoreFooter';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 
 type Props = { params: Promise<{ locale: string }> };
@@ -29,7 +29,7 @@ export default async function ForgotPasswordPage({ params }: Props) {
           </div>
         </div>
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
-import { Footer } from '@/components/layout/Footer';
+import { StoreFooter } from '@/components/layout/StoreFooter';
 import { createServiceClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/Button';
+import { Reveal } from '@/components/ui/Reveal';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -262,7 +263,7 @@ export default async function TrackOrderPage({ params, searchParams }: Props) {
 
         </div>
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   );
 }

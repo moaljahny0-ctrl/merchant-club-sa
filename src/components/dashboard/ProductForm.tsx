@@ -1,34 +1,48 @@
 'use client'
 
-import { useActionState, useState } from 'react'
-import type { ProductFormState } from '@/lib/actions/products'
-import type { Product } from '@/lib/types/database'
+import { useActionState, useState, useTransition } from 'react'
+import { deleteProductImageAction, type ProductFormState } from '@/lib/actions/products'
+import type { Product, ProductImage } from '@/lib/types/database'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 type Props = {
   action: (prev: ProductFormState, formData: FormData) => Promise<ProductFormState>
   defaultValues?: Partial<Product>
   submitLabel?: string
-  currentImageUrl?: string
+  existingImages?: ProductImage[]
   locale?: DashLang
 }
 
 const CATEGORIES = ['apparel', 'fragrance', 'home', 'beauty', 'jewelry', 'food', 'art', 'other'] as const
 
-export function ProductForm({ action, defaultValues, submitLabel, currentImageUrl, locale = 'en' }: Props) {
+export function ProductForm({ action, defaultValues, submitLabel, existingImages, locale = 'en' }: Props) {
   const t = dt(locale).product_form
   const [state, formAction, isPending] = useActionState(action, { error: null })
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl ?? null)
+  const [newPreviews, setNewPreviews] = useState<string[]>([])
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
+  const [isDeleting, startDeleteTransition] = useTransition()
 
   const resolvedSubmitLabel = submitLabel ?? t.save_product
+  const visibleImages = (existingImages ?? []).filter(img => !deletedIds.has(img.id))
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) setPreviewUrl(URL.createObjectURL(file))
+    const files = Array.from(e.target.files ?? [])
+    setNewPreviews(files.map(file => URL.createObjectURL(file)))
+  }
+
+  function handleRemoveExisting(imageId: string) {
+    startDeleteTransition(async () => {
+      const result = await deleteProductImageAction(imageId)
+      if (result.error) {
+        alert(result.error)
+      } else {
+        setDeletedIds(prev => new Set(prev).add(imageId))
+      }
+    })
   }
 
   return (
-    <form action={formAction} encType="multipart/form-data" className="space-y-7 max-w-xl">
+    <form action={formAction} className="space-y-7 max-w-xl">
 
       {state.error && (
         <div className="border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -121,32 +135,63 @@ export function ProductForm({ action, defaultValues, submitLabel, currentImageUr
         />
       </div>
 
-      {/* Image */}
+      {/* Images */}
       <div>
         <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2.5">
           {t.label_image}
         </label>
 
-        {previewUrl && (
-          <div className="mb-3 border border-border inline-block">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={previewUrl}
-              alt="Product preview"
-              className="w-32 h-32 object-cover block"
-            />
+        {visibleImages.length > 0 && (
+          <div className="mb-4">
+            <p className="text-[11px] text-muted/50 tracking-[0.15em] uppercase mb-2">{t.existing_images}</p>
+            <div className="flex flex-wrap gap-3">
+              {visibleImages.map(img => (
+                <div key={img.id} className="relative w-24 h-24 border border-border group overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img.url} alt="" className="w-full h-full object-cover block" />
+                  {img.is_primary && (
+                    <span className="absolute top-1 start-1 bg-gold text-ink text-[9px] font-medium uppercase tracking-wide px-1.5 py-0.5">
+                      {t.primary_image}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveExisting(img.id)}
+                    disabled={isDeleting}
+                    className="absolute inset-0 flex items-center justify-center bg-ink/0 group-hover:bg-ink/70 opacity-0 group-hover:opacity-100 text-parchment text-[11px] tracking-[0.1em] uppercase transition-all duration-150 disabled:opacity-50"
+                  >
+                    {t.remove_image}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {newPreviews.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-3">
+            {newPreviews.map((src, i) => (
+              <div key={i} className="relative w-24 h-24 border border-gold/60 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" className="w-full h-full object-cover block" />
+                <span className="absolute bottom-0 inset-x-0 bg-ink/75 text-parchment text-[9px] text-center py-0.5 leading-tight">
+                  {t.new_images_pending}
+                </span>
+              </div>
+            ))}
           </div>
         )}
 
         <label className="flex items-center gap-3 border border-border border-dashed px-4 py-4 cursor-pointer hover:border-gold transition-colors group">
           <span className="text-[13px] text-muted tracking-[0.15em] uppercase group-hover:text-gold transition-colors">
-            {previewUrl ? t.replace_image : t.choose_image}
+            {visibleImages.length > 0 || newPreviews.length > 0 ? t.replace_image : t.choose_image}
           </span>
           <span className="text-[13px] text-muted/40 ms-auto">{t.image_formats}</span>
           <input
-            name="image"
+            name="images"
             type="file"
             accept="image/jpeg,image/png,image/webp"
+            multiple
             className="sr-only"
             onChange={handleImageChange}
           />

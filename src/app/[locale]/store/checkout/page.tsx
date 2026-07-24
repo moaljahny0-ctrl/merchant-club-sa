@@ -1,6 +1,6 @@
 import { getCustomerSession } from '@/lib/customer-auth';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
-import { Footer } from '@/components/layout/Footer';
+import { StoreFooter } from '@/components/layout/StoreFooter';
 import { CheckoutForm } from './CheckoutForm';
 
 type Props = {
@@ -23,7 +23,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
       <main className="flex-1">
         <CheckoutForm locale={locale} customer={customer} paymentError={payment_error ?? null} />
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   );
 }

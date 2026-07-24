@@ -9,6 +9,7 @@ export default withNextIntl({
     },
   },
   images: {
+    qualities: [75, 80, 85, 90, 92],
     remotePatterns: [
       {
         protocol: 'https',

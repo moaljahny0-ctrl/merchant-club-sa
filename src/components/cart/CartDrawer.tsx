@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { useCart, type CartItem } from '@/lib/cart/CartContext';
 import { Button } from '@/components/ui/Button';
 
@@ -96,7 +97,7 @@ export function CartDrawer() {
         {/* Footer */}
         {items.length > 0 && (
           <div style={{ padding: '20px 24px', borderTop: '1px solid #E5DDD0', flexShrink: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
               <span style={{ fontSize: '14px', color: '#6B5B4E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 {isAr ? 'المجموع' : 'Subtotal'}
               </span>
@@ -104,6 +105,13 @@ export function CartDrawer() {
                 {subtotal.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
               </span>
             </div>
+            <Link
+              href="/store/cart"
+              onClick={closeCart}
+              style={{ display: 'block', fontSize: '13px', color: '#B8975A', marginBottom: '16px' }}
+            >
+              {isAr ? 'عرض السلة كاملة ←' : 'View full cart →'}
+            </Link>
             <Button
               href="/store/checkout"
               onClick={closeCart}

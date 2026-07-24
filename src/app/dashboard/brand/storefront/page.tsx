@@ -6,7 +6,7 @@ import { FeaturedProductSelector } from './FeaturedProductSelector'
 import { StorefrontDesignPicker } from './StorefrontDesignPicker'
 import { CollectionsManager } from './CollectionsManager'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
-import { listThemePalette, listCollections } from '@/lib/actions/brands'
+import { listCollections } from '@/lib/actions/brands'
 import type { StorefrontTemplate, SocialLinks } from '@/lib/types/database'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
@@ -45,11 +45,10 @@ export default async function StorefrontPreviewPage() {
   let templateId: StorefrontTemplate = 'classic'
   let accentColorId = 'gold'
   let socialLinks: SocialLinks = {}
-  let palette: Awaited<ReturnType<typeof listThemePalette>> = []
   let collections: Awaited<ReturnType<typeof listCollections>>['collections'] = []
 
   if (brand) {
-    const [liveProductsRes, storefrontRes, paletteRes, collectionsRes] = await Promise.all([
+    const [liveProductsRes, storefrontRes, collectionsRes] = await Promise.all([
       supabase
         .from('products')
         .select('id, title_en, title_ar, price')
@@ -61,7 +60,6 @@ export default async function StorefrontPreviewPage() {
         .select('featured_product_ids, template_id, accent_color_id, social_links')
         .eq('brand_id', brand.id)
         .maybeSingle(),
-      listThemePalette(),
       listCollections(brand.id),
     ])
     liveProducts = (liveProductsRes.data ?? []) as typeof liveProducts
@@ -69,7 +67,6 @@ export default async function StorefrontPreviewPage() {
     templateId = (storefrontRes.data?.template_id as StorefrontTemplate | undefined) ?? 'classic'
     accentColorId = storefrontRes.data?.accent_color_id ?? 'gold'
     socialLinks = (storefrontRes.data?.social_links as SocialLinks | undefined) ?? {}
-    palette = paletteRes
     collections = collectionsRes.collections
   }
 
@@ -127,7 +124,6 @@ export default async function StorefrontPreviewPage() {
 
           <StorefrontDesignPicker
             brandId={brand!.id}
-            palette={palette}
             initialTemplateId={templateId}
             initialAccentColorId={accentColorId}
             initialSocialLinks={socialLinks}

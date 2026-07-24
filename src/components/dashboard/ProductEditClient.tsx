@@ -4,18 +4,18 @@ import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ProductForm } from './ProductForm'
 import { submitProductForReview, deleteProduct, updateProduct } from '@/lib/actions/products'
-import type { Product } from '@/lib/types/database'
+import type { Product, ProductImage } from '@/lib/types/database'
 import { dt, type DashLang } from '@/lib/dashboard-i18n'
 
 type Props = {
   product: Product
   canEdit: boolean
   canSubmit: boolean
-  currentImageUrl?: string
+  existingImages?: ProductImage[]
   locale?: DashLang
 }
 
-export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl, locale = 'en' }: Props) {
+export function ProductEditClient({ product, canEdit, canSubmit, existingImages, locale = 'en' }: Props) {
   const t = dt(locale).product_edit
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
@@ -46,7 +46,7 @@ export function ProductEditClient({ product, canEdit, canSubmit, currentImageUrl
         action={boundUpdateProduct}
         defaultValues={product}
         submitLabel={product.status === 'live' ? t.submit_live : t.submit_default}
-        currentImageUrl={currentImageUrl}
+        existingImages={existingImages}
         locale={locale}
       />
 

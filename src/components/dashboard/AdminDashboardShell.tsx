@@ -12,6 +12,7 @@ const PAGE_NAMES: Record<string, string> = {
   '/dashboard/admin/brands':       'Brands',
   '/dashboard/admin/applications': 'Applications',
   '/dashboard/admin/products':     'Products',
+  '/dashboard/admin/categories':   'Categories',
   '/dashboard/admin/orders':       'Orders',
   '/dashboard/admin/members':      'Members',
 }
@@ -21,6 +22,7 @@ const NAV = [
   { label: 'Brands',       href: '/dashboard/admin/brands',       badgeKey: 'brands'      as const },
   { label: 'Applications', href: '/dashboard/admin/applications', badgeKey: 'pendingApps' as const, badgeRed: true },
   { label: 'Products',     href: '/dashboard/admin/products' },
+  { label: 'Categories',   href: '/dashboard/admin/categories' },
   { label: 'Orders',       href: '/dashboard/admin/orders' },
   { label: 'Members',      href: '/dashboard/admin/members' },
 ]

@@ -32,6 +32,7 @@ const brandNavHrefs = [
   { key: 'products'   as const, href: '/dashboard/brand/products' },
   { key: 'orders'     as const, href: '/dashboard/brand/orders' },
   { key: 'storefront' as const, href: '/dashboard/brand/storefront' },
+  { key: 'appearance' as const, href: '/dashboard/brand/appearance' },
   { key: 'analytics'  as const, href: '/dashboard/brand/analytics' },
   { key: 'profile'    as const, href: '/dashboard/brand/profile' },
 ]

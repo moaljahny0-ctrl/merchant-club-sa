@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
+import { Reveal } from '@/components/ui/Reveal';
 import { activeMembers, type Member } from '@/lib/members';
 import { MemberCard } from '@/components/members/MemberCard';
 
@@ -85,7 +86,7 @@ async function MembersHero({ t }: { t: TFn }) {
 
       {/* Content */}
       <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 flex items-center min-h-screen">
-        <div className="max-w-xl lg:max-w-2xl">
+        <Reveal className="max-w-xl lg:max-w-2xl">
 
           <p className="text-[12px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
             {t('eyebrow')}
@@ -108,7 +109,7 @@ async function MembersHero({ t }: { t: TFn }) {
             </Button>
           </div>
 
-        </div>
+        </Reveal>
       </div>
 
     </section>

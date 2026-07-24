@@ -8,9 +8,11 @@ export type Partner = {
   nameAr: string;
   category: string;
   categoryAr: string;
-  imageUrl?: string;    // product / lifestyle photo from the partner
-  storeUrl?: string;    // external link (Instagram, etc.) — only used if no slug
-  slug?: string;        // internal brand slug → /brands/[slug]
+  imageUrl?: string;          // product / lifestyle photo from the partner
+  logoUrl?: string;           // brand's own mark — shown as a small badge over imageUrl
+  latestProductName?: string; // surfaces "new drop" on the partner card, when available
+  storeUrl?: string;          // external link (Instagram, etc.) — only used if no slug
+  slug?: string;               // internal brand slug → /brands/[slug]
 };
 
 // ─── Placeholder slots ────────────────────────────────────────────────────────

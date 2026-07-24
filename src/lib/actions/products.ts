@@ -90,62 +90,107 @@ async function getActiveBrandId(): Promise<string> {
   return member.brand_id
 }
 
-async function uploadProductImage(
+// Appends one or more images to a product's gallery (does not touch existing
+// images — the first image ever uploaded for a product becomes primary,
+// every later upload is added alongside it, not swapped in for it).
+async function uploadProductImages(
   brandId: string,
   productId: string,
-  file: File
-): Promise<string> {
+  files: File[]
+): Promise<void> {
+  if (files.length === 0) return
   const service = createServiceClient()
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-  const storagePath = `${brandId}/${productId}/primary.${ext}`
-  const bytes = await file.arrayBuffer()
 
-  const { error: uploadErr } = await service.storage
-    .from('product-images')
-    .upload(storagePath, bytes, { contentType: file.type, upsert: true })
+  const { data: existingImages } = await service
+    .from('product_images')
+    .select('sort_order, is_primary')
+    .eq('product_id', productId)
 
-  if (uploadErr) {
-    throw new Error(`Image upload failed: ${uploadErr.message}`)
+  let nextSortOrder = existingImages && existingImages.length > 0
+    ? Math.max(...existingImages.map(i => i.sort_order ?? 0)) + 1
+    : 0
+  let hasPrimary = existingImages?.some(i => i.is_primary) ?? false
+
+  for (const file of files) {
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+    const storagePath = `${brandId}/${productId}/img-${nextSortOrder}-${Date.now()}.${ext}`
+    const bytes = await file.arrayBuffer()
+
+    const { error: uploadErr } = await service.storage
+      .from('product-images')
+      .upload(storagePath, bytes, { contentType: file.type, upsert: true })
+
+    if (uploadErr) {
+      throw new Error(`Image upload failed: ${uploadErr.message}`)
+    }
+
+    const { data: urlData } = service.storage.from('product-images').getPublicUrl(storagePath)
+
+    const { error: insertErr } = await service.from('product_images').insert({
+      product_id: productId,
+      url: urlData.publicUrl,
+      storage_path: storagePath,
+      is_primary: !hasPrimary,
+      sort_order: nextSortOrder,
+    })
+
+    if (insertErr) {
+      throw new Error(`Image record failed to save: ${insertErr.message}`)
+    }
+
+    hasPrimary = true
+    nextSortOrder++
   }
-
-  const { data: urlData } = service.storage.from('product-images').getPublicUrl(storagePath)
-
-  const { error: insertErr } = await service.from('product_images').insert({
-    product_id: productId,
-    url: urlData.publicUrl,
-    storage_path: storagePath,
-    is_primary: true,
-    sort_order: 0,
-  })
-
-  if (insertErr) {
-    throw new Error(`Image record failed to save: ${insertErr.message}`)
-  }
-
-  return urlData.publicUrl
 }
 
-async function replaceProductImage(
-  brandId: string,
-  productId: string,
-  file: File
-): Promise<void> {
-  const service = createServiceClient()
+// ── delete a single gallery image ──────────────────────────────────────────────
 
-  // Remove existing primary image from storage and DB
-  const { data: existing } = await service
-    .from('product_images')
-    .select('storage_path')
-    .eq('product_id', productId)
-    .eq('is_primary', true)
-    .maybeSingle()
+export async function deleteProductImageAction(imageId: string): Promise<{ error: string | null }> {
+  try {
+    const brandId = await getActiveBrandId()
+    const service = createServiceClient()
 
-  if (existing?.storage_path) {
-    await service.storage.from('product-images').remove([existing.storage_path])
+    const { data: image } = await service
+      .from('product_images')
+      .select('id, product_id, storage_path, is_primary')
+      .eq('id', imageId)
+      .single()
+
+    if (!image) return { error: 'Image not found.' }
+
+    const { data: product } = await service
+      .from('products')
+      .select('id')
+      .eq('id', image.product_id)
+      .eq('brand_id', brandId)
+      .single()
+
+    if (!product) return { error: 'Image not found.' }
+
+    if (image.storage_path) {
+      await service.storage.from('product-images').remove([image.storage_path])
+    }
+    await service.from('product_images').delete().eq('id', imageId)
+
+    // Promote the next image in line if we just deleted the primary
+    if (image.is_primary) {
+      const { data: next } = await service
+        .from('product_images')
+        .select('id')
+        .eq('product_id', image.product_id)
+        .order('sort_order', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+      if (next) {
+        await service.from('product_images').update({ is_primary: true }).eq('id', next.id)
+      }
+    }
+
+    revalidatePath(`/dashboard/brand/products/${image.product_id}`)
+    return { error: null }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unexpected error' }
   }
-  await service.from('product_images').delete().eq('product_id', productId).eq('is_primary', true)
-
-  await uploadProductImage(brandId, productId, file)
 }
 
 // ── create ────────────────────────────────────────────────────────────────────
@@ -165,7 +210,7 @@ export async function createProduct(
     const price = parseFloat(priceRaw)
     const stock_quantity = parseInt(formData.get('stock_quantity') as string, 10)
     const category = (formData.get('category') as string)?.trim() ?? ''
-    const imageFile = formData.get('image') as File | null
+    const imageFiles = formData.getAll('images').filter((f): f is File => f instanceof File && f.size > 0)
 
     if (!title_en || isNaN(price) || price < 0) {
       return { error: 'Product name and a valid price are required.' }
@@ -194,8 +239,8 @@ export async function createProduct(
     if (error) return { error: error.message }
     newId = data.id
 
-    if (imageFile && imageFile.size > 0 && newId) {
-      await uploadProductImage(brandId, newId, imageFile)
+    if (imageFiles.length > 0 && newId) {
+      await uploadProductImages(brandId, newId, imageFiles)
     }
   } catch (err) {
     // If the product row was already created, redirect to edit so they don't
@@ -226,7 +271,7 @@ export async function updateProduct(
     const price = parseFloat(formData.get('price') as string)
     const stock_quantity = parseInt(formData.get('stock_quantity') as string, 10)
     const category = (formData.get('category') as string)?.trim() ?? ''
-    const imageFile = formData.get('image') as File | null
+    const imageFiles = formData.getAll('images').filter((f): f is File => f instanceof File && f.size > 0)
 
     if (!title_en || isNaN(price) || price < 0) {
       return { error: 'Product name and a valid price are required.' }
@@ -262,8 +307,8 @@ export async function updateProduct(
 
     if (error) return { error: error.message }
 
-    if (imageFile && imageFile.size > 0) {
-      await replaceProductImage(brandId, id, imageFile)
+    if (imageFiles.length > 0) {
+      await uploadProductImages(brandId, id, imageFiles)
     }
 
     if (wasLive) {

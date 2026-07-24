@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { validateDesignTokens, type DesignTokens } from '@/lib/theme-tokens'
 
 export type BrandProfileState = { error: string | null; success?: boolean }
 
@@ -307,6 +308,32 @@ export async function saveStorefrontCustomization(
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/brand/storefront')
+  return { error: null }
+}
+
+export async function saveDesignTokens(
+  brandId: string,
+  tokens: DesignTokens
+): Promise<{ error: string | null }> {
+  const authError = await assertOwnBrand(brandId)
+  if (authError) return { error: authError }
+
+  const validationError = validateDesignTokens(tokens)
+  if (validationError) return { error: validationError }
+
+  const service = createServiceClient()
+  const { error } = await service
+    .from('storefronts')
+    .upsert(
+      { brand_id: brandId, design_tokens: tokens },
+      { onConflict: 'brand_id' }
+    )
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard/brand/appearance')
+  revalidatePath('/[locale]/brands/[slug]', 'page')
+  revalidatePath('/[locale]/brands/[slug]/products/[id]', 'page')
   return { error: null }
 }
 

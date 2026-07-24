@@ -2,11 +2,13 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from '@/i18n/navigation';
 import { useCart } from '@/lib/cart/CartContext';
+import { Reveal } from '@/components/ui/Reveal';
 import type { Partner } from '@/lib/brands';
 
-// ─── Store design tokens ──────────────────────────────────────────────────────
+// ─── Store design tokens — approved, do not change ─────────────────────────────
 
 const C = {
   bg:        '#F5F0E8',
@@ -33,15 +35,20 @@ export type ProductData = {
   category: string;
   published_at: string | null;
   brand_id: string;
-  brands: { name_en: string; name_ar: string | null; slug: string } | null;
+  brands: { name_en: string; name_ar: string | null; slug: string; logo_url: string | null } | null;
   product_images: { url: string; is_primary: boolean }[];
+  isNew?: boolean;
 };
+
+type CategoryPhoto = { key: string; name_en: string; name_ar: string; image_url: string | null };
 
 type Props = {
   products: ProductData[];
   heroProducts: ProductData[];
   partners: Partner[];
   locale: string;
+  searchQuery?: string;
+  categoryPhotos?: CategoryPhoto[];
 };
 
 // ─── Category label map ───────────────────────────────────────────────────────
@@ -68,7 +75,7 @@ function catLabel(cat: string, isAr: boolean): { label: string; emoji: string } 
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function StoreClient({ products, heroProducts, partners, locale }: Props) {
+export function StoreClient({ products, heroProducts, partners, locale, searchQuery, categoryPhotos = [] }: Props) {
   const isAr = locale === 'ar';
   const [activeCategory, setActiveCategory]     = useState('all');
   const [activePriceRange, setActivePriceRange] = useState('all');
@@ -130,7 +137,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
           <div className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-16">
 
             {/* Text — right in RTL */}
-            <div className="flex-1 max-w-lg">
+            <Reveal className="flex-1 max-w-lg" y={16}>
               <div
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm mb-6"
                 style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.75)' }}
@@ -154,18 +161,18 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
               </p>
               <a
                 href="#products"
-                className="inline-flex items-center gap-2 px-6 rounded-lg text-base font-bold transition-opacity hover:opacity-85"
+                className="inline-flex items-center gap-2 px-6 rounded-lg text-base font-bold transition-all duration-200 hover:opacity-85 hover:-translate-y-[1px] hover:shadow-lg active:translate-y-0"
                 style={{ background: C.gold, color: '#FFFFFF', minHeight: '48px' }}
               >
                 {isAr ? 'تسوّق الآن ←' : '→ Shop Now'}
               </a>
-            </div>
+            </Reveal>
 
             {/* Floating product cards — left in RTL */}
             {heroProducts.length > 0 && (
               <div className="flex gap-4 flex-shrink-0 hidden md:flex">
                 {heroProducts.slice(0, 2).map((product, i) => (
-                  <HeroCard key={product.id} product={product} isAr={isAr} offset={i === 1} />
+                  <HeroCard key={product.id} product={product} isAr={isAr} offset={i === 1} delay={0.15 + i * 0.1} />
                 ))}
               </div>
             )}
@@ -175,23 +182,28 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
 
       {/* ── Category Browser ─────────────────────────────────────────────── */}
       {categories.length > 0 && (
-        <section className="px-6 md:px-10 py-7" style={{ borderBottom: `1px solid ${C.border}` }}>
+        <section className="px-6 md:px-10 py-8" style={{ borderBottom: `1px solid ${C.border}` }}>
           <div className="max-w-7xl mx-auto">
             <p className="text-[13px] font-semibold uppercase mb-4" style={{ color: C.text, letterSpacing: '0.08em' }}>
               {isAr ? 'تصفح حسب الفئة' : 'Browse by Category'}
             </p>
-            <div className="flex gap-2 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-              <CategoryPill
+            <div className="flex gap-3 overflow-x-auto pb-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <CategoryTile
                 label={isAr ? 'الكل' : 'All'}
+                emoji="✨"
+                imageUrl={null}
                 active={activeCategory === 'all'}
                 onClick={() => setActiveCategory('all')}
               />
               {categories.map(cat => {
                 const { label, emoji } = catLabel(cat, isAr);
+                const photo = categoryPhotos.find(c => c.key === cat.toLowerCase());
                 return (
-                  <CategoryPill
+                  <CategoryTile
                     key={cat}
-                    label={`${emoji} ${label}`}
+                    label={photo ? (isAr ? photo.name_ar : photo.name_en) : label}
+                    emoji={emoji}
+                    imageUrl={photo?.image_url ?? null}
                     active={activeCategory === cat}
                     onClick={() => setActiveCategory(cat)}
                   />
@@ -210,6 +222,29 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
       >
         <div className="max-w-7xl mx-auto">
 
+          {/* Search state */}
+          {searchQuery && (
+            <div
+              className="flex items-center justify-between gap-3 mb-6 px-4 py-3 rounded-lg"
+              style={{ background: C.catBg, border: `1px solid ${C.border}` }}
+            >
+              <p className="text-sm" style={{ color: C.text2 }}>
+                {isAr ? (
+                  <>نتائج البحث عن <span style={{ color: C.text, fontWeight: 600 }}>&quot;{searchQuery}&quot;</span> — {products.length} {products.length === 1 ? 'منتج' : 'منتجاً'}</>
+                ) : (
+                  <>Results for <span style={{ color: C.text, fontWeight: 600 }}>&quot;{searchQuery}&quot;</span> — {products.length} {products.length === 1 ? 'product' : 'products'}</>
+                )}
+              </p>
+              <Link
+                href="/store"
+                className="text-sm shrink-0 transition-opacity hover:opacity-70"
+                style={{ color: C.gold }}
+              >
+                {isAr ? 'مسح ✕' : 'Clear ✕'}
+              </Link>
+            </div>
+          )}
+
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold" style={{ color: C.text, letterSpacing: '-0.01em' }}>
@@ -218,8 +253,10 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             <select
               value={sortOrder}
               onChange={e => setSortOrder(e.target.value)}
-              className="text-sm rounded-lg px-3 border"
+              className="text-sm rounded-lg px-3 border transition-colors"
               style={{ color: C.text2, borderColor: C.border, background: C.card, outline: 'none', minHeight: '44px' }}
+              onFocus={e => { e.currentTarget.style.borderColor = C.gold; }}
+              onBlur={e => { e.currentTarget.style.borderColor = C.border; }}
             >
               <option value="newest">{isAr ? 'الأحدث' : 'Newest'}</option>
               <option value="price_asc">{isAr ? 'السعر: الأقل' : 'Price: Low to High'}</option>
@@ -235,7 +272,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
                 <button
                   key={tab.key}
                   onClick={() => setActivePriceRange(tab.key)}
-                  className="shrink-0 px-4 rounded-full text-sm transition-colors inline-flex items-center"
+                  className="shrink-0 px-4 rounded-full text-sm transition-all duration-150 inline-flex items-center hover:-translate-y-px active:translate-y-0"
                   style={{
                     background: isActive ? C.text : C.catBg,
                     color:      isActive ? '#FFFFFF' : C.text2,
@@ -259,8 +296,10 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
           {/* Grid */}
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {filteredProducts.map(product => (
-                <ProductCard key={product.id} product={product} isAr={isAr} />
+              {filteredProducts.map((product, i) => (
+                <Reveal key={product.id} delay={Math.min(i, 7) * 0.05} y={14}>
+                  <ProductCard product={product} isAr={isAr} />
+                </Reveal>
               ))}
             </div>
           ) : (
@@ -274,7 +313,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
       {/* ── Promo Banner ─────────────────────────────────────────────────── */}
       <section className="px-6 md:px-10 py-10" style={{ borderBottom: `1px solid ${C.border}` }}>
         <div className="max-w-7xl mx-auto">
-          <div
+          <Reveal
             className="rounded-2xl px-6 md:px-10 py-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-5"
             style={{ background: C.promo }}
           >
@@ -290,7 +329,7 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
             </div>
             <button
               onClick={copyPromoCode}
-              className="shrink-0 px-6 rounded-lg text-base font-bold tracking-widest transition-opacity hover:opacity-85 active:scale-95"
+              className="shrink-0 px-6 rounded-lg text-base font-bold tracking-widest transition-all hover:opacity-85 active:scale-95"
               style={{
                 background: C.promobtn,
                 color: '#FFFFFF',
@@ -303,37 +342,31 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
                 ? (isAr ? '✓ تم النسخ!' : '✓ Copied!')
                 : 'MERCHANT2026'}
             </button>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ── Partners Section ─────────────────────────────────────────────── */}
-      <section className="px-6 md:px-10 py-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-lg font-semibold" style={{ color: C.text, letterSpacing: '-0.01em' }}>
-              {isAr ? 'شركاؤنا' : 'Our Partners'}
-            </h2>
-            <Link
-              href="/brands"
-              className="text-base transition-opacity hover:opacity-70"
-              style={{ color: C.gold }}
-            >
-              {isAr ? '← عرض الكل' : 'View All →'}
-            </Link>
-          </div>
-          {partners.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {partners.map(partner => (
-                <LightPartnerCard key={partner.id} partner={partner} isAr={isAr} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-base" style={{ color: C.text2 }}>
-              {isAr ? 'لا توجد علامات متاحة بعد.' : 'No brands available yet.'}
-            </p>
-          )}
-        </div>
+      {/* ── Partners Section — logo + tagline ticker ─────────────────────── */}
+      <section className="py-10" style={{ borderTop: `1px solid ${C.border}` }}>
+        <Reveal className="max-w-7xl mx-auto px-6 md:px-10 mb-6 flex items-center justify-between">
+          <h2 className="text-lg font-semibold" style={{ color: C.text, letterSpacing: '-0.01em' }}>
+            {isAr ? 'شركاؤنا' : 'Our Partners'}
+          </h2>
+          <Link
+            href="/store/partners"
+            className="text-sm shrink-0 transition-opacity hover:opacity-70"
+            style={{ color: C.gold }}
+          >
+            {isAr ? '← تصفّح كل المتاجر' : 'Browse all stores →'}
+          </Link>
+        </Reveal>
+        {partners.length > 0 ? (
+          <PartnerTicker partners={partners} isAr={isAr} />
+        ) : (
+          <p className="text-base px-6 md:px-10" style={{ color: C.text2 }}>
+            {isAr ? 'لا توجد علامات متاحة بعد.' : 'No brands available yet.'}
+          </p>
+        )}
       </section>
     </main>
   );
@@ -341,28 +374,42 @@ export function StoreClient({ products, heroProducts, partners, locale }: Props)
 
 // ─── Category pill ────────────────────────────────────────────────────────────
 
-function CategoryPill({
+function CategoryTile({
   label,
+  emoji,
+  imageUrl,
   active,
   onClick,
 }: {
   label: string;
+  emoji: string;
+  imageUrl: string | null;
   active: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      className="shrink-0 px-4 rounded-full text-[14px] transition-colors inline-flex items-center"
+      className="relative shrink-0 w-[104px] h-[104px] rounded-xl overflow-hidden transition-all duration-200 hover:-translate-y-0.5"
       style={{
-        background: active ? C.catActive : C.catBg,
-        color:      active ? C.text      : C.text2,
-        border:     `1px solid ${active ? '#C8B89A' : C.border}`,
-        fontWeight: active ? 600 : 500,
-        minHeight:  '44px',
+        boxShadow: active ? `0 0 0 2px ${C.gold}` : `0 0 0 1px ${C.border}`,
       }}
     >
-      {label}
+      {imageUrl ? (
+        <Image src={imageUrl} alt="" fill className="object-cover" sizes="104px" />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center text-2xl" style={{ background: C.catBg }}>
+          {emoji}
+        </div>
+      )}
+      <div
+        className="absolute inset-x-0 bottom-0 px-2 py-1.5"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65), transparent)' }}
+      >
+        <span className="text-[12px] font-medium text-white leading-tight block truncate">
+          {label}
+        </span>
+      </div>
     </button>
   );
 }
@@ -373,10 +420,12 @@ function HeroCard({
   product,
   isAr,
   offset,
+  delay = 0,
 }: {
   product: ProductData;
   isAr: boolean;
   offset: boolean;
+  delay?: number;
 }) {
   const images      = product.product_images ?? [];
   const primaryImg  = images.find(i => i.is_primary) ?? images[0];
@@ -387,43 +436,51 @@ function HeroCard({
   const href        = brand?.slug ? `/brands/${brand.slug}/products/${product.id}` : '#';
 
   return (
-    <Link
-      href={href}
-      className={`flex flex-col rounded-xl overflow-hidden transition-transform hover:scale-[1.02] ${offset ? 'mt-8' : ''}`}
-      style={{
-        width: '10rem',
-        background: 'rgba(255,255,255,0.08)',
-        border: '1px solid rgba(255,255,255,0.15)',
-        flexShrink: 0,
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -4 }}
+      className={offset ? 'mt-8' : ''}
     >
-      <div className="relative w-full aspect-square" style={{ background: 'rgba(255,255,255,0.05)' }}>
-        {primaryImg && (
-          <Image
-            src={primaryImg.url}
-            alt={title}
-            fill
-            className="object-cover"
-            sizes="160px"
-          />
-        )}
-      </div>
-      <div className="px-3 py-2.5">
-        <p
-          className="text-sm font-medium leading-snug line-clamp-2 mb-1"
-          style={{ color: 'rgba(255,255,255,0.9)' }}
-        >
-          {title}
-        </p>
-        <p className="text-sm font-bold" style={{ color: C.gold }}>
-          {(salePrice ?? price).toFixed(0)} {isAr ? 'ريال' : 'SAR'}
-        </p>
-      </div>
-    </Link>
+      <Link
+        href={href}
+        className="flex flex-col rounded-xl overflow-hidden transition-shadow hover:shadow-xl"
+        style={{
+          width: '10rem',
+          background: 'rgba(255,255,255,0.08)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          flexShrink: 0,
+        }}
+      >
+        <div className="relative w-full aspect-square" style={{ background: 'rgba(255,255,255,0.05)' }}>
+          {primaryImg && (
+            <Image
+              src={primaryImg.url}
+              alt={title}
+              fill
+              className="object-cover"
+              sizes="160px"
+            />
+          )}
+        </div>
+        <div className="px-3 py-2.5">
+          <p
+            className="text-sm font-medium leading-snug line-clamp-2 mb-1"
+            style={{ color: 'rgba(255,255,255,0.9)' }}
+          >
+            {title}
+          </p>
+          <p className="text-sm font-bold" style={{ color: C.gold }}>
+            {(salePrice ?? price).toFixed(0)} {isAr ? 'ريال' : 'SAR'}
+          </p>
+        </div>
+      </Link>
+    </motion.div>
   );
 }
 
-// ─── Product card (light theme) ───────────────────────────────────────────────
+// ─── Product card (light theme — approved colors, unchanged) ──────────────────
 
 function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean }) {
   const { addItem, openCart } = useCart();
@@ -437,6 +494,7 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
   const price      = Number(product.price);
   const salePrice  = product.sale_price ? Number(product.sale_price) : null;
   const href       = brand?.slug ? `/brands/${brand.slug}/products/${product.id}` : '#';
+  const isNew      = product.isNew ?? false;
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
@@ -457,10 +515,10 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
   }
 
   return (
-    <div className="group flex flex-col">
+    <motion.div className="group flex flex-col" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
       <Link href={href} className="flex flex-col cursor-pointer">
         <div
-          className="relative aspect-[3/4] overflow-hidden rounded-xl transition-shadow duration-200 group-hover:shadow-md"
+          className="relative aspect-[3/4] overflow-hidden rounded-xl transition-shadow duration-200 group-hover:shadow-lg"
           style={{ background: C.catBg }}
         >
           {primaryImg ? (
@@ -468,13 +526,33 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
               src={primaryImg.url}
               alt={title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
               sizes="(max-width: 768px) 50vw, 25vw"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="h-px w-8" style={{ background: C.border }} />
             </div>
+          )}
+
+          {brand?.logo_url && (
+            <div
+              className="absolute top-2.5 start-2.5 w-8 h-8 rounded-full overflow-hidden shrink-0"
+              style={{ background: '#FFFFFF', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
+            >
+              <Image src={brand.logo_url} alt="" fill className="object-cover" sizes="32px" />
+            </div>
+          )}
+
+          {isNew && (
+            <motion.span
+              animate={{ opacity: [0.9, 1, 0.9] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute top-2.5 end-2.5 text-[9px] font-bold uppercase tracking-wide px-2 py-1 rounded-full"
+              style={{ background: C.gold, color: '#FFFFFF' }}
+            >
+              {isAr ? 'جديد' : 'New'}
+            </motion.span>
           )}
         </div>
         <div className="pt-3 space-y-1">
@@ -518,70 +596,90 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
           fontFamily: 'inherit',
           minHeight:  '44px',
         }}
+        onMouseEnter={e => { if (!added) { e.currentTarget.style.borderColor = C.gold; e.currentTarget.style.color = C.gold; } }}
+        onMouseLeave={e => { if (!added) { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.text2; } }}
       >
         {added
           ? (isAr ? '✓ أضيف للسلة' : '✓ Added')
           : (isAr ? 'أضف للسلة' : 'Add to Cart')}
       </button>
-    </div>
+    </motion.div>
   );
 }
 
-// ─── Light partner card ───────────────────────────────────────────────────────
+// ─── Light partner card (approved colors, unchanged) ───────────────────────────
 
-function LightPartnerCard({ partner, isAr }: { partner: Partner; isAr: boolean }) {
-  const name     = isAr ? partner.nameAr  : partner.name;
-  const category = isAr ? partner.categoryAr : partner.category;
+// ─── Partner ticker — logo + one-line message, scrolling like a news strip ─────
 
-  const card = (
-    <div className="group flex flex-col cursor-pointer">
-      <div
-        className="relative aspect-[3/4] overflow-hidden rounded-xl transition-shadow duration-200 group-hover:shadow-md"
-        style={{ background: C.catBg, border: `1px solid ${C.border}` }}
-      >
-        {partner.imageUrl ? (
-          <Image
-            src={partner.imageUrl}
-            alt={name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 50vw, 25vw"
-          />
-        ) : (
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ background: C.gold }}
-          >
-            <span style={{ color: '#FFFFFF', fontSize: '2rem', fontWeight: 600, letterSpacing: '0.04em' }}>
-              {name.split(/\s+/).slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase() || '·'}
-            </span>
+function PartnerTicker({ partners, isAr }: { partners: Partner[]; isAr: boolean }) {
+  const reduceMotion = useReducedMotion();
+  const [paused, setPaused] = useState(false);
+  const secondsPerItem = 3.2;
+
+  const row = (
+    <div className="flex items-center">
+      {partners.map((partner, i) => {
+        const name = isAr ? partner.nameAr : partner.name;
+        const message = (isAr ? partner.categoryAr : partner.category) || (isAr ? 'شريك في نادي التجار' : 'Merchant Club partner');
+        const initials = name.split(/\s+/).slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase() || '·';
+
+        const content = (
+          <div className="flex items-center gap-3 px-6 shrink-0">
+            <div
+              className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center"
+              style={{ background: partner.logoUrl ? '#FFFFFF' : C.gold, border: `1px solid ${C.border}` }}
+            >
+              {partner.logoUrl ? (
+                <Image src={partner.logoUrl} alt="" fill className="object-cover" sizes="36px" />
+              ) : (
+                <span style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 700 }}>{initials}</span>
+              )}
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-medium whitespace-nowrap" style={{ color: C.text }}>{name}</span>
+              <span className="text-[12px] whitespace-nowrap" style={{ color: C.text2 }}>{message}</span>
+            </div>
           </div>
-        )}
-      </div>
-      <div className="pt-3 space-y-0.5">
-        {name && (
-          <p className="text-base font-medium" style={{ color: C.text }}>
-            {name}
-          </p>
-        )}
-        {category && (
-          <p className="text-[13px] uppercase tracking-wider" style={{ color: C.text2 }}>
-            {category}
-          </p>
-        )}
-      </div>
+        );
+
+        return (
+          <div key={`${partner.id}-${i}`} className="flex items-center shrink-0">
+            {partner.slug ? (
+              <Link href={`/brands/${partner.slug}`} className="hover:opacity-70 transition-opacity">
+                {content}
+              </Link>
+            ) : (
+              content
+            )}
+            <div className="w-px h-6 shrink-0" style={{ background: C.border }} />
+          </div>
+        );
+      })}
     </div>
   );
 
-  if (partner.slug) {
-    return <Link href={`/brands/${partner.slug}`}>{card}</Link>;
-  }
-  if (partner.storeUrl) {
+  if (reduceMotion) {
     return (
-      <a href={partner.storeUrl} target="_blank" rel="noopener noreferrer">
-        {card}
-      </a>
+      <div className="overflow-x-auto">
+        {row}
+      </div>
     );
   }
-  return card;
+
+  return (
+    <div
+      className="overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <motion.div
+        className="flex items-center w-max"
+        animate={paused ? {} : { x: ['0%', '-50%'] }}
+        transition={{ duration: partners.length * secondsPerItem, repeat: Infinity, ease: 'linear' }}
+      >
+        {row}
+        {row}
+      </motion.div>
+    </div>
+  );
 }

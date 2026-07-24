@@ -1,14 +1,15 @@
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import { StoreNavbar } from '@/components/layout/StoreNavbar'
-import { Footer } from '@/components/layout/Footer'
+import { StoreFooter } from '@/components/layout/StoreFooter'
 import { createServiceClient } from '@/lib/supabase/server'
 import { AddToCartButton } from '@/components/cart/AddToCartButton'
 import { Button } from '@/components/ui/Button'
 import { RefTracker } from '@/components/storefront/RefTracker'
 import { TrackView } from '@/components/storefront/TrackView'
+import { ProductGallery } from '@/components/storefront/ProductGallery'
+import { DEFAULT_DESIGN_TOKENS, cssVarsToStyleString, tokensToCssVars, type DesignTokens } from '@/lib/theme-tokens'
 
 type Props = {
   params: Promise<{ locale: string; slug: string; id: string }>
@@ -42,16 +43,28 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const { data: product } = await supabase
     .from('products')
-    .select('*, brands(name_en, name_ar, slug), product_images(url, is_primary)')
+    .select('*, brands(name_en, name_ar, slug), product_images(url, is_primary, sort_order)')
     .eq('id', id)
     .eq('status', 'live')
     .single()
 
   if (!product) redirect(`/${locale}/brands/${slug}`)
 
-  const brand        = product.brands as { id?: string; name_en: string; name_ar: string | null; slug: string } | null
-  const images       = (product.product_images as { url: string; is_primary: boolean }[]) ?? []
-  const primaryImage = images.find(i => i.is_primary) ?? images[0]
+  const { data: storefront } = await supabase
+    .from('storefronts')
+    .select('design_tokens')
+    .eq('brand_id', product.brand_id)
+    .maybeSingle()
+  const tokens = (storefront?.design_tokens as DesignTokens | undefined) ?? DEFAULT_DESIGN_TOKENS
+  const cssVarsStyle = cssVarsToStyleString(tokensToCssVars(tokens))
+  const accentHex = tokens.accent
+  const cardBorderStyle = tokens.cardStyle === 'bordered' ? '1px solid #E5DDD0' : 'none'
+  const cardShadowStyle = tokens.cardStyle === 'elevated' ? '0 10px 24px -14px rgba(26,18,8,0.18)' : 'none'
+
+  const brand  = product.brands as { id?: string; name_en: string; name_ar: string | null; slug: string } | null
+  const images = ((product.product_images as { url: string; is_primary: boolean; sort_order: number }[]) ?? [])
+    .slice()
+    .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order)
 
   const title     = isAr && product.title_ar     ? product.title_ar     : product.title_en
   const description = isAr && product.description_ar ? product.description_ar : product.description_en
@@ -61,7 +74,8 @@ export default async function ProductDetailPage({ params }: Props) {
   const inStock   = (product.stock_quantity ?? 0) > 0
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--mc-bg)', fontFamily: 'var(--mc-font)' }}>
+      <style>{`:root{${cssVarsStyle}}`}</style>
       <Suspense fallback={null}><RefTracker brandId={product.brand_id} /></Suspense>
       <Suspense fallback={null}><TrackView event_type="product_view" brand_id={product.brand_id} product_id={product.id} /></Suspense>
       <StoreNavbar />
@@ -82,34 +96,15 @@ export default async function ProductDetailPage({ params }: Props) {
           {/* Product layout */}
           <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-8 md:gap-16 items-start">
 
-            {/* ── Image ── */}
-            <div
-              className="relative aspect-[4/5] overflow-hidden rounded-xl"
-              style={{ background: '#F0EBE1' }}
-            >
-              {primaryImage ? (
-                <Image
-                  src={primaryImage.url}
-                  alt={title}
-                  fill
-                  priority
-                  className="object-cover object-top"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  quality={90}
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-px w-12" style={{ background: '#E5DDD0' }} />
-                </div>
-              )}
-            </div>
+            {/* ── Image gallery ── */}
+            <ProductGallery images={images} title={title} />
 
             {/* ── Details ── */}
             <div className="flex flex-col gap-6 md:sticky md:top-24">
 
               {/* Brand eyebrow */}
               {brandName && (
-                <p className="text-[13px] font-medium tracking-[0.1em] uppercase" style={{ color: '#B8975A' }}>
+                <p className="text-[13px] font-medium tracking-[0.1em] uppercase" style={{ color: accentHex }}>
                   {brandName}
                 </p>
               )}
@@ -117,7 +112,7 @@ export default async function ProductDetailPage({ params }: Props) {
               {/* Product title */}
               <h1
                 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-[1.05]"
-                style={{ color: '#1A1208', letterSpacing: '-0.02em' }}
+                style={{ color: 'var(--mc-primary)', letterSpacing: '-0.02em' }}
               >
                 {title}
               </h1>
@@ -126,7 +121,7 @@ export default async function ProductDetailPage({ params }: Props) {
               <div className="flex items-baseline gap-3">
                 {salePrice ? (
                   <>
-                    <span className="text-2xl md:text-3xl font-semibold" style={{ color: '#B8975A' }}>
+                    <span className="text-2xl md:text-3xl font-semibold" style={{ color: accentHex }}>
                       {salePrice.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
                     </span>
                     <span className="text-base line-through" style={{ color: '#6B5B4E' }}>
@@ -134,7 +129,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     </span>
                   </>
                 ) : (
-                  <span className="text-2xl md:text-3xl font-semibold" style={{ color: '#B8975A' }}>
+                  <span className="text-2xl md:text-3xl font-semibold" style={{ color: accentHex }}>
                     {price.toFixed(2)} {isAr ? 'ريال' : 'SAR'}
                   </span>
                 )}
@@ -173,7 +168,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   productName={title}
                   brandName={brandName}
                   price={salePrice ?? price}
-                  image_url={primaryImage?.url ?? null}
+                  image_url={images[0]?.url ?? null}
                   maxQty={product.stock_quantity ?? 10}
                 />
               ) : (
@@ -194,8 +189,8 @@ export default async function ProductDetailPage({ params }: Props) {
 
               {/* Trust strip */}
               <div
-                className="px-4 py-4 flex flex-col gap-2 rounded-xl"
-                style={{ border: '1px solid #E5DDD0', background: '#FFFFFF' }}
+                className="px-4 py-4 flex flex-col gap-2"
+                style={{ border: cardBorderStyle, background: 'var(--mc-surface)', borderRadius: 'var(--mc-radius)', boxShadow: cardShadowStyle }}
               >
                 <p className="text-[13px] leading-relaxed" style={{ color: '#6B5B4E' }}>
                   {isAr
@@ -219,7 +214,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
         </section>
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   )
 }

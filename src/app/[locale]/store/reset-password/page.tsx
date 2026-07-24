@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
-import { Footer } from '@/components/layout/Footer';
+import { StoreFooter } from '@/components/layout/StoreFooter';
 import { ResetPasswordForm } from './ResetPasswordForm';
 
 type Props = {
@@ -32,7 +32,7 @@ export default async function ResetPasswordPage({ params, searchParams }: Props)
           </div>
         </div>
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   );
 }

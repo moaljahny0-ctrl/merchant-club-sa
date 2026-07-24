@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getCustomerSession } from '@/lib/customer-auth';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
-import { Footer } from '@/components/layout/Footer';
+import { StoreFooter } from '@/components/layout/StoreFooter';
 import { Link } from '@/i18n/navigation';
 import { ClearCartOnMount } from './ClearCartOnMount';
 
@@ -152,7 +152,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           </div>
         </div>
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   );
 }

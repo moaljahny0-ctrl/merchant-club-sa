@@ -1,7 +1,7 @@
 import { getCustomerSession } from '@/lib/customer-auth';
 import { redirect } from 'next/navigation';
 import { StoreNavbar } from '@/components/layout/StoreNavbar';
-import { Footer } from '@/components/layout/Footer';
+import { StoreFooter } from '@/components/layout/StoreFooter';
 import { RegisterForm } from './RegisterForm';
 
 type Props = { params: Promise<{ locale: string }> };
@@ -31,7 +31,7 @@ export default async function RegisterPage({ params }: Props) {
           </div>
         </div>
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   );
 }

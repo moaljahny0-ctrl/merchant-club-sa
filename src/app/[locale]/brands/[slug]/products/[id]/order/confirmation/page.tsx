@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { StoreNavbar } from '@/components/layout/StoreNavbar'
-import { Footer } from '@/components/layout/Footer'
+import { StoreFooter } from '@/components/layout/StoreFooter'
 import { Button } from '@/components/ui/Button'
 import { createServiceClient } from '@/lib/supabase/server'
 
@@ -147,7 +147,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
 
         </div>
       </main>
-      <Footer />
+      <StoreFooter />
     </div>
   )
 }

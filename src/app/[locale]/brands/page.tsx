@@ -5,8 +5,10 @@ import { Footer } from '@/components/layout/Footer';
 import { PartnerCard } from '@/components/partners/PartnerCard';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
+import { Reveal } from '@/components/ui/Reveal';
 import { placeholderSlots, type Partner } from '@/lib/brands';
 import { createServiceClient } from '@/lib/supabase/server';
+import { fetchLivePartners } from '@/lib/queries/partners';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -18,38 +20,7 @@ export default async function PartnersPage({ params }: Props) {
   const isAr = locale === 'ar'
 
   const supabase = createServiceClient();
-
-  type BrandRow = {
-    id: string
-    name_en: string
-    name_ar: string | null
-    slug: string
-    tagline_en: string | null
-    tagline_ar: string | null
-    logo_url: string | null
-    products: { status: string }[]
-  }
-
-  const { data: brandsRaw } = await supabase
-    .from('brands')
-    .select('id, name_en, name_ar, slug, tagline_en, tagline_ar, logo_url, products(status)')
-    .in('status', ['approved', 'active'])
-    .order('created_at', { ascending: true });
-
-  const brands = (brandsRaw ?? []) as BrandRow[];
-
-  // Only surface brands that have at least one live product
-  const partners: Partner[] = brands
-    .filter(brand => (brand.products ?? []).some(p => p.status === 'live'))
-    .map(brand => ({
-      id: brand.id,
-      name: brand.name_en,
-      nameAr: brand.name_ar ?? brand.name_en,
-      category: isAr ? (brand.tagline_ar ?? brand.tagline_en ?? '') : (brand.tagline_en ?? ''),
-      categoryAr: brand.tagline_ar ?? brand.tagline_en ?? '',
-      imageUrl: brand.logo_url ?? undefined,
-      slug: brand.slug,
-    }));
+  const partners: Partner[] = await fetchLivePartners(supabase, isAr);
 
   return (
     <div className="min-h-screen flex flex-col bg-ink">
@@ -122,7 +93,7 @@ async function PartnersHero({ t, isAr }: { t: TFn; isAr: boolean }) {
 
       {/* Content */}
       <div className="relative z-20 w-full px-6 md:px-10 lg:px-20 xl:px-28 flex items-center min-h-[80vh] md:min-h-screen">
-        <div className="max-w-xl lg:max-w-2xl">
+        <Reveal className="max-w-xl lg:max-w-2xl">
 
           <p className="text-[12px] text-gold tracking-[0.45em] uppercase mb-8 md:mb-10">
             {t('eyebrow')}
@@ -148,7 +119,7 @@ async function PartnersHero({ t, isAr }: { t: TFn; isAr: boolean }) {
             </Button>
           </div>
 
-        </div>
+        </Reveal>
       </div>
 
     </section>
@@ -206,7 +177,7 @@ function PartnerCategories({ locale }: { locale: string }) {
     <section id="categories" className="px-6 md:px-10 py-20 md:py-28 border-b border-border">
       <div className="max-w-7xl mx-auto">
 
-        <div className="flex items-end justify-between mb-12 md:mb-16">
+        <Reveal className="flex items-end justify-between mb-12 md:mb-16">
           <div>
             <p className="text-[12px] text-gold tracking-[0.4em] uppercase mb-4">
               {isAr ? 'ما نحمله' : 'What we carry'}
@@ -216,32 +187,33 @@ function PartnerCategories({ locale }: { locale: string }) {
             </h2>
           </div>
           <div className="hidden md:block h-px w-24 bg-border mb-3" />
-        </div>
+        </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border">
-          {CATEGORIES.map((cat) => (
-            <div
-              key={cat.key}
-              className="bg-ink p-8 md:p-10 flex flex-col gap-6 group hover:bg-surface transition-colors duration-300"
-            >
-              <div className="flex items-start justify-between">
-                <span className="text-[12px] text-gold/60 tracking-[0.3em] uppercase">{cat.index}</span>
-                <div className="h-px w-8 bg-gold/30 mt-2 group-hover:w-12 group-hover:bg-gold/60 transition-all duration-300" />
-              </div>
+          {CATEGORIES.map((cat, i) => (
+            <Reveal key={cat.key} delay={Math.min(i, 4) * 0.07}>
+              <div
+                className="h-full bg-ink p-8 md:p-10 flex flex-col gap-6 group hover:bg-surface transition-colors duration-300"
+              >
+                <div className="flex items-start justify-between">
+                  <span className="text-[12px] text-gold/60 tracking-[0.3em] uppercase">{cat.index}</span>
+                  <div className="h-px w-8 bg-gold/30 mt-2 group-hover:w-12 group-hover:bg-gold/60 transition-all duration-300" />
+                </div>
 
-              <div>
-                <h3 className="font-display text-2xl md:text-3xl font-light text-parchment mb-3 leading-tight">
-                  {isAr ? cat.labelAr : cat.label}
-                </h3>
-                <p className="text-muted text-sm leading-relaxed">
-                  {isAr ? cat.descriptionAr : cat.description}
+                <div>
+                  <h3 className="font-display text-2xl md:text-3xl font-light text-parchment mb-3 leading-tight">
+                    {isAr ? cat.labelAr : cat.label}
+                  </h3>
+                  <p className="text-muted text-sm leading-relaxed">
+                    {isAr ? cat.descriptionAr : cat.description}
+                  </p>
+                </div>
+
+                <p className="text-[12px] text-gold/50 tracking-[0.2em] uppercase mt-auto">
+                  {isAr ? cat.detailAr : cat.detail}
                 </p>
               </div>
-
-              <p className="text-[12px] text-gold/50 tracking-[0.2em] uppercase mt-auto">
-                {isAr ? cat.detailAr : cat.detail}
-              </p>
-            </div>
+            </Reveal>
           ))}
         </div>
 
@@ -269,7 +241,7 @@ function ComingSoonSection({
         <div className="grid md:grid-cols-[1fr_1fr] gap-16 md:gap-24 items-start">
 
           {/* Text */}
-          <div>
+          <Reveal>
             <div className="flex items-center gap-4 mb-8">
               <div className="h-px w-6 bg-gold/40" />
               <p className="text-[12px] text-gold/60 tracking-[0.35em] uppercase">
@@ -285,14 +257,14 @@ function ComingSoonSection({
             <Button href="/apply/partner" variant="primary" className="bg-gold text-ink hover:bg-gold-light">
               {t('apply_cta')}
             </Button>
-          </div>
+          </Reveal>
 
           {/* Dimmed placeholder grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-25">
+          <Reveal className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-25" delay={0.1}>
             {slots.map((slot) => (
               <PartnerCard key={slot.id} partner={slot} locale={locale} />
             ))}
-          </div>
+          </Reveal>
 
         </div>
 
@@ -316,7 +288,7 @@ function ActivePartnersSection({
   return (
     <section className="px-6 md:px-10 py-16 md:py-24 border-b border-border">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-end justify-between mb-10 md:mb-14">
+        <Reveal className="flex items-end justify-between mb-10 md:mb-14">
           <h2 className="font-display text-3xl md:text-4xl font-light text-parchment">
             {t('heading')}
           </h2>
@@ -325,10 +297,12 @@ function ActivePartnersSection({
               ? `${partners.length} شريك`
               : `${partners.length} partner${partners.length !== 1 ? 's' : ''}`}
           </p>
-        </div>
+        </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
-          {partners.map((partner) => (
-            <PartnerCard key={partner.id} partner={partner} locale={locale} />
+          {partners.map((partner, i) => (
+            <Reveal key={partner.id} delay={Math.min(i, 7) * 0.05} y={12}>
+              <PartnerCard partner={partner} locale={locale} />
+            </Reveal>
           ))}
         </div>
       </div>
@@ -342,7 +316,7 @@ function ApplySection({ t, isAr }: { t: TFn; isAr: boolean }) {
   return (
     <section className="px-6 md:px-10 py-24 md:py-40">
       <div className="max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-[1fr_auto] gap-10 items-center">
+        <Reveal className="grid md:grid-cols-[1fr_auto] gap-10 items-center">
           <div className="max-w-2xl">
             <p className="text-[12px] text-gold tracking-[0.4em] uppercase mb-5">
               {isAr ? 'انضم للمنصة' : 'Join the platform'}
@@ -364,7 +338,7 @@ function ApplySection({ t, isAr }: { t: TFn; isAr: boolean }) {
               {isAr ? 'جميع الخيارات' : 'See all options'}
             </Button>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
