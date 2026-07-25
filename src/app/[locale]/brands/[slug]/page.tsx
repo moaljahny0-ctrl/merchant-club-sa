@@ -15,6 +15,7 @@ import { getFavoriteCount, getCustomerFavoriteIds } from '@/lib/actions/favorite
 import { PreviewTokenListener } from '@/components/storefront/PreviewTokenListener'
 import { PartnerTiltPoster } from '@/components/storefront/PartnerTiltPoster'
 import { BrandContactChannels } from '@/components/storefront/BrandContactChannels'
+import { ProductFrame } from '@/components/storefront/ProductFrame'
 import type { Partner } from '@/lib/brands'
 import {
   DEFAULT_DESIGN_TOKENS, cssVarsToStyleString, tokensToCssVars,
@@ -280,18 +281,12 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
                   const title = isAr && product.title_ar ? product.title_ar : product.title_en
                   return (
                     <Link key={product.id} href={`/brands/${slug}/products/${product.id}`} className="group flex flex-col cursor-pointer">
-                      <div
-                        className="relative aspect-[3/4] rounded-sm p-[4%] transition-shadow duration-200"
-                        style={{ background: '#F4EFE4', boxShadow: '0 20px 40px -18px rgba(20,15,5,.4), 0 10px 20px -10px rgba(20,15,5,.25)' }}
-                      >
-                        <div className="relative w-full h-full rounded-[2px] p-[3.6%]" style={{ background: accentHex }}>
-                          <div className="relative w-full h-full rounded-[1px] overflow-hidden" style={{ background: '#F4F1EA' }}>
-                            {primaryImage && (
-                              <Image src={primaryImage.url} alt={title} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" sizes="(max-width: 768px) 50vw, 25vw" />
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                      <ProductFrame
+                        src={primaryImage?.url}
+                        alt={title}
+                        accentHex={accentHex}
+                        aspectClassName="aspect-[3/4]"
+                      />
                       <p className="text-base font-medium leading-snug pt-3" style={{ color: 'var(--mc-primary)' }}>{title}</p>
                     </Link>
                   )

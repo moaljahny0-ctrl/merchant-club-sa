@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from '@/i18n/navigation';
 import { useCart } from '@/lib/cart/CartContext';
 import { Reveal } from '@/components/ui/Reveal';
+import { ProductFrame } from '@/components/storefront/ProductFrame';
 import type { Partner } from '@/lib/brands';
 
 // ─── Store design tokens — approved, do not change ─────────────────────────────
@@ -517,44 +518,34 @@ function ProductCard({ product, isAr }: { product: ProductData; isAr: boolean })
   return (
     <motion.div className="group flex flex-col" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
       <Link href={href} className="flex flex-col cursor-pointer">
-        <div
-          className="relative aspect-[3/4] overflow-hidden rounded-xl transition-shadow duration-200 group-hover:shadow-lg"
-          style={{ background: C.catBg }}
-        >
-          {primaryImg ? (
-            <Image
-              src={primaryImg.url}
-              alt={title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-              sizes="(max-width: 768px) 50vw, 25vw"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-px w-8" style={{ background: C.border }} />
-            </div>
-          )}
-
-          {brand?.logo_url && (
-            <div
-              className="absolute top-2.5 start-2.5 w-8 h-8 rounded-full overflow-hidden shrink-0"
-              style={{ background: '#FFFFFF', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
-            >
-              <Image src={brand.logo_url} alt="" fill className="object-cover" sizes="32px" />
-            </div>
-          )}
-
-          {isNew && (
-            <motion.span
-              animate={{ opacity: [0.9, 1, 0.9] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute top-2.5 end-2.5 text-[9px] font-bold uppercase tracking-wide px-2 py-1 rounded-full"
-              style={{ background: C.gold, color: '#FFFFFF' }}
-            >
-              {isAr ? 'جديد' : 'New'}
-            </motion.span>
-          )}
-        </div>
+        <ProductFrame
+          src={primaryImg?.url}
+          alt={title}
+          accentHex={C.gold}
+          aspectClassName="aspect-[3/4]"
+          overlay={
+            <>
+              {brand?.logo_url && (
+                <div
+                  className="absolute top-2.5 start-2.5 z-10 w-8 h-8 rounded-full overflow-hidden shrink-0"
+                  style={{ background: '#FFFFFF', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
+                >
+                  <Image src={brand.logo_url} alt="" fill className="object-cover" sizes="32px" />
+                </div>
+              )}
+              {isNew && (
+                <motion.span
+                  animate={{ opacity: [0.9, 1, 0.9] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute top-2.5 end-2.5 z-10 text-[9px] font-bold uppercase tracking-wide px-2 py-1 rounded-full"
+                  style={{ background: C.gold, color: '#FFFFFF' }}
+                >
+                  {isAr ? 'جديد' : 'New'}
+                </motion.span>
+              )}
+            </>
+          }
+        />
         <div className="pt-3 space-y-1">
           {brandName && (
             <p
