@@ -20,13 +20,13 @@ const DEVICE_MAX_WIDTH: Record<Device, string> = {
 
 export function AppearanceEditor({
   brandId,
-  storefrontUrl,
+  brandSlug,
   palette,
   initialTokens,
   locale = 'en',
 }: {
   brandId: string
-  storefrontUrl: string | null
+  brandSlug: string | null
   palette: ThemePalette[]
   initialTokens: DesignTokens
   locale?: DashLang
@@ -40,8 +40,10 @@ export function AppearanceEditor({
   const [isPending, startTransition] = useTransition()
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  const previewSrc = storefrontUrl ? `${storefrontUrl}?preview=true` : null
-  const previewOrigin = storefrontUrl ? new URL(storefrontUrl).origin : null
+  // Relative — always resolves against whatever origin is currently serving
+  // this dashboard, so the postMessage target origin below is trivially
+  // correct (same-origin) in every environment, not just production.
+  const previewSrc = brandSlug ? `/en/brands/${brandSlug}?preview=true` : null
 
   function update(patch: Partial<DesignTokens>) {
     setTokens(prev => ({ ...prev, ...patch }))
@@ -81,9 +83,9 @@ export function AppearanceEditor({
   // no reload needed.
   useEffect(() => {
     const frame = iframeRef.current
-    if (!frame?.contentWindow || !previewOrigin) return
-    frame.contentWindow.postMessage({ type: 'mc-preview-tokens', vars: tokensToCssVars(tokens) }, previewOrigin)
-  }, [tokens, previewOrigin])
+    if (!frame?.contentWindow) return
+    frame.contentWindow.postMessage({ type: 'mc-preview-tokens', vars: tokensToCssVars(tokens) }, window.location.origin)
+  }, [tokens])
 
   function handleSave() {
     setError(null)
@@ -167,6 +169,12 @@ export function AppearanceEditor({
                 className="w-full block"
                 style={{ height: '70vh', border: 0 }}
                 title="Storefront live preview"
+                onLoad={e => {
+                  e.currentTarget.contentWindow?.postMessage(
+                    { type: 'mc-preview-tokens', vars: tokensToCssVars(tokens) },
+                    window.location.origin
+                  )
+                }}
               />
             </div>
           ) : (

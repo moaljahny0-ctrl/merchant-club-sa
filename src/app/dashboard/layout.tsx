@@ -5,6 +5,7 @@ import localFont from 'next/font/local'
 import { Inter } from 'next/font/google'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
+import '../globals.css'
 import './admin-shell.css'
 
 const inter = Inter({

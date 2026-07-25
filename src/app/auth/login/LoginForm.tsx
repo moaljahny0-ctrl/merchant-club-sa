@@ -2,7 +2,32 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: '12px',
+  fontWeight: 600,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: '#6B5B4E',
+  marginBottom: '8px',
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  border: '1px solid #E5DDD0',
+  borderRadius: '8px',
+  background: '#FFFFFF',
+  color: '#1A1208',
+  fontSize: '17px',
+  padding: '12px 16px',
+  outline: 'none',
+  fontFamily: 'inherit',
+  boxSizing: 'border-box',
+  transition: 'border-color 0.15s',
+}
 
 export function LoginForm() {
   const router = useRouter()
@@ -32,22 +57,20 @@ export function LoginForm() {
   }
 
   return (
-    <div className="space-y-7">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
       {linkExpired && (
-        <div className="border border-gold/30 bg-gold/5 px-4 py-3">
-          <p className="text-gold text-sm leading-relaxed">
+        <div style={{ border: '1px solid rgba(184,151,90,0.3)', background: 'rgba(184,151,90,0.08)', borderRadius: '8px', padding: '12px 14px' }}>
+          <p style={{ color: '#8C6A2E', fontSize: '14px', lineHeight: 1.5 }}>
             That login link has expired. Enter your email and password to sign in.
           </p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         <div>
-          <label className="block text-[12px] text-muted tracking-[0.25em] uppercase mb-2.5">
-            Email
-          </label>
+          <label style={labelStyle}>Email</label>
           <input
             type="email"
             required
@@ -55,21 +78,17 @@ export function LoginForm() {
             autoFocus
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/30 transition-colors"
+            style={inputStyle}
+            dir="ltr"
           />
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-2.5">
-            <label className="text-[12px] text-muted tracking-[0.25em] uppercase">
-              Password
-            </label>
-            <a
-              href="/auth/reset-password"
-              className="text-[12px] text-muted/60 hover:text-gold tracking-[0.1em] transition-colors"
-            >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <label style={{ ...labelStyle, marginBottom: 0 }}>Password</label>
+            <Link href="/auth/reset-password" style={{ fontSize: '12px', color: '#6B5B4E', textDecoration: 'none' }}>
               Forgot password?
-            </a>
+            </Link>
           </div>
           <input
             type="password"
@@ -77,18 +96,32 @@ export function LoginForm() {
             autoComplete="current-password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full bg-surface border border-border text-parchment text-base px-4 py-3.5 focus:outline-none focus:border-gold placeholder:text-muted/30 transition-colors"
+            style={inputStyle}
           />
         </div>
 
         {error && (
-          <p className="text-[14px] text-amber-400/90 tracking-wide">{error}</p>
+          <p style={{ fontSize: '15px', color: '#cc5555', lineHeight: 1.5 }}>{error}</p>
         )}
 
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-gold text-ink text-[13px] font-medium tracking-[0.25em] uppercase py-4 hover:bg-gold-light transition-colors disabled:opacity-50"
+          style={{
+            width: '100%',
+            background: isPending ? '#9A8060' : '#1A1208',
+            color: '#F5F0E8',
+            fontSize: '13px',
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            padding: '16px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: isPending ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit',
+            transition: 'background 0.2s',
+          }}
         >
           {isPending ? 'Signing in…' : 'Sign in'}
         </button>

@@ -2,7 +2,7 @@
 
 import { createServiceClient } from '@/lib/supabase/server'
 import { hashPassword, verifyPassword, createSession, clearSession } from '@/lib/customer-auth'
-import { sendEmail, buildWelcomeEmailHtml, buildPasswordResetEmailHtml } from '@/lib/email'
+import { sendEmail, buildWelcomeEmailHtml, buildPasswordResetEmailHtml, buildMagicLinkEmailHtml } from '@/lib/email'
 import { randomBytes, createHash } from 'crypto'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
@@ -160,6 +160,83 @@ export async function resetCustomerPassword(
 
   await service
     .from('customer_reset_tokens')
+    .update({ used_at: new Date().toISOString() })
+    .eq('id', tokenRow.id)
+
+  await createSession({ id: customer.id, email: customer.email, full_name: customer.full_name, phone: customer.phone })
+
+  return { error: null }
+}
+
+// ── passwordless login ──────────────────────────────────────────────────────
+// Separate token table from password reset on purpose — see migration 010.
+
+export async function sendMagicLink(email: string): Promise<void> {
+  const service = createServiceClient()
+  const normalizedEmail = email.toLowerCase().trim()
+
+  const { data: customer } = await service
+    .from('customers')
+    .select('id')
+    .eq('email', normalizedEmail)
+    .maybeSingle()
+
+  // Same response regardless of whether the account exists — don't leak
+  // which emails are registered.
+  if (!customer) return
+
+  const rawToken = randomBytes(32).toString('base64url')
+  const tokenHash = createHash('sha256').update(rawToken).digest('hex')
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString()
+
+  const { error: insertError } = await service.from('customer_login_tokens').insert({
+    customer_id: customer.id,
+    token_hash: tokenHash,
+    expires_at: expiresAt,
+  })
+
+  if (insertError) {
+    console.error('[magic-link] token insert failed:', insertError.message)
+    return
+  }
+
+  const loginLink = `${SITE_URL}/store/login/verify?token=${rawToken}`
+
+  try {
+    await sendEmail({
+      to: normalizedEmail,
+      subject: 'رابط تسجيل الدخول — Merchant Club SA',
+      html: buildMagicLinkEmailHtml({ loginLink }),
+    })
+  } catch (err) {
+    console.error('[magic-link] EMAIL FAILED:', err)
+  }
+}
+
+export async function verifyMagicLink(rawToken: string): Promise<{ error: string | null }> {
+  const service = createServiceClient()
+  const tokenHash = createHash('sha256').update(rawToken).digest('hex')
+
+  const { data: tokenRow } = await service
+    .from('customer_login_tokens')
+    .select('id, customer_id, expires_at, used_at')
+    .eq('token_hash', tokenHash)
+    .maybeSingle()
+
+  if (!tokenRow) return { error: 'الرابط غير صالح.' }
+  if (tokenRow.used_at) return { error: 'تم استخدام هذا الرابط مسبقاً.' }
+  if (new Date(tokenRow.expires_at) < new Date()) return { error: 'انتهت صلاحية الرابط. اطلب رابطاً جديداً.' }
+
+  const { data: customer, error: lookupError } = await service
+    .from('customers')
+    .select('id, email, full_name, phone')
+    .eq('id', tokenRow.customer_id)
+    .single()
+
+  if (lookupError || !customer) return { error: 'تعذّر تسجيل الدخول.' }
+
+  await service
+    .from('customer_login_tokens')
     .update({ used_at: new Date().toISOString() })
     .eq('id', tokenRow.id)
 

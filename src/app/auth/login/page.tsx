@@ -1,64 +1,45 @@
-import { Suspense } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { Suspense } from 'react'
 import { LoginForm } from './LoginForm'
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink px-8 py-16">
+    <div className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: '#F5F0E8' }}>
+      <div className="w-full max-w-[400px]">
+        <div style={{ background: '#FFFFFF', border: '1px solid #E5DDD0', borderRadius: '16px', boxShadow: '0 1px 3px rgba(26,18,8,0.05)' }} className="p-8 md:p-10">
 
-      <div className="w-full max-w-[340px]">
+          <div className="mb-8 flex justify-center">
+            <Image src="/logo.png" alt="Merchant Club SA" width={40} height={40} priority />
+          </div>
 
-        {/* Logo */}
-        <div className="mb-12 flex justify-center">
-          <Image
-            src="/logo.png"
-            alt="Merchant Club SA"
-            width={40}
-            height={40}
-            priority
-          />
-        </div>
-
-        {/* Header */}
-        <div className="mb-10">
-          <p className="text-[12px] text-gold tracking-[0.4em] uppercase mb-4">
+          <p style={{ color: '#B8975A', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '6px', textAlign: 'center' }}>
             Brand & Partner Portal
           </p>
-          <h1 className="font-display text-[2.25rem] font-light text-parchment leading-none">
+          <h1 style={{ color: '#1A1208', fontSize: '26px', fontWeight: 600, letterSpacing: '-0.01em', marginBottom: '32px', lineHeight: 1.2, textAlign: 'center' }}>
             Sign in
           </h1>
+
+          <Suspense fallback={<div style={{ color: '#6B5B4E', fontSize: '15px' }}>Loading…</div>}>
+            <LoginForm />
+          </Suspense>
+
+          <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #E5DDD0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <p style={{ fontSize: '14px', color: '#6B5B4E', textAlign: 'center' }}>
+              Are you a customer?{' '}
+              <Link href="/store/login" style={{ color: '#B8975A', textDecoration: 'none' }}>Login here →</Link>
+            </p>
+            <p style={{ fontSize: '14px', color: '#6B5B4E', textAlign: 'center' }}>
+              Looking to track your order?{' '}
+              <Link href="/track-order" style={{ color: '#B8975A', textDecoration: 'none' }}>Track it here</Link>
+            </p>
+          </div>
+
         </div>
-
-        {/* Rule */}
-        <div className="h-px bg-border mb-10" />
-
-        <Suspense fallback={<div className="text-muted text-base">Loading…</div>}>
-          <LoginForm />
-        </Suspense>
-
-        {/* Cross-links */}
-        <div className="mt-10 border border-border/40 bg-surface/30 px-4 py-4 flex flex-col gap-2">
-          <p className="text-[12px] text-muted/60 leading-relaxed text-center">
-            Are you a customer?{' '}
-            <a href="/store/login" className="text-gold hover:underline">
-              Login here →
-            </a>
-          </p>
-          <p className="text-[12px] text-muted/60 leading-relaxed text-center">
-            Looking to track your order?{' '}
-            <a href="/track-order" className="text-gold hover:underline">
-              Track it here
-            </a>
-          </p>
-        </div>
-
-        {/* Footer */}
-        <p className="mt-8 text-[12px] text-muted/30 tracking-[0.15em] text-center">
+        <p style={{ marginTop: '24px', fontSize: '12px', color: '#6B5B4E', textAlign: 'center', letterSpacing: '0.05em' }}>
           © {new Date().getFullYear()} Merchant Club SA
         </p>
-
       </div>
-
     </div>
   )
 }

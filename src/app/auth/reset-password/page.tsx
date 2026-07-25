@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function ResetPasswordPage() {
@@ -16,7 +17,7 @@ export default function ResetPasswordPage() {
     startTransition(async () => {
       const supabase = createClient()
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/invite?type=recovery`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/auth/invite`,
       })
       if (error) {
         setError(error.message)
@@ -38,9 +39,9 @@ export default function ResetPasswordPage() {
         {sent ? (
           <div className="text-center space-y-4">
             <p className="text-muted text-base">Check your email for a password reset link.</p>
-            <a href="/auth/login" className="text-gold text-sm tracking-[0.15em] uppercase hover:text-gold-light transition-colors">
+            <Link href="/auth/login" className="text-gold text-sm tracking-[0.15em] uppercase hover:text-gold-light transition-colors">
               Back to login
-            </a>
+            </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -70,9 +71,9 @@ export default function ResetPasswordPage() {
             </button>
 
             <div className="text-center mt-2">
-              <a href="/auth/login" className="text-sm text-muted hover:text-gold transition-colors">
+              <Link href="/auth/login" className="text-sm text-muted hover:text-gold transition-colors">
                 Back to login
-              </a>
+              </Link>
             </div>
           </form>
         )}

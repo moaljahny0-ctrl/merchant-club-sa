@@ -311,6 +311,31 @@ export function buildPasswordResetEmailHtml(params: { resetLink: string }): stri
   `)
 }
 
+export function buildMagicLinkEmailHtml(params: { loginLink: string }): string {
+  const { loginLink } = params
+  return shell(`
+    <p style="margin:0 0 6px;font-size:9px;letter-spacing:0.32em;text-transform:uppercase;color:#b8975a;">تسجيل الدخول</p>
+    <h1 style="margin:0 0 10px;font-size:24px;font-weight:400;color:#1a1a1a;letter-spacing:-0.01em;">
+      رابط دخولك جاهز.
+    </h1>
+    <p style="margin:0 0 32px;font-size:14px;color:#666666;line-height:1.65;">
+      انقر على الزر أدناه لتسجيل الدخول مباشرة بدون كلمة مرور.
+      هذا الرابط صالح لمدة ١٥ دقيقة ويُستخدم مرة واحدة فقط.
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr><td style="background:#b8975a;">
+        <a href="${esc(loginLink)}"
+           style="display:inline-block;padding:14px 32px;font-size:11px;font-family:Georgia,serif;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+          تسجيل الدخول &rarr;
+        </a>
+      </td></tr>
+    </table>
+    <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
+      إذا لم تطلب هذا الرابط، يمكنك تجاهل هذا البريد الإلكتروني بأمان.
+    </p>
+  `)
+}
+
 type StatusEmailStatus = 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
 
 export function buildOrderStatusHtml(params: {

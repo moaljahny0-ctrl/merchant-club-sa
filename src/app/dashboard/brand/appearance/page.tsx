@@ -6,8 +6,6 @@ import { dt, type DashLang } from '@/lib/dashboard-i18n'
 import { listThemePalette } from '@/lib/actions/brands'
 import { DEFAULT_DESIGN_TOKENS, type DesignTokens } from '@/lib/theme-tokens'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.merchantclubsa.com'
-
 export default async function AppearancePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -34,7 +32,11 @@ export default async function AppearancePage() {
   if (!brand) redirect('/dashboard/brand')
 
   const isLive = ['approved', 'active'].includes(brand.status)
-  const storefrontUrl = isLive ? `${SITE_URL}/en/brands/${brand.slug}` : null
+  // Relative path (not an absolute NEXT_PUBLIC_SITE_URL link) so the live
+  // preview iframe always targets whatever host is actually serving this
+  // dashboard right now — localhost in dev, the real domain in production —
+  // never a hardcoded production URL while testing elsewhere.
+  const brandSlug = isLive ? brand.slug : null
 
   const [{ data: storefront }, palette] = await Promise.all([
     supabase
@@ -51,7 +53,7 @@ export default async function AppearancePage() {
     <div className="p-6 md:p-10 max-w-7xl">
       <AppearanceEditor
         brandId={brand.id}
-        storefrontUrl={storefrontUrl}
+        brandSlug={brandSlug}
         palette={palette}
         initialTokens={initialTokens}
         locale={locale}
