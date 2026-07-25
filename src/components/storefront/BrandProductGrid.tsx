@@ -223,32 +223,65 @@ function ProductTile({
       href={`/brands/${brandSlug}/products/${product.id}`}
       className={listView ? 'group flex items-center gap-4 p-3 rounded-xl transition-colors hover:bg-white' : 'group flex flex-col'}
     >
-      <div className={`relative overflow-hidden rounded-xl shrink-0 ${listView ? 'w-24 h-24' : 'aspect-square'}`} style={{ background: '#F0EBE1' }}>
-        {product.imageUrl ? (
-          <Image
-            src={product.imageUrl}
-            alt={product.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-            sizes={listView ? '96px' : '(max-width: 768px) 50vw, 25vw'}
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="h-px w-8" style={{ background: '#E5DDD0' }} />
+      {listView ? (
+        <div className="relative overflow-hidden rounded-xl shrink-0 w-24 h-24" style={{ background: '#F0EBE1' }}>
+          {product.imageUrl ? (
+            <Image
+              src={product.imageUrl}
+              alt={product.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              sizes="96px"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-px w-8" style={{ background: '#E5DDD0' }} />
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            disabled={isPending}
+            aria-label={favorite ? (isAr ? 'إزالة من المفضلة' : 'Remove from wishlist') : (isAr ? 'أضف للمفضلة' : 'Add to wishlist')}
+            aria-pressed={favorite}
+            className="absolute top-2 end-2 flex h-8 w-8 items-center justify-center rounded-full transition disabled:opacity-60"
+            style={{ background: 'rgba(255,255,255,0.92)' }}
+          >
+            <Heart width={15} height={15} style={{ color: favorite ? accentHex : '#6B5B4E', fill: favorite ? accentHex : 'none' }} />
+          </button>
+        </div>
+      ) : (
+        <div className="relative aspect-square shrink-0 rounded-sm p-[4%]" style={{ background: '#F4EFE4', boxShadow: '0 20px 40px -18px rgba(20,15,5,.4), 0 10px 20px -10px rgba(20,15,5,.25)' }}>
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            disabled={isPending}
+            aria-label={favorite ? (isAr ? 'إزالة من المفضلة' : 'Remove from wishlist') : (isAr ? 'أضف للمفضلة' : 'Add to wishlist')}
+            aria-pressed={favorite}
+            className="absolute top-2 end-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition disabled:opacity-60"
+            style={{ background: 'rgba(255,255,255,0.92)' }}
+          >
+            <Heart width={15} height={15} style={{ color: favorite ? accentHex : '#6B5B4E', fill: favorite ? accentHex : 'none' }} />
+          </button>
+          <div className="relative w-full h-full rounded-[2px] p-[3.6%]" style={{ background: accentHex }}>
+            <div className="relative w-full h-full rounded-[1px] overflow-hidden" style={{ background: '#F4F1EA' }}>
+              {product.imageUrl ? (
+                <Image
+                  src={product.imageUrl}
+                  alt={product.title}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-px w-8" style={{ background: '#E5DDD0' }} />
+                </div>
+              )}
+            </div>
           </div>
-        )}
-        <button
-          type="button"
-          onClick={handleToggleFavorite}
-          disabled={isPending}
-          aria-label={favorite ? (isAr ? 'إزالة من المفضلة' : 'Remove from wishlist') : (isAr ? 'أضف للمفضلة' : 'Add to wishlist')}
-          aria-pressed={favorite}
-          className="absolute top-2 end-2 flex h-8 w-8 items-center justify-center rounded-full transition disabled:opacity-60"
-          style={{ background: 'rgba(255,255,255,0.92)' }}
-        >
-          <Heart width={15} height={15} style={{ color: favorite ? accentHex : '#6B5B4E', fill: favorite ? accentHex : 'none' }} />
-        </button>
-      </div>
+        </div>
+      )}
 
       <div className={listView ? 'flex-1 flex items-center justify-between gap-3' : 'pt-3 space-y-1'}>
         <div>

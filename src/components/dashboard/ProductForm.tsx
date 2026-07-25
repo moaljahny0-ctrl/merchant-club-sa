@@ -14,6 +14,7 @@ type Props = {
 }
 
 const CATEGORIES = ['apparel', 'fragrance', 'home', 'beauty', 'jewelry', 'food', 'art', 'other'] as const
+const SIZES = ['S', 'M', 'L', 'XL', 'XXL'] as const
 
 export function ProductForm({ action, defaultValues, submitLabel, existingImages, locale = 'en' }: Props) {
   const t = dt(locale).product_form
@@ -21,6 +22,11 @@ export function ProductForm({ action, defaultValues, submitLabel, existingImages
   const [newPreviews, setNewPreviews] = useState<string[]>([])
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
   const [isDeleting, startDeleteTransition] = useTransition()
+  const [sizes, setSizes] = useState<string[]>(defaultValues?.sizes ?? [])
+
+  function toggleSize(s: string) {
+    setSizes(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
+  }
 
   const resolvedSubmitLabel = submitLabel ?? t.save_product
   const visibleImages = (existingImages ?? []).filter(img => !deletedIds.has(img.id))
@@ -118,6 +124,32 @@ export function ProductForm({ action, defaultValues, submitLabel, existingImages
             <option key={cat} value={cat}>{t[`cat_${cat}` as keyof typeof t]}</option>
           ))}
         </select>
+      </div>
+
+      {/* Sizes */}
+      <div>
+        <label className="block text-[13px] text-muted tracking-[0.2em] uppercase mb-2.5">
+          {t.label_sizes}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {SIZES.map(s => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => toggleSize(s)}
+              aria-pressed={sizes.includes(s)}
+              className={`h-10 min-w-11 px-3 rounded-lg border text-sm font-semibold transition-colors ${
+                sizes.includes(s)
+                  ? 'border-gold bg-gold/10 text-gold'
+                  : 'border-border text-muted hover:border-gold/50'
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <p className="text-[12px] text-muted/50 mt-2">{t.sizes_hint}</p>
+        {sizes.map(s => <input key={s} type="hidden" name="sizes" value={s} />)}
       </div>
 
       {/* Short description */}

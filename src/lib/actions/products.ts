@@ -210,6 +210,7 @@ export async function createProduct(
     const price = parseFloat(priceRaw)
     const stock_quantity = parseInt(formData.get('stock_quantity') as string, 10)
     const category = (formData.get('category') as string)?.trim() ?? ''
+    const sizes = formData.getAll('sizes').filter((s): s is string => typeof s === 'string' && s.length > 0)
     const imageFiles = formData.getAll('images').filter((f): f is File => f instanceof File && f.size > 0)
 
     if (!title_en || isNaN(price) || price < 0) {
@@ -231,6 +232,7 @@ export async function createProduct(
         price,
         stock_quantity: isNaN(stock_quantity) ? 1 : Math.max(0, stock_quantity),
         category,
+        sizes: sizes.length > 0 ? sizes : null,
         status: 'draft',
       })
       .select('id')
@@ -271,6 +273,7 @@ export async function updateProduct(
     const price = parseFloat(formData.get('price') as string)
     const stock_quantity = parseInt(formData.get('stock_quantity') as string, 10)
     const category = (formData.get('category') as string)?.trim() ?? ''
+    const sizes = formData.getAll('sizes').filter((s): s is string => typeof s === 'string' && s.length > 0)
     const imageFiles = formData.getAll('images').filter((f): f is File => f instanceof File && f.size > 0)
 
     if (!title_en || isNaN(price) || price < 0) {
@@ -300,6 +303,7 @@ export async function updateProduct(
         price,
         stock_quantity: isNaN(stock_quantity) ? 1 : Math.max(0, stock_quantity),
         category,
+        sizes: sizes.length > 0 ? sizes : null,
         ...(wasLive ? { status: 'submitted' } : {}),
       })
       .eq('id', id)

@@ -40,7 +40,7 @@ function OrderRowItem({ order, index, locale }: { order: OrderRow; index: number
   const status = order.status as OrderStatus
   const addr = order.delivery_address as { city?: string; address?: string } | null
   const items = Array.isArray(order.items)
-    ? (order.items as Array<{ title?: string; quantity?: number; total?: number }>)
+    ? (order.items as Array<{ title?: string; quantity?: number; total?: number; size?: string }>)
     : []
 
   const dateLocale = locale === 'ar' ? 'ar-SA' : 'en-SA'
@@ -112,7 +112,7 @@ function OrderRowItem({ order, index, locale }: { order: OrderRow; index: number
                 <div className="space-y-1.5">
                   {items.length > 0 ? items.map((item, i) => (
                     <div key={i} className="flex justify-between gap-4">
-                      <p className="text-parchment text-sm">{item.title ?? '—'} × {item.quantity ?? 1}</p>
+                      <p className="text-parchment text-sm">{item.title ?? '—'}{item.size ? ` (${item.size})` : ''} × {item.quantity ?? 1}</p>
                       <p className="text-muted text-sm shrink-0">SAR {Number(item.total ?? 0).toFixed(2)}</p>
                     </div>
                   )) : <p className="text-muted text-sm">—</p>}

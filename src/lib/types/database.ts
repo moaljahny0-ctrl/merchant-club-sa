@@ -129,6 +129,7 @@ export type Product = {
   track_inventory: boolean
   category: string
   tags: string[] | null
+  sizes: string[] | null
   status: ProductStatus
   rejection_reason: string | null
   rejection_code: string | null

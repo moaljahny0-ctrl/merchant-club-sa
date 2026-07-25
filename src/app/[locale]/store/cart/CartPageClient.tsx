@@ -39,7 +39,7 @@ export function CartPageClient({ locale }: Props) {
             {/* Line items */}
             <div className="divide-y" style={{ borderTop: '1px solid #E5DDD0', borderBottom: '1px solid #E5DDD0' }}>
               {items.map(item => (
-                <div key={item.productId} className="flex gap-4 py-5" style={{ borderColor: '#E5DDD0' }}>
+                <div key={`${item.productId}-${item.size ?? ''}`} className="flex gap-4 py-5" style={{ borderColor: '#E5DDD0' }}>
                   <div className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden" style={{ background: '#F0EBE1' }}>
                     {item.image_url ? (
                       <Image src={item.image_url} alt={item.productName} fill className="object-cover" sizes="96px" />
@@ -53,16 +53,21 @@ export function CartPageClient({ locale }: Props) {
                   <div className="flex-1 flex flex-col justify-between min-w-0">
                     <div>
                       <p className="text-[12px] uppercase tracking-wide" style={{ color: '#B8975A' }}>{item.brandName}</p>
-                      <p className="text-sm font-medium" style={{ color: '#1A1208' }}>{item.productName}</p>
+                      <p className="text-sm font-medium" style={{ color: '#1A1208' }}>
+                        {item.productName}
+                        {item.size && (
+                          <span className="text-xs font-normal" style={{ color: '#6B5B4E' }}> — {isAr ? 'مقاس' : 'Size'} {item.size}</span>
+                        )}
+                      </p>
                     </div>
                     <div className="flex items-center justify-between mt-3">
                       <QuantityStepper
                         quantity={item.quantity}
-                        onChange={qty => updateQuantity(item.productId, qty)}
+                        onChange={qty => updateQuantity(item.productId, qty, item.size)}
                       />
                       <button
                         type="button"
-                        onClick={() => removeItem(item.productId)}
+                        onClick={() => removeItem(item.productId, item.size)}
                         aria-label={isAr ? 'إزالة' : 'Remove item'}
                         className="text-[13px] transition-colors"
                         style={{ color: '#CC5555' }}

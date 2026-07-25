@@ -56,7 +56,7 @@ function generateOrderNumber(): string {
 // through one code path, regardless of which of those three callers first
 // sees the payment as `paid`.
 
-type CartSnapshotItem = { brandId: string; productId: string; quantity: number }
+type CartSnapshotItem = { brandId: string; productId: string; quantity: number; size?: string }
 
 type CartSnapshot = {
   cartItems: CartSnapshotItem[]
@@ -72,7 +72,7 @@ type CartSnapshot = {
 
 type ValidatedGroup = {
   brandId: string
-  orderItems: Array<{ product_id: string; title: string; quantity: number; unit_price: number; total: number }>
+  orderItems: Array<{ product_id: string; title: string; quantity: number; unit_price: number; total: number; size?: string }>
   subtotal: number
   brand: { name_en: string; contact_email: string | null } | null
 }
@@ -99,7 +99,12 @@ async function validateCartGroups(
       .in('id', productIds)
       .eq('status', 'live')
 
-    if (!products || products.length !== items.length) {
+    // .in('id', productIds) collapses to unique rows even when the same
+    // product appears twice in the cart (two different sizes) — compare
+    // by coverage, not array length, so a two-size order of one product
+    // isn't wrongly rejected.
+    const foundProductIds = new Set((products ?? []).map(p => p.id))
+    if (!products || productIds.some(pid => !foundProductIds.has(pid))) {
       return { error: 'One or more products are no longer available.' }
     }
 
@@ -125,6 +130,7 @@ async function validateCartGroups(
         quantity: cartItem.quantity,
         unit_price: unitPrice,
         total: itemTotal,
+        ...(cartItem.size ? { size: cartItem.size } : {}),
       })
     }
 
@@ -211,10 +217,11 @@ async function insertOrderForGroup(
       .eq('id', order.id)
   }
 
-  const firstTitle = group.orderItems[0].title
-  const firstQty = group.orderItems[0].quantity
+  const firstItem = group.orderItems[0]
+  const firstTitle = firstItem.title
+  const firstQty = firstItem.quantity
   const extraItems = group.orderItems.length > 1 ? ` +${group.orderItems.length - 1} more` : ''
-  const displayTitle = `${firstTitle}${extraItems}`
+  const displayTitle = `${firstTitle}${firstItem.size ? ` (${firstItem.size})` : ''}${extraItems}`
 
   if (snapshot.customerEmail) {
     sendOrderEmail({
@@ -369,6 +376,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
     brandId: i.brandId,
     productId: i.productId,
     quantity: i.quantity,
+    ...(i.size ? { size: i.size } : {}),
   }))
 
   const validated = await validateCartGroups(cartItems)

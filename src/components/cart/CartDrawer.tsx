@@ -83,7 +83,7 @@ export function CartDrawer() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {items.map(item => (
                 <CartItemRow
-                  key={item.productId}
+                  key={`${item.productId}-${item.size ?? ''}`}
                   item={item}
                   isAr={isAr}
                   onRemove={removeItem}
@@ -143,8 +143,8 @@ function CartItemRow({
 }: {
   item: CartItem;
   isAr: boolean;
-  onRemove: (id: string) => void;
-  onQty: (id: string, qty: number) => void;
+  onRemove: (id: string, size?: string) => void;
+  onQty: (id: string, qty: number, size?: string) => void;
 }) {
   return (
     <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
@@ -174,6 +174,9 @@ function CartItemRow({
         </p>
         <p style={{ fontSize: '16px', color: '#1A1208', marginBottom: '4px', lineHeight: 1.3 }}>
           {item.productName}
+          {item.size && (
+            <span style={{ fontSize: '13px', color: '#6B5B4E' }}> — {isAr ? 'مقاس' : 'Size'} {item.size}</span>
+          )}
         </p>
         <p style={{ fontSize: '16px', color: '#B8975A', fontWeight: 500, marginBottom: '10px' }}>
           {(item.price * item.quantity).toFixed(2)} {isAr ? 'ريال' : 'SAR'}
@@ -182,7 +185,7 @@ function CartItemRow({
         {/* Qty + remove */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <button
-            onClick={() => onQty(item.productId, item.quantity - 1)}
+            onClick={() => onQty(item.productId, item.quantity - 1, item.size)}
             style={{ width: '36px', height: '36px', border: '1px solid #E5DDD0', borderRadius: '8px', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
           >
             −
@@ -191,13 +194,13 @@ function CartItemRow({
             {item.quantity}
           </span>
           <button
-            onClick={() => onQty(item.productId, item.quantity + 1)}
+            onClick={() => onQty(item.productId, item.quantity + 1, item.size)}
             style={{ width: '36px', height: '36px', border: '1px solid #E5DDD0', borderRadius: '8px', background: 'none', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B5B4E', flexShrink: 0 }}
           >
             +
           </button>
           <button
-            onClick={() => onRemove(item.productId)}
+            onClick={() => onRemove(item.productId, item.size)}
             style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#CC5555', padding: '8px', minHeight: '36px', letterSpacing: '0.02em' }}
           >
             {isAr ? 'حذف' : 'Remove'}

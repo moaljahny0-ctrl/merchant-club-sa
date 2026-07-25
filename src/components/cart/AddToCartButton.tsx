@@ -14,27 +14,76 @@ type Props = {
   price: number;
   image_url: string | null;
   maxQty: number;
+  sizes?: string[] | null;
 };
 
 export function AddToCartButton({
-  productId, brandId, brandSlug, productName, brandName, price, image_url, maxQty,
+  productId, brandId, brandSlug, productName, brandName, price, image_url, maxQty, sizes,
 }: Props) {
   const locale = useLocale();
   const isAr = locale === 'ar';
   const { addItem, openCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [sizeError, setSizeError] = useState(false);
 
   const max = Math.min(maxQty, 10);
+  const hasSizes = Boolean(sizes && sizes.length > 0);
 
   function handleAdd() {
-    addItem({ productId, brandId, brandSlug, productName, brandName, price, image_url, quantity });
+    if (hasSizes && !selectedSize) {
+      setSizeError(true);
+      return;
+    }
+    addItem({
+      productId, brandId, brandSlug, productName, brandName, price, image_url, quantity,
+      size: selectedSize ?? undefined,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 3000);
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* Size selector */}
+      {hasSizes && (
+        <div>
+          <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6B5B4E', display: 'block', marginBottom: '8px' }}>
+            {isAr ? 'المقاس' : 'Size'}
+          </span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {sizes!.map(s => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => { setSelectedSize(s); setSizeError(false); }}
+                aria-pressed={selectedSize === s}
+                style={{
+                  height: '40px',
+                  minWidth: '44px',
+                  padding: '0 12px',
+                  borderRadius: '8px',
+                  border: `1px solid ${selectedSize === s ? '#B8975A' : '#E5DDD0'}`,
+                  background: selectedSize === s ? '#FBF6EC' : 'transparent',
+                  color: '#1A1208',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          {sizeError && (
+            <p style={{ fontSize: '12px', color: '#CC5555', marginTop: '6px' }}>
+              {isAr ? 'الرجاء اختيار مقاس' : 'Please select a size'}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Quantity selector */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
         <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6B5B4E', marginRight: '16px' }}>

@@ -149,7 +149,6 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
   }]
 
   const isEditorial = tokens.layout === 'editorial'
-  const cardBorderStyle = tokens.cardStyle === 'bordered' ? '1px solid #E5DDD0' : 'none'
   const cardShadowStyle = tokens.cardStyle === 'elevated' ? '0 10px 24px -14px rgba(26,18,8,0.18)' : 'none'
 
   // Hero — brand header card, breadcrumb, and (editorial layout) full-width banner.
@@ -282,12 +281,16 @@ export default async function BrandStorefrontPage({ params, searchParams }: Prop
                   return (
                     <Link key={product.id} href={`/brands/${slug}/products/${product.id}`} className="group flex flex-col cursor-pointer">
                       <div
-                        className="relative aspect-[3/4] overflow-hidden transition-shadow duration-200 group-hover:shadow-md"
-                        style={{ background: '#F0EBE1', borderRadius: 'var(--mc-radius)', border: cardBorderStyle, boxShadow: cardShadowStyle }}
+                        className="relative aspect-[3/4] rounded-sm p-[4%] transition-shadow duration-200"
+                        style={{ background: '#F4EFE4', boxShadow: '0 20px 40px -18px rgba(20,15,5,.4), 0 10px 20px -10px rgba(20,15,5,.25)' }}
                       >
-                        {primaryImage && (
-                          <Image src={primaryImage.url} alt={title} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" sizes="(max-width: 768px) 50vw, 25vw" />
-                        )}
+                        <div className="relative w-full h-full rounded-[2px] p-[3.6%]" style={{ background: accentHex }}>
+                          <div className="relative w-full h-full rounded-[1px] overflow-hidden" style={{ background: '#F4F1EA' }}>
+                            {primaryImage && (
+                              <Image src={primaryImage.url} alt={title} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" sizes="(max-width: 768px) 50vw, 25vw" />
+                            )}
+                          </div>
+                        </div>
                       </div>
                       <p className="text-base font-medium leading-snug pt-3" style={{ color: 'var(--mc-primary)' }}>{title}</p>
                     </Link>

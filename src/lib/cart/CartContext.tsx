@@ -11,7 +11,14 @@ export type CartItem = {
   price: number;
   quantity: number;
   image_url: string | null;
+  size?: string;
 };
+
+// Two items are the same cart line only if both productId and size match —
+// different sizes of the same product are separate lines, not merged.
+function isSameLine(a: { productId: string; size?: string }, b: { productId: string; size?: string }): boolean {
+  return a.productId === b.productId && (a.size ?? '') === (b.size ?? '');
+}
 
 type CartState = {
   items: CartItem[];
@@ -20,8 +27,8 @@ type CartState = {
 
 type CartAction =
   | { type: 'ADD_ITEM'; item: CartItem }
-  | { type: 'REMOVE_ITEM'; productId: string }
-  | { type: 'UPDATE_QTY'; productId: string; quantity: number }
+  | { type: 'REMOVE_ITEM'; productId: string; size?: string }
+  | { type: 'UPDATE_QTY'; productId: string; size?: string; quantity: number }
   | { type: 'CLEAR' }
   | { type: 'SET_ITEMS'; items: CartItem[] }
   | { type: 'OPEN' }
@@ -30,12 +37,12 @@ type CartAction =
 function reducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existing = state.items.find(i => i.productId === action.item.productId);
+      const existing = state.items.find(i => isSameLine(i, action.item));
       if (existing) {
         return {
           ...state,
           items: state.items.map(i =>
-            i.productId === action.item.productId
+            isSameLine(i, action.item)
               ? { ...i, quantity: Math.min(10, i.quantity + action.item.quantity) }
               : i
           ),
@@ -44,15 +51,15 @@ function reducer(state: CartState, action: CartAction): CartState {
       return { ...state, items: [...state.items, action.item] };
     }
     case 'REMOVE_ITEM':
-      return { ...state, items: state.items.filter(i => i.productId !== action.productId) };
+      return { ...state, items: state.items.filter(i => !isSameLine(i, action)) };
     case 'UPDATE_QTY':
       if (action.quantity <= 0) {
-        return { ...state, items: state.items.filter(i => i.productId !== action.productId) };
+        return { ...state, items: state.items.filter(i => !isSameLine(i, action)) };
       }
       return {
         ...state,
         items: state.items.map(i =>
-          i.productId === action.productId ? { ...i, quantity: Math.min(10, action.quantity) } : i
+          isSameLine(i, action) ? { ...i, quantity: Math.min(10, action.quantity) } : i
         ),
       };
     case 'CLEAR':
@@ -72,8 +79,8 @@ type CartContextType = {
   count: number;
   subtotal: number;
   addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (productId: string, size?: string) => void;
+  updateQuantity: (productId: string, quantity: number, size?: string) => void;
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -109,12 +116,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'ADD_ITEM', item: { ...item, quantity: item.quantity ?? 1 } });
   }, []);
 
-  const removeItem = useCallback((productId: string) => {
-    dispatch({ type: 'REMOVE_ITEM', productId });
+  const removeItem = useCallback((productId: string, size?: string) => {
+    dispatch({ type: 'REMOVE_ITEM', productId, size });
   }, []);
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
-    dispatch({ type: 'UPDATE_QTY', productId, quantity });
+  const updateQuantity = useCallback((productId: string, quantity: number, size?: string) => {
+    dispatch({ type: 'UPDATE_QTY', productId, quantity, size });
   }, []);
 
   const clearCart = useCallback(() => dispatch({ type: 'CLEAR' }), []);

@@ -8,7 +8,7 @@ import type { OrderStatus } from '@/lib/types/database';
 
 type Props = { params: Promise<{ locale: string }> };
 
-type OrderItem = { title?: string; quantity?: number };
+type OrderItem = { title?: string; quantity?: number; size?: string };
 
 type OrderRow = {
   id: string;
@@ -103,6 +103,7 @@ export default async function AccountPage({ params }: Props) {
                 const items = Array.isArray(order.items) ? (order.items as OrderItem[]) : [];
                 const productTitle = items[0]?.title ?? 'Order';
                 const qty = items[0]?.quantity ?? 1;
+                const size = items[0]?.size;
                 const phone = order.customer_phone ?? '';
                 const trackUrl = `/track-order?order=${encodeURIComponent(order.order_number)}&phone=${encodeURIComponent(phone)}`;
 
@@ -120,7 +121,7 @@ export default async function AccountPage({ params }: Props) {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                       <div>
                         <p style={{ color: '#1A1208', fontSize: '16px', fontWeight: 500, marginBottom: '4px' }}>
-                          {productTitle}{qty > 1 ? ` × ${qty}` : ''}
+                          {productTitle}{size ? ` (${size})` : ''}{qty > 1 ? ` × ${qty}` : ''}
                         </p>
                         <p style={{ color: '#6B5B4E', fontSize: '14px' }}>
                           #{order.order_number} · {formatDate(order.created_at)}
