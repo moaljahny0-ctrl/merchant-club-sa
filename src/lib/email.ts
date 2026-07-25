@@ -25,7 +25,7 @@ function shell(content: string): string {
         <tr>
           <td style="padding:28px 40px 22px;border-bottom:1px solid #efefed;text-align:center;">
             <img src="${SITE_URL}/logo.png" alt="Merchant Club SA" width="36" height="36"
-                 style="display:block;margin:0 auto 10px;border-radius:50%;" />
+                 style="display:block;margin:0 auto 10px;" />
             <p style="margin:0;font-size:9px;letter-spacing:0.38em;text-transform:uppercase;color:#b8975a;">
               Merchant Club SA
             </p>
