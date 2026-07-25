@@ -2,28 +2,21 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { sendBrandPasswordReset } from '@/lib/actions/brand-auth'
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError(null)
 
     startTransition(async () => {
-      const supabase = createClient()
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/auth/invite`,
-      })
-      if (error) {
-        setError(error.message)
-      } else {
-        setSent(true)
-      }
+      await sendBrandPasswordReset(email)
+      // Always show the "check your email" state, regardless of whether
+      // the account exists — don't leak which emails are registered.
+      setSent(true)
     })
   }
 
@@ -59,8 +52,6 @@ export default function ResetPasswordPage() {
                 placeholder="you@example.com"
               />
             </div>
-
-            {error && <p className="text-red-400 text-sm">{error}</p>}
 
             <button
               type="submit"

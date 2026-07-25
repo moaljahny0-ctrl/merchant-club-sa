@@ -34,6 +34,7 @@ export function LoginForm() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') ?? '/dashboard/brand'
   const linkExpired = searchParams.get('error') === 'link_expired'
+  const resetSuccess = searchParams.get('reset') === 'success'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -63,6 +64,14 @@ export function LoginForm() {
         <div style={{ border: '1px solid rgba(184,151,90,0.3)', background: 'rgba(184,151,90,0.08)', borderRadius: '8px', padding: '12px 14px' }}>
           <p style={{ color: '#8C6A2E', fontSize: '14px', lineHeight: 1.5 }}>
             That login link has expired. Enter your email and password to sign in.
+          </p>
+        </div>
+      )}
+
+      {resetSuccess && (
+        <div style={{ border: '1px solid rgba(76,175,125,0.3)', background: 'rgba(76,175,125,0.08)', borderRadius: '8px', padding: '12px 14px' }}>
+          <p style={{ color: '#2E7D4F', fontSize: '14px', lineHeight: 1.5 }}>
+            Your password has been updated. Sign in with your new password.
           </p>
         </div>
       )}

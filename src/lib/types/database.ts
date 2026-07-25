@@ -245,6 +245,15 @@ export type CustomerResetToken = {
   created_at: string
 }
 
+export type BrandPasswordResetToken = {
+  id: string
+  user_id: string
+  token_hash: string
+  expires_at: string
+  used_at: string | null
+  created_at: string
+}
+
 export type Order = {
   id: string
   brand_id: string
@@ -307,6 +316,7 @@ export type Database = {
       creator_links: TableDef<CreatorLink, Omit<CreatorLink, 'id' | 'created_at'>>
       customers: TableDef<Customer, Omit<Customer, 'id' | 'created_at' | 'updated_at'>>
       customer_reset_tokens: TableDef<CustomerResetToken, Omit<CustomerResetToken, 'id' | 'created_at'>>
+      brand_password_reset_tokens: TableDef<BrandPasswordResetToken, Omit<BrandPasswordResetToken, 'id' | 'created_at'>>
       orders: TableDef<Order, Omit<Order, 'id' | 'created_at' | 'updated_at'>>
       analytics_events: TableDef<AnalyticsEvent, Omit<AnalyticsEvent, 'id' | 'created_at'>>
     }
