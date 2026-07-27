@@ -43,8 +43,9 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
   const images = (product.product_images as ProductImage[]) ?? []
   const sortedImages = [...images].sort((a, b) => a.sort_order - b.sort_order)
 
-  const canEdit = true
+  const canEdit = product.status !== 'submitted'
   const canSubmit = ['draft', 'rejected'].includes(product.status)
+  const canWithdraw = product.status === 'submitted'
 
   return (
     <div className="p-6 md:p-10 max-w-3xl">
@@ -96,6 +97,7 @@ export default async function ProductEditPage({ params, searchParams }: Props) {
         product={product as Product}
         canEdit={canEdit}
         canSubmit={canSubmit}
+        canWithdraw={canWithdraw}
         existingImages={sortedImages}
         locale={locale}
       />

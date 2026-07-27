@@ -11,12 +11,13 @@ type Props = {
   submitLabel?: string
   existingImages?: ProductImage[]
   locale?: DashLang
+  disabled?: boolean
 }
 
 const CATEGORIES = ['apparel', 'fragrance', 'home', 'beauty', 'jewelry', 'food', 'art', 'other'] as const
 const SIZES = ['S', 'M', 'L', 'XL', 'XXL'] as const
 
-export function ProductForm({ action, defaultValues, submitLabel, existingImages, locale = 'en' }: Props) {
+export function ProductForm({ action, defaultValues, submitLabel, existingImages, locale = 'en', disabled = false }: Props) {
   const t = dt(locale).product_form
   const [state, formAction, isPending] = useActionState(action, { error: null })
   const [newPreviews, setNewPreviews] = useState<string[]>([])
@@ -48,7 +49,8 @@ export function ProductForm({ action, defaultValues, submitLabel, existingImages
   }
 
   return (
-    <form action={formAction} className="space-y-7 max-w-xl">
+    <form action={formAction} className="max-w-xl">
+    <fieldset disabled={disabled} className="contents space-y-7">
 
       {state.error && (
         <div className="border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -241,6 +243,7 @@ export function ProductForm({ action, defaultValues, submitLabel, existingImages
         </button>
       </div>
 
+    </fieldset>
     </form>
   )
 }

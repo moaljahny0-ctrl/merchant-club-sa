@@ -293,6 +293,9 @@ export async function updateProduct(
       .single()
 
     if (!current) return { error: 'Product not found.' }
+    if (current.status === 'submitted') {
+      return { error: 'This product is locked while under review. Withdraw the submission first if you need to make changes.' }
+    }
     const wasLive = current.status === 'live'
 
     const { error } = await supabase
@@ -382,6 +385,41 @@ export async function submitProductForReview(id: string): Promise<{ error: strin
         console.error('[products] Submission email failed:', emailErr)
       }
     }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unexpected error' }
+  }
+
+  revalidatePath('/dashboard/brand/products')
+  revalidatePath(`/dashboard/brand/products/${id}`)
+  return { error: null }
+}
+
+// ── withdraw submission ───────────────────────────────────────────────────────
+
+export async function withdrawProductSubmission(id: string): Promise<{ error: string | null }> {
+  try {
+    const brandId = await getActiveBrandId()
+    const supabase = await createClient()
+
+    const { data: product } = await supabase
+      .from('products')
+      .select('status')
+      .eq('id', id)
+      .eq('brand_id', brandId)
+      .single()
+
+    if (!product) return { error: 'Product not found.' }
+    if (product.status !== 'submitted') {
+      return { error: 'Only a submitted product can be withdrawn.' }
+    }
+
+    const { error } = await supabase
+      .from('products')
+      .update({ status: 'draft' })
+      .eq('id', id)
+      .eq('brand_id', brandId)
+
+    if (error) return { error: error.message }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Unexpected error' }
   }

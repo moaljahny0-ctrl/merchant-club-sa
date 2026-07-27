@@ -357,6 +357,9 @@ const dict = {
       btn_delete:          'Delete product',
       btn_deleting:        'Deleting…',
       confirm_delete:      'Delete this product? This cannot be undone.',
+      btn_withdraw:        'Withdraw submission',
+      btn_withdrawing:     'Withdrawing…',
+      confirm_withdraw:    'Withdraw this submission? You can edit it and resubmit afterward.',
     },
     product_new_page: {
       back:                '← Products',
@@ -785,6 +788,9 @@ const dict = {
       btn_delete:          'حذف المنتج',
       btn_deleting:        'جارٍ الحذف…',
       confirm_delete:      'هل تريد حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.',
+      btn_withdraw:        'سحب الطلب',
+      btn_withdrawing:     'جارٍ السحب…',
+      confirm_withdraw:    'سحب هذا الطلب من المراجعة؟ يمكنك تعديله وإعادة إرساله لاحقاً.',
     },
     product_new_page: {
       back:                'المنتجات →',
