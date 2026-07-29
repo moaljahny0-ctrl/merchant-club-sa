@@ -9,22 +9,36 @@ import { AdminThemeCtx } from './AdminTheme'
 
 const PAGE_NAMES: Record<string, string> = {
   '/dashboard/admin':              'Dashboard',
-  '/dashboard/admin/brands':       'Brands',
+  '/dashboard/admin/brands':       'Partners',
   '/dashboard/admin/applications': 'Applications',
   '/dashboard/admin/products':     'Products',
   '/dashboard/admin/categories':   'Categories',
+  '/dashboard/admin/inventory':    'Inventory',
   '/dashboard/admin/orders':       'Orders',
   '/dashboard/admin/members':      'Members',
+  '/dashboard/admin/reports':      'Reports',
+  '/dashboard/admin/reviews':      'Reviews',
+  '/dashboard/admin/marketing':    'Marketing',
+  '/dashboard/admin/discounts':    'Discounts',
+  '/dashboard/admin/messages':     'Messages',
+  '/dashboard/admin/settings':     'Settings',
 }
 
 const NAV = [
-  { label: 'Overview',     href: '/dashboard/admin' },
-  { label: 'Brands',       href: '/dashboard/admin/brands',       badgeKey: 'brands'      as const },
-  { label: 'Applications', href: '/dashboard/admin/applications', badgeKey: 'pendingApps' as const, badgeRed: true },
-  { label: 'Products',     href: '/dashboard/admin/products' },
-  { label: 'Categories',   href: '/dashboard/admin/categories' },
-  { label: 'Orders',       href: '/dashboard/admin/orders' },
-  { label: 'Members',      href: '/dashboard/admin/members' },
+  { label: 'Overview',     href: '/dashboard/admin',              icon: '⬛' },
+  { label: 'Partners',     href: '/dashboard/admin/brands',       icon: '🤝', badgeKey: 'brands'      as const },
+  { label: 'Applications', href: '/dashboard/admin/applications', icon: '📋', badgeKey: 'pendingApps' as const, badgeRed: true },
+  { label: 'Products',     href: '/dashboard/admin/products',     icon: '📦' },
+  { label: 'Categories',   href: '/dashboard/admin/categories',   icon: '▦' },
+  { label: 'Inventory',    href: '/dashboard/admin/inventory',    icon: '📊' },
+  { label: 'Orders',       href: '/dashboard/admin/orders',       icon: '🛍' },
+  { label: 'Members',      href: '/dashboard/admin/members',      icon: '👥' },
+  { label: 'Reports',      href: '/dashboard/admin/reports',      icon: '📈' },
+  { label: 'Reviews',      href: '/dashboard/admin/reviews',      icon: '⭐' },
+  { label: 'Marketing',    href: '/dashboard/admin/marketing',    icon: '📣' },
+  { label: 'Discounts',    href: '/dashboard/admin/discounts',    icon: '🏷' },
+  { label: 'Messages',     href: '/dashboard/admin/messages',     icon: '✉️' },
+  { label: 'Settings',     href: '/dashboard/admin/settings',     icon: '⚙️' },
 ]
 
 function parseEmail(email: string) {
@@ -156,7 +170,7 @@ export function AdminDashboardShell({ children, userEmail, adminBadges }: Props)
                   href={item.href}
                   className={`a-nav-item${active ? ' a-active' : ''}`}
                 >
-                  <span className="a-nav-dot" />
+                  <span className="a-nav-icon">{item.icon}</span>
                   {item.label}
                   {badge > 0 && (
                     <span className={`a-badge${item.badgeRed ? ' a-badge-red' : ''}`}>
@@ -205,7 +219,7 @@ export function AdminDashboardShell({ children, userEmail, adminBadges }: Props)
                     value={query}
                     onChange={e => handleQueryChange(e.target.value)}
                     onFocus={() => query.length >= 2 && setShowResults(true)}
-                    placeholder="Search brands, orders…"
+                    placeholder="Search partners, orders…"
                     aria-label="Search"
                     autoComplete="off"
                   />
@@ -221,7 +235,7 @@ export function AdminDashboardShell({ children, userEmail, adminBadges }: Props)
                       <>
                         {results.brands.length > 0 && (
                           <div className="a-search-section">
-                            <div className="a-search-section-label">Brands</div>
+                            <div className="a-search-section-label">Partners</div>
                             {results.brands.map(r => (
                               <div
                                 key={r.id}

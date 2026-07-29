@@ -34,6 +34,7 @@ const brandNavHrefs = [
   { key: 'storefront' as const, href: '/dashboard/brand/storefront' },
   { key: 'appearance' as const, href: '/dashboard/brand/appearance' },
   { key: 'analytics'  as const, href: '/dashboard/brand/analytics' },
+  { key: 'messages'   as const, href: '/dashboard/brand/messages' },
   { key: 'profile'    as const, href: '/dashboard/brand/profile' },
 ]
 
@@ -43,9 +44,10 @@ const creatorNavHrefs = [
 
 const adminNav = [
   { label: 'Overview',      href: '/dashboard/admin' },
-  { label: 'Brands',        href: '/dashboard/admin/brands' },
+  { label: 'Partners',      href: '/dashboard/admin/brands' },
   { label: 'Applications',  href: '/dashboard/admin/applications' },
   { label: 'Products',      href: '/dashboard/admin/products' },
+  { label: 'Inventory',     href: '/dashboard/admin/inventory' },
   { label: 'Orders',        href: '/dashboard/admin/orders' },
 ]
 

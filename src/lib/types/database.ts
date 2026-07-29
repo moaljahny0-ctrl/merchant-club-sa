@@ -333,3 +333,76 @@ export type ProductWithImages = Product & { product_images: ProductImage[] }
 export type BrandWithStorefront = Brand & { storefronts: Storefront | null }
 
 export type OrderWithCreator = Order & { creator_links: Pick<CreatorLink, 'link_code' | 'commission_rate'> | null }
+
+// ─── Dashboard expansion (013) ───────────────────────────────────────────────
+
+export type PlatformSettings = {
+  id: true
+  site_name: string
+  support_email: string
+  maintenance_mode: boolean
+  commission_rate_pct: number
+  low_stock_default_threshold: number
+  updated_by: string | null
+  updated_at: string
+}
+
+export type ReviewStatus = 'pending' | 'approved' | 'rejected'
+
+export type Review = {
+  id: string
+  product_id: string
+  customer_id: string
+  order_id: string | null
+  rating: number
+  comment: string | null
+  status: ReviewStatus
+  moderated_by: string | null
+  moderated_at: string | null
+  created_at: string
+}
+
+export type DiscountType = 'percent' | 'fixed'
+
+export type DiscountCode = {
+  id: string
+  code: string
+  description: string | null
+  discount_type: DiscountType
+  value: number
+  min_order_amount: number
+  max_uses: number | null
+  used_count: number
+  starts_at: string | null
+  ends_at: string | null
+  active: boolean
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type MessageSenderType = 'admin' | 'brand'
+
+export type Message = {
+  id: string
+  brand_id: string
+  sender_type: MessageSenderType
+  sender_id: string
+  body: string
+  read_at: string | null
+  created_at: string
+}
+
+export type MarketingBanner = {
+  id: string
+  title: string
+  subtitle: string | null
+  image_url: string | null
+  link_url: string | null
+  is_active: boolean
+  sort_order: number
+  starts_at: string | null
+  ends_at: string | null
+  created_at: string
+  updated_at: string
+}

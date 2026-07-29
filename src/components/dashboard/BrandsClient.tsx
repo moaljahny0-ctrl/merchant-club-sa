@@ -52,7 +52,7 @@ export function BrandsClient({ brands }: { brands: Brand[] }) {
   return (
     <>
       <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: '22px', fontWeight: 700, color: 'var(--text)', margin: '0 0 16px' }}>
-        Brands
+        Partners
       </h1>
 
       {submittedCount > 0 && (

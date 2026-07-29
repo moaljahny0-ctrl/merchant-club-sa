@@ -80,17 +80,19 @@ export default async function DashboardLayout({ children }: Props) {
   const isRtl = dashLocale === 'ar'
 
   return (
-    <div lang={dashLocale} dir={isRtl ? 'rtl' : 'ltr'} className={`${inter.variable} ${hanazad.variable}`}>
-      <DashboardShell
-        isAdmin={isAdmin}
-        brand={brand as { id: string; name_en: string; status: string; onboarding_state: string } | null}
-        isCreator={isCreator}
-        userEmail={user.email ?? ''}
-        adminBadges={adminBadges}
-        locale={dashLocale}
-      >
-        {children}
-      </DashboardShell>
-    </div>
+    <html lang={dashLocale} dir={isRtl ? 'rtl' : 'ltr'} className={`${inter.variable} ${hanazad.variable}`}>
+      <body>
+        <DashboardShell
+          isAdmin={isAdmin}
+          brand={brand as { id: string; name_en: string; status: string; onboarding_state: string } | null}
+          isCreator={isCreator}
+          userEmail={user.email ?? ''}
+          adminBadges={adminBadges}
+          locale={dashLocale}
+        >
+          {children}
+        </DashboardShell>
+      </body>
+    </html>
   )
 }

@@ -9,6 +9,7 @@ const dict = {
       storefront: 'Storefront',
       appearance: 'Appearance',
       analytics:  'Analytics',
+      messages:   'Messages',
       profile:    'Profile',
     },
     shell: {
@@ -440,6 +441,7 @@ const dict = {
       storefront: 'المتجر',
       appearance: 'المظهر',
       analytics:  'التحليلات',
+      messages:   'الرسائل',
       profile:    'الملف الشخصي',
     },
     shell: {
